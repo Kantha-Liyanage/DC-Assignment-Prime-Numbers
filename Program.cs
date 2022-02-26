@@ -62,7 +62,7 @@ namespace HelloWorld
                         recv = stream.Read(bytes, 0, tcpClient.SendBufferSize);
                         received += System.Text.Encoding.ASCII.GetString(bytes, 0, recv);
 
-                        if (received.EndsWith("\r\n\r\n") || recv ==0)
+                        if (recv > 0 || recv ==0)
                         {
                             break;
                         }
