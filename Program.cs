@@ -84,6 +84,10 @@ namespace HelloWorld
             }  
         }
 
+        private void getHTTPMethod(){}
+
+        private void getHTTPRequestURL(){}
+
         private void send200Response(TcpClient tcpClient, byte[] payload){
             StringBuilder header = new StringBuilder();
             header.Append("HTTP/1.1 200 OK\r\n");
