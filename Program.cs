@@ -23,10 +23,10 @@ namespace HelloWorld
         public AppNode(string ip, int port){
             this.ip = ip;
             this.port = port;
-            init();
+            initHTTPServer();
         }
 
-        private void init(){
+        private void initHTTPServer(){
             try  
             {  
                 //start listing on the given port  
@@ -35,7 +35,7 @@ namespace HelloWorld
                 Console.WriteLine("AppNode Web Server:" + this.port + " Started!");  
                 //start the thread which calls the method 'StartListen'  
                 Thread listenerThread = new Thread(
-                    new ThreadStart(listen)
+                    new ThreadStart(listenToHTTPRequest)
                 );  
                 listenerThread.Start();  
             }  
@@ -45,7 +45,7 @@ namespace HelloWorld
             }  
         }
 
-        private void listen(){
+        private void listenToHTTPRequest(){
             while (true){
                 TcpClient tcpClient = tcpListener.AcceptTcpClient();  
                 if (tcpClient.Connected)  {
