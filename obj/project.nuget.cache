@@ -1,8 +1,17 @@
 {
   "version": 2,
-  "dgSpecHash": "DUIbY/5bRqCh7Z50TrLemNWPkIBoekwZ/VAzVNg4qBYo+FukkRA09NVK2DxWYphTEBMN75/mLzmPGVYRCAUqbw==",
+  "dgSpecHash": "IvI+UpruvpQaOm4iM3cGx8PATZSXOSGA7mPZ/hSWmPZRFHvaQxRJCvuFc0Pkt5ThhO3UBeI8O4AEUOkO905ipg==",
   "success": true,
   "projectFilePath": "/home/kantha/Documents/GitHub/DC-Assignment-Prime-Numbers /DC-Assignment-Prime-Numbers.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/home/kantha/.nuget/packages/dnsclient/1.4.0/dnsclient.1.4.0.nupkg.sha512",
+    "/home/kantha/.nuget/packages/mongodb.bson/2.14.1/mongodb.bson.2.14.1.nupkg.sha512",
+    "/home/kantha/.nuget/packages/mongodb.driver/2.14.1/mongodb.driver.2.14.1.nupkg.sha512",
+    "/home/kantha/.nuget/packages/mongodb.driver.core/2.14.1/mongodb.driver.core.2.14.1.nupkg.sha512",
+    "/home/kantha/.nuget/packages/mongodb.libmongocrypt/1.3.0/mongodb.libmongocrypt.1.3.0.nupkg.sha512",
+    "/home/kantha/.nuget/packages/sharpcompress/0.30.1/sharpcompress.0.30.1.nupkg.sha512",
+    "/home/kantha/.nuget/packages/system.buffers/4.5.1/system.buffers.4.5.1.nupkg.sha512",
+    "/home/kantha/.nuget/packages/system.runtime.compilerservices.unsafe/5.0.0/system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512"
+  ],
   "logs": []
 }

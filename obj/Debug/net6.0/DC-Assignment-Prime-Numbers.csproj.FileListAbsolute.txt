@@ -13,3 +13,4 @@
 /home/kantha/Documents/GitHub/DC-Assignment-Prime-Numbers /obj/Debug/net6.0/DC-Assignment-Prime-Numbers.pdb
 /home/kantha/Documents/GitHub/DC-Assignment-Prime-Numbers /obj/Debug/net6.0/DC-Assignment-Prime-Numbers.genruntimeconfig.cache
 /home/kantha/Documents/GitHub/DC-Assignment-Prime-Numbers /obj/Debug/net6.0/ref/DC-Assignment-Prime-Numbers.dll
+/home/kantha/Documents/GitHub/DC-Assignment-Prime-Numbers /obj/Debug/net6.0/DC-Assignment-Prime-Numbers.csproj.CopyComplete

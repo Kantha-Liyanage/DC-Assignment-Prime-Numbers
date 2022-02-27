@@ -1,13 +1,19 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using dc.assignment.primenumbers.logger;
 using dc.assignment.primenumbers.models;
 
 namespace dc.assignment.primenumbers{
     class Program{
         static void Main(string[] args)
         {
+            KLogger logger = new KLogger();
+
             new AppNode("127.0.0.1",5050);
+            logger.log("127.0.0.1:5050", "AppNode created");
+
             new AppNode("127.0.0.1",5051);
+            logger.log("127.0.0.1:5051", "AppNode created");
         }
     }
 
