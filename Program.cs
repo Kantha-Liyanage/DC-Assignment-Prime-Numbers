@@ -2,11 +2,10 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using dc.assignment.primenumbers.models;
 
-namespace HelloWorld
-{
-    class Program
-    {
+namespace dc.assignment.primenumbers{
+    class Program{
         static void Main(string[] args)
         {
             new AppNode("127.0.0.1",5050);
@@ -68,6 +67,7 @@ namespace HelloWorld
                         }
                     }
                     Console.WriteLine("Received:\n" + received);
+                    new KHTTPRequest(received);
                     
                     // method 1
                     //byte[] serverMessageAsByteArray = Encoding.ASCII.GetBytes("{\"msg\":\"Hurray!\"}"); 				
