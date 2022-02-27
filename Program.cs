@@ -67,7 +67,7 @@ namespace dc.assignment.primenumbers{
                         }
                     }
                     Console.WriteLine("Received:\n" + received);
-                    new KHTTPRequest(received);
+                    KHTTPRequest request = new KHTTPRequest(received);
                     
                     // method 1
                     //byte[] serverMessageAsByteArray = Encoding.ASCII.GetBytes("{\"msg\":\"Hurray!\"}"); 				
