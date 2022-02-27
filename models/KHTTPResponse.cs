@@ -1,0 +1,42 @@
+using System.Net.Sockets;
+using System.Text;
+using System.Text.Json;
+
+namespace dc.assignment.primenumbers.models{
+    class KHTTPResponse{
+        private HTTPResponseCode code;
+        private Object payload;
+        public KHTTPResponse(HTTPResponseCode code, Object payload){
+            this.code = code;
+            this.payload = payload;
+        }
+
+        public void send(TcpClient tcpClient){
+            string jsonString = JsonSerializer.Serialize(this.payload);
+            byte[] payloadBytes = Encoding.ASCII.GetBytes(jsonString);
+
+            StringBuilder header = new StringBuilder();
+            switch(this.code){
+                case HTTPResponseCode.OK_200:
+                    header.Append("HTTP/1.1 200 OK\r\n");break;
+                case HTTPResponseCode.Not_Found_404:
+                    header.Append("HTTP/1.1 404 Not Found\r\n");break;
+                default: 
+                    header.Append("HTTP/1.1 500 Internal Server Error\r\n");break;
+            }
+            
+            header.Append("Content-Type: application/json\r\n");
+            header.Append("Content-Length: " + payloadBytes.Length + "\r\n\n");
+            byte[] headerBytes = Encoding.ASCII.GetBytes(header.ToString());
+
+            tcpClient.GetStream().Write(headerBytes, 0, headerBytes.Length);
+            tcpClient.GetStream().Write(payloadBytes, 0, payloadBytes.Length);
+        }
+    }
+
+    enum HTTPResponseCode{
+        OK_200,
+        Not_Found_404,
+        Internal_Server_Error_500
+    }
+}

@@ -1,7 +1,5 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Text.Json;
 using dc.assignment.primenumbers.models;
 
 namespace dc.assignment.primenumbers{
@@ -14,7 +12,6 @@ namespace dc.assignment.primenumbers{
     }
 
     class AppNode{
-
         private TcpListener tcpListener; 
         private string ip;
         private int port; 
@@ -67,50 +64,24 @@ namespace dc.assignment.primenumbers{
                         }
                     }
                     Console.WriteLine("Received:\n" + received);
+
                     KHTTPRequest request = new KHTTPRequest(received);
                     
-                    // method 1
-                    //byte[] serverMessageAsByteArray = Encoding.ASCII.GetBytes("{\"msg\":\"Hurray!\"}"); 				
-                    //send200Response(tcpClient, serverMessageAsByteArray);
-                    
-                    // method 2
-                    var msg = new {
-                        message = "hurray! Simplified"
-                    };	
-                    send200Response(tcpClient, msg);
+                    processRequest(request, tcpClient);
                     
                     tcpClient.Close();
                 }
             }  
         }
 
-        private void getHTTPMethod(){}
-
-        private void getHTTPRequestURL(){}
-
-        private void send200Response(TcpClient tcpClient, byte[] payload){
-            StringBuilder header = new StringBuilder();
-            header.Append("HTTP/1.1 200 OK\r\n");
-            header.Append("Content-Type: application/json\r\n");
-            header.Append("Content-Length: " + payload.Length + "\r\n\n");
-            byte[] headerBytes = Encoding.ASCII.GetBytes(header.ToString());
-
-            tcpClient.GetStream().Write(headerBytes, 0, headerBytes.Length);
-            tcpClient.GetStream().Write(payload, 0, payload.Length);
-        }
-
-        private void send200Response(TcpClient tcpClient, Object obj){
-            string jsonString = JsonSerializer.Serialize(obj);
-            byte[] payload = Encoding.ASCII.GetBytes(jsonString);
-
-            StringBuilder header = new StringBuilder();
-            header.Append("HTTP/1.1 200 OK\r\n");
-            header.Append("Content-Type: application/json\r\n");
-            header.Append("Content-Length: " + payload.Length + "\r\n\n");
-            byte[] headerBytes = Encoding.ASCII.GetBytes(header.ToString());
-
-            tcpClient.GetStream().Write(headerBytes, 0, headerBytes.Length);
-            tcpClient.GetStream().Write(payload, 0, payload.Length);
+        private void processRequest(KHTTPRequest request, TcpClient tcpClient){
+            var msg = new {
+                message = request.resourceURL
+            };	
+                    
+            KHTTPResponse reponse = new KHTTPResponse(HTTPResponseCode.OK_200, msg);
+            
+            reponse.send(tcpClient);
         }
     }
 }

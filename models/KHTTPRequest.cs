@@ -5,6 +5,7 @@ namespace dc.assignment.primenumbers.models{
         private HTTPMethod _httpMethod;
         private string _resourceURL;
         private List<KeyValuePair<string,string>> _headers = new List<KeyValuePair<string, string>>();
+        private List<KeyValuePair<string,string>> _params = new List<KeyValuePair<string, string>>();
         private string _bodyContent;
 
         public KHTTPRequest(string requestData){
@@ -21,8 +22,21 @@ namespace dc.assignment.primenumbers.models{
             //Resource URL
             int j = requestData.IndexOf("HTTP/");
             str1 = requestData.Substring(i+1, j-i-1);
-            str1 = str1.Trim();
-            _resourceURL = str1;
+            string completeURL = str1.Trim();
+            if(completeURL.IndexOf('?')>-1){
+                string[] urlParts = completeURL.Split('?');
+                _resourceURL = urlParts[0];
+
+                //Params
+                string[] paramsStr = urlParts[1].Split("&");
+                for(int x=0;x<paramsStr.Length;x++){
+                    string[] keyValueStr = paramsStr[x].Split('=');
+                    _params.Add(new KeyValuePair<string, string>(keyValueStr[0], keyValueStr[1].Trim()));
+                }
+            }
+            else{
+                _resourceURL = completeURL;
+            }
 
             //Other headers and body
             string[] parts = requestData.Split("\r\n");
@@ -40,6 +54,7 @@ namespace dc.assignment.primenumbers.models{
         public HTTPMethod httpMethod { get => _httpMethod; }
         public string resourceURL { get => _resourceURL; }
         public List<KeyValuePair<string,string>> headers { get => _headers; }
+        public List<KeyValuePair<string,string>> urlParams { get => _params; }
         public string bodyContent { get => _bodyContent; }
     }
 
