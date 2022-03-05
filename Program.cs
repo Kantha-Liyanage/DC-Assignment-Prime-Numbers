@@ -7,11 +7,17 @@ namespace dc.assignment.primenumbers{
 
         static void Main(string[] args)
         {
+            if(args.Length != 2){
+                Console.WriteLine("Invalid input.");
+                return;
+            }
+
             Program.logger = new KLogger();
+            string ip = args[0];
+            int port = int.Parse(args[1]);
 
-            AppNode node = new AppNode("127.0.0.1",5050);
-            Program.logger.log("Node ID:" + node.id, node.toString());
+            AppNode node = new AppNode(ip,port);
+            Program.logger.log(node.id, node.getAddress(), "AppNode created.");
         }
-
     }
 }

@@ -10,9 +10,10 @@ namespace dc.assignment.primenumbers.utils.logger{
             _logsCollection = mongoDatabase.GetCollection<KLog>("logs");
         }
 
-        public void log(string node, string message){
+        public void log(Int64 nodeId, string nodeAddress, string message){
             KLog log = new KLog();
-            log.node = node;
+            log.nodeId = nodeId;
+            log.nodeAddress = nodeAddress;
             log.timestamp = "now";
             log.message = message;
             Task task = logAsync(log);

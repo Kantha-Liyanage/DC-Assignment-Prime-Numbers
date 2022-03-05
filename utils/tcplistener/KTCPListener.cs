@@ -42,8 +42,7 @@ namespace dc.assignment.primenumbers.utils.tcplistener{
 
             while (true){
                 TcpClient tcpClient = tcpListener.AcceptTcpClient();  
-                if (tcpClient.Connected)  {
-                    Console.WriteLine("A client connected from " + tcpClient?.Client?.RemoteEndPoint?.ToString()); 
+                if (tcpClient.Connected)  { 
                     if(tcpClient == null){
                         continue;
                     }
@@ -63,16 +62,16 @@ namespace dc.assignment.primenumbers.utils.tcplistener{
                             break;
                         }
                     }
-                    Console.WriteLine("Data received:\n" + received);
 
                     // prepare custom request object 
                     KHTTPRequest request = new KHTTPRequest(received);
+                    Console.WriteLine("A "+ request.httpMethod + " request came from client at " + tcpClient?.Client?.RemoteEndPoint?.ToString());
                     
                     // event call for request processing
                     onClientRequest?.Invoke(this, new KTCPListenerEventArgs(request, tcpClient));
 
                     // mandatory to close the client connection
-                    tcpClient.Close();
+                    tcpClient?.Close();
                 }
             }  
         }

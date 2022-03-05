@@ -11,7 +11,7 @@ namespace dc.assignment.primenumbers.utils.tcplistener{
             this.payload = payload;
         }
 
-        public void send(TcpClient tcpClient){
+        public void send(TcpClient? tcpClient){
             string jsonString = JsonSerializer.Serialize(this.payload);
             byte[] payloadBytes = Encoding.ASCII.GetBytes(jsonString);
 
@@ -29,8 +29,8 @@ namespace dc.assignment.primenumbers.utils.tcplistener{
             header.Append("Content-Length: " + payloadBytes.Length + "\r\n\n");
             byte[] headerBytes = Encoding.ASCII.GetBytes(header.ToString());
 
-            tcpClient.GetStream().Write(headerBytes, 0, headerBytes.Length);
-            tcpClient.GetStream().Write(payloadBytes, 0, payloadBytes.Length);
+            tcpClient?.GetStream().Write(headerBytes, 0, headerBytes.Length);
+            tcpClient?.GetStream().Write(payloadBytes, 0, payloadBytes.Length);
         }
     }
 

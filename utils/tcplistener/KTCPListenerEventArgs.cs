@@ -5,9 +5,9 @@ namespace dc.assignment.primenumbers.utils.tcplistener{
     class KTCPListenerEventArgs : EventArgs {
 
         public KHTTPRequest request { get; } 
-        public TcpClient tcpClient { get; }
+        public TcpClient? tcpClient { get; }
 
-        public KTCPListenerEventArgs(KHTTPRequest request, TcpClient tcpClient){
+        public KTCPListenerEventArgs(KHTTPRequest request, TcpClient? tcpClient){
             this.request = request;
             this.tcpClient = tcpClient;
         }
