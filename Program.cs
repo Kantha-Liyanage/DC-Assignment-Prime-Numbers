@@ -1,29 +1,17 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using dc.assignment.primenumbers.utils;
-using dc.assignment.primenumbers.models;
+﻿using dc.assignment.primenumbers.utils.logger;
 
 namespace dc.assignment.primenumbers{
     class Program{
 
-        public static KLogger logger;
+        public static KLogger? logger;
 
         static void Main(string[] args)
         {
             Program.logger = new KLogger();
 
-            KTCPListener tcpl = new KTCPListener("127.0.0.1",5050);
-            tcpl.onClientRequest += processClientRequest;
+            AppNode node = new AppNode("127.0.0.1",5050);
+            Program.logger.log("Node ID:" + node.id, node.toString());
         }
 
-        private static void processClientRequest(object? sender, KTCPListenerEventArgs e)
-        {
-            var msg = new {
-                message = e.request.resourceURL
-            };	
-                    
-            KHTTPResponse reponse = new KHTTPResponse(HTTPResponseCode.OK_200, msg);
-            reponse.send(e.tcpClient);
-        }
     }
 }

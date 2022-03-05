@@ -1,6 +1,6 @@
 using MongoDB.Driver;
 
-namespace dc.assignment.primenumbers.utils{
+namespace dc.assignment.primenumbers.utils.logger{
 
     class KLogger{
         IMongoCollection<KLog> _logsCollection;
@@ -15,7 +15,8 @@ namespace dc.assignment.primenumbers.utils{
             log.node = node;
             log.timestamp = "now";
             log.message = message;
-            logAsync(log);
+            Task task = logAsync(log);
+            task.Wait();
         }
 
         private async Task logAsync(KLog log){

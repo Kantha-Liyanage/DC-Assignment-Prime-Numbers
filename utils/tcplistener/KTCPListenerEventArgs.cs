@@ -1,7 +1,6 @@
 using System.Net.Sockets;
-using dc.assignment.primenumbers.models;
 
-namespace dc.assignment.primenumbers.utils{
+namespace dc.assignment.primenumbers.utils.tcplistener{
 
     class KTCPListenerEventArgs : EventArgs {
 

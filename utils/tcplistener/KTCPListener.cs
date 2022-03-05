@@ -1,14 +1,13 @@
 using System.Net;
 using System.Net.Sockets;
-using dc.assignment.primenumbers.models;
 
-namespace dc.assignment.primenumbers.utils{
+namespace dc.assignment.primenumbers.utils.tcplistener{
 
     class KTCPListener{
-        private TcpListener tcpListener; 
-        private string ipAddress;
+        private TcpListener? tcpListener; 
+        private string ipAddress = "";
         private int port; 
-        public event EventHandler<KTCPListenerEventArgs> onClientRequest;
+        public event EventHandler<KTCPListenerEventArgs>? onClientRequest;
 
         public KTCPListener(string ipAddress, int port){
             this.ipAddress = ipAddress;
@@ -37,11 +36,17 @@ namespace dc.assignment.primenumbers.utils{
         }
 
         private void listenToHTTPRequest(){
+            if(tcpListener == null){
+                return;
+            }
+
             while (true){
                 TcpClient tcpClient = tcpListener.AcceptTcpClient();  
                 if (tcpClient.Connected)  {
-                    Console.WriteLine("A client connected from " + tcpClient.Client.RemoteEndPoint.ToString()); 
-
+                    Console.WriteLine("A client connected from " + tcpClient?.Client?.RemoteEndPoint?.ToString()); 
+                    if(tcpClient == null){
+                        continue;
+                    }
                     NetworkStream stream = tcpClient.GetStream();
                     StreamReader reader = new StreamReader(stream);
 

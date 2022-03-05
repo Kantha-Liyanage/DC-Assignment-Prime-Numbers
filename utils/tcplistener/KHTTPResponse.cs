@@ -2,7 +2,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 
-namespace dc.assignment.primenumbers.models{
+namespace dc.assignment.primenumbers.utils.tcplistener{
     class KHTTPResponse{
         private HTTPResponseCode code;
         private Object payload;

@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace dc.assignment.primenumbers.utils{
+namespace dc.assignment.primenumbers.utils.logger{
     class KLog{
 
         [BsonId]

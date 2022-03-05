@@ -1,4 +1,4 @@
-namespace dc.assignment.primenumbers.models{
+namespace dc.assignment.primenumbers.utils.tcplistener{
 
     class KHTTPRequest{
 
@@ -6,7 +6,7 @@ namespace dc.assignment.primenumbers.models{
         private string _resourceURL;
         private List<KeyValuePair<string,string>> _headers = new List<KeyValuePair<string, string>>();
         private List<KeyValuePair<string,string>> _params = new List<KeyValuePair<string, string>>();
-        private string _bodyContent;
+        private string _bodyContent = "";
 
         public KHTTPRequest(string requestData){
             //HTTP Method
