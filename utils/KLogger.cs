@@ -1,6 +1,6 @@
 using MongoDB.Driver;
 
-namespace dc.assignment.primenumbers.logger{
+namespace dc.assignment.primenumbers.utils{
 
     class KLogger{
         IMongoCollection<KLog> _logsCollection;
