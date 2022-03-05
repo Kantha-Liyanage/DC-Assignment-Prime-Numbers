@@ -25,6 +25,7 @@ namespace dc.assignment.primenumbers{
             return this.ipAddress + ":" + this.port;
         }
 
+        // API calls routings handler
         private void processClientRequest(object? sender, KTCPListenerEventArgs e)
         {
             KHTTPResponse reponse;
@@ -45,6 +46,7 @@ namespace dc.assignment.primenumbers{
             reponse.send(e.tcpClient);
         }
 
+        // API: check
         private KHTTPResponse handleRequestCheck(List<KeyValuePair<string, string>> urlParams)
         {
             if(this.primeNumberChecker != null){
@@ -79,6 +81,7 @@ namespace dc.assignment.primenumbers{
             }
         }
 
+        // API: abort
         private KHTTPResponse handleRequestAbort()
         {
             if(this.primeNumberChecker != null){
@@ -91,11 +94,13 @@ namespace dc.assignment.primenumbers{
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Already idle."});
         }
 
+        // Inform: prime number NOT detected
         private void primeNumberNotDetected(object? sender, PrimeNumberNotDetectedEventArgs e)
         {
             
         }
 
+        // Inform: prime number detected
         private void primeNumberDetected(object? sender, EventArgs e)
         {
             
