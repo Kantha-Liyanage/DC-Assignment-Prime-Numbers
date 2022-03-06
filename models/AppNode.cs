@@ -26,6 +26,20 @@ namespace dc.assignment.primenumbers.models{
             this.primeNumberChecker = new PrimeNumberChecker();
             this.primeNumberChecker.onPrimeNumberDetected += primeNumberDetected;
             this.primeNumberChecker.onPrimeNumberNotDetected += primeNumberNotDetected;
+
+            // start lifecycle method
+            var worker = new Thread(() => { 
+                process();
+            });
+            worker.Start();
+        }
+
+        // lifecycle method
+        private void process(){
+            while(true){
+                Thread.Sleep(1000);
+                Console.WriteLine("I'm alive.");
+            }
         }
 
         public string getAddress(){
@@ -62,17 +76,15 @@ namespace dc.assignment.primenumbers.models{
                 return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being chekced currently." });
             }
 
-            // convert body string to object
             try{
+                // convert body string to object
                 CheckRequestDTO? dto = JsonSerializer.Deserialize<CheckRequestDTO>(body);
                 bool accepted = this.primeNumberChecker.check(dto.theNumber,dto.fromNumber,dto.toNumber);
                 if(accepted){
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
                 }
             }
-            catch(Exception er){
-                
-            }
+            catch(Exception er){}
 
             return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. Invalid input." });
         }
