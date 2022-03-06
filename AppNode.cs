@@ -24,6 +24,8 @@ namespace dc.assignment.primenumbers{
 
             // prime number checker
             this.primeNumberChecker = new PrimeNumberChecker();
+            this.primeNumberChecker.onPrimeNumberDetected += primeNumberDetected;
+            this.primeNumberChecker.onPrimeNumberNotDetected += primeNumberNotDetected;
         }
 
         public string getAddress(){
@@ -62,18 +64,14 @@ namespace dc.assignment.primenumbers{
                 CheckRequestDTO? dto = JsonSerializer.Deserialize<CheckRequestDTO>(body);
                 bool accepted = this.primeNumberChecker.check(dto.theNumber,dto.fromNumber,dto.toNumber);
                 if(accepted){
-                    this.primeNumberChecker.onPrimeNumberDetected += primeNumberDetected;
-                    this.primeNumberChecker.onPrimeNumberNotDetected += primeNumberNotDetected;
-
-                    return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted" });
-                }
-                else{
-                    return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. Invalid input." });
+                    return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
                 }
             }
             catch(Exception er){
-                return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. Invalid input." });
+                
             }
+
+            return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. Invalid input." });
         }
 
         // API: abort
