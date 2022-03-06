@@ -1,13 +1,13 @@
 using System.Text.Json;
 using dc.assignment.primenumbers.dto;
-using dc.assignment.primenumbers.models;
 using dc.assignment.primenumbers.utils.tcplistener;
 
-namespace dc.assignment.primenumbers{
+namespace dc.assignment.primenumbers.models{
     public class AppNode {
         public Int64 id {get;}
         private string ipAddress;
         private int port;
+        // aggregations
         KTCPListener tcpListener;
         PrimeNumberChecker primeNumberChecker;
         public AppNode(string ipAddress, int port){
@@ -42,6 +42,9 @@ namespace dc.assignment.primenumbers{
             }
             else if(e.request.resourceURL.Equals("abort") && e.request.httpMethod == HTTPMethod.POST){
                 reponse = handleRequestAbort();
+            }
+            else if(e.request.resourceURL.Equals("health") && e.request.httpMethod == HTTPMethod.GET){
+                reponse = handleRequestHealth();
             }
             else{
                 reponse = new KHTTPResponse(HTTPResponseCode.Not_Found_404, new { message = "Resource not found" });
@@ -83,6 +86,11 @@ namespace dc.assignment.primenumbers{
             }
 
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Already idle."});
+        }
+
+        // API: health
+        private KHTTPResponse handleRequestHealth(){
+            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "AppNode is healthy."});
         }
 
         // Inform: prime number NOT detected

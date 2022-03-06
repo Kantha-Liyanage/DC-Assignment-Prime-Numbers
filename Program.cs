@@ -1,4 +1,5 @@
-﻿using dc.assignment.primenumbers.utils.logger;
+﻿using dc.assignment.primenumbers.models;
+using dc.assignment.primenumbers.utils.logger;
 
 namespace dc.assignment.primenumbers{
     class Program{
