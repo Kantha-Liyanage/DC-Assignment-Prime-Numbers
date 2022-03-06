@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace dc.assignment.primenumbers.utils.tcplistener{
 
     class KHTTPRequest{

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using MongoDB.Driver;
 
 namespace dc.assignment.primenumbers.utils.logger{
@@ -10,7 +11,7 @@ namespace dc.assignment.primenumbers.utils.logger{
             _logsCollection = mongoDatabase.GetCollection<KLog>("logs");
         }
 
-        public void log(Int64 nodeId, string nodeAddress, string message){
+        public void log(int nodeId, string nodeAddress, string message){
             KLog log = new KLog();
             log.nodeId = nodeId;
             log.nodeAddress = nodeAddress;

@@ -1,10 +1,12 @@
+using System;
 using System.Text.Json;
+using System.Threading;
 using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.utils.tcplistener;
 
 namespace dc.assignment.primenumbers.models{
     public class AppNode {
-        public Int64 id {get;}
+        public int id {get;}
         private string ipAddress;
         private int port;
         // aggregations
@@ -13,7 +15,8 @@ namespace dc.assignment.primenumbers.models{
         public AppNode(string ipAddress, int port){
             // get node id
             Random random = new Random();
-            this.id = Int64.Parse(DateTime.Now.ToString("yyyyMMddHHmmssffff")) + random.Next(1, 100);
+            //yyyyMMdd
+            this.id = int.Parse(DateTime.Now.ToString("HHmmssffff")) + random.Next(1, 100);
 
             this.ipAddress = ipAddress;
             this.port = port;

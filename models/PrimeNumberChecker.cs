@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+
 namespace dc.assignment.primenumbers.models{
 
     class PrimeNumberChecker{
