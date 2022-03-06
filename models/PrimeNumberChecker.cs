@@ -1,19 +1,13 @@
 namespace dc.assignment.primenumbers.models{
 
     class PrimeNumberChecker{
-
-        private int theNumber;
-        private int fromNumber;
-        private int toNumber;
         private bool _isChecking;
         private bool _abort;
         public event EventHandler? onPrimeNumberDetected;
         public event EventHandler<PrimeNumberNotDetectedEventArgs>? onPrimeNumberNotDetected;
-        public PrimeNumberChecker(int theNumber, int fromNumber, int toNumber){
-            this.theNumber = theNumber;
-            this.fromNumber = fromNumber;
-            this.toNumber = toNumber;
+        public PrimeNumberChecker(){
             this._isChecking = false;
+            this._abort = false;
         }
 
         public bool isChecking(){
@@ -21,11 +15,12 @@ namespace dc.assignment.primenumbers.models{
         }
 
         public void abort(){
+            this._isChecking = false;
             this._abort = true;
         }
 
-        public bool start(){
-            if(!isValidInput()){
+        public bool check(int theNumber, int fromNumber, int toNumber){
+            if(!isValidInput(theNumber, fromNumber, toNumber)){
                 return false;
             }
 
@@ -34,18 +29,18 @@ namespace dc.assignment.primenumbers.models{
 
             var thread = new Thread(() => { 
                 // work of the work
-                int currentNumber = this.fromNumber;
+                int currentNumber = fromNumber;
                 bool isPrimeNumber = true;
 
-                while(currentNumber <= this.toNumber){
+                while(currentNumber <= toNumber){
                     // abort check
                     if(this._abort){
                         break;
                     }
                     
-                    Thread.Sleep(1);
-                    if(this.theNumber % currentNumber == 0){
-                        if(this.theNumber == currentNumber){
+                    //Thread.Sleep(1);
+                    if(theNumber % currentNumber == 0){
+                        if(theNumber == currentNumber){
                             isPrimeNumber = true;
                             break;
                         }
@@ -74,7 +69,7 @@ namespace dc.assignment.primenumbers.models{
             return true;
         }
 
-        private bool isValidInput(){
+        private bool isValidInput(int theNumber, int fromNumber, int toNumber){
             if(theNumber <=2 || fromNumber <= 1 ||toNumber <= 1){
                 return false;
             }

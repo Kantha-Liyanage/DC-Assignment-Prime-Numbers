@@ -1,3 +1,5 @@
+using System.Text.Json;
+using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.models;
 using dc.assignment.primenumbers.utils.tcplistener;
 
@@ -19,6 +21,9 @@ namespace dc.assignment.primenumbers{
             // TCP Listener
             this.tcpListener = new KTCPListener(this.ipAddress,this.port);
             this.tcpListener.onClientRequest += processClientRequest;
+
+            // prime number checker
+            this.primeNumberChecker = new PrimeNumberChecker();
         }
 
         public string getAddress(){
@@ -30,16 +35,14 @@ namespace dc.assignment.primenumbers{
         {
             KHTTPResponse reponse;
 
-            switch(e.request.resourceURL){
-                case "check": 
-                    reponse = handleRequestCheck(e.request.urlParams);
-                    break;
-                case "abort":
-                    reponse = handleRequestAbort();
-                    break;
-                default: 
-                    reponse = new KHTTPResponse(HTTPResponseCode.Not_Found_404, new { message = "Resource not found" });
-                    break;
+            if(e.request.resourceURL.Equals("check") && e.request.httpMethod == HTTPMethod.POST){
+                reponse = handleRequestCheck(e.request.bodyContent);
+            }
+            else if(e.request.resourceURL.Equals("abort") && e.request.httpMethod == HTTPMethod.POST){
+                reponse = handleRequestAbort();
+            }
+            else{
+                reponse = new KHTTPResponse(HTTPResponseCode.Not_Found_404, new { message = "Resource not found" });
             }
 
             // send response
@@ -47,25 +50,17 @@ namespace dc.assignment.primenumbers{
         }
 
         // API: check
-        private KHTTPResponse handleRequestCheck(List<KeyValuePair<string, string>> urlParams)
+        private KHTTPResponse handleRequestCheck(string body)
         {
-            if(this.primeNumberChecker != null){
-                if(this.primeNumberChecker.isChecking()){
-                    return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being chekced currently." });
-                }
+            // already working on somthing?
+            if(this.primeNumberChecker.isChecking()){
+                return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being chekced currently." });
             }
 
-            // urlParams Ex: number=12345&from=0&to=5000
+            // convert body string to object
             try{
-                string theNumberValue = urlParams.Find(x=>(x.Key.Equals("number"))).Value;
-                int theNumber = int.Parse(theNumberValue);
-                string fromValue = urlParams.Find(x=>(x.Key.Equals("from"))).Value;
-                int fromNumber = int.Parse(fromValue);
-                string toValue = urlParams.Find(x=>(x.Key.Equals("to"))).Value;
-                int toNumber = int.Parse(toValue);
-
-                this.primeNumberChecker = new PrimeNumberChecker(theNumber,fromNumber,toNumber);
-                bool accepted = this.primeNumberChecker.start();
+                CheckRequestDTO? dto = JsonSerializer.Deserialize<CheckRequestDTO>(body);
+                bool accepted = this.primeNumberChecker.check(dto.theNumber,dto.fromNumber,dto.toNumber);
                 if(accepted){
                     this.primeNumberChecker.onPrimeNumberDetected += primeNumberDetected;
                     this.primeNumberChecker.onPrimeNumberNotDetected += primeNumberNotDetected;
@@ -84,11 +79,9 @@ namespace dc.assignment.primenumbers{
         // API: abort
         private KHTTPResponse handleRequestAbort()
         {
-            if(this.primeNumberChecker != null){
-                if(this.primeNumberChecker.isChecking()){
-                    this.primeNumberChecker.abort();
-                    return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Checking aborted." });
-                }
+            if(this.primeNumberChecker.isChecking()){
+                this.primeNumberChecker.abort();
+                return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Checking aborted." });
             }
 
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Already idle."});
