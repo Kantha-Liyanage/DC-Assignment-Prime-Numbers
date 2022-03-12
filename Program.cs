@@ -26,13 +26,6 @@ namespace dc.assignment.primenumbers
 
             AppNode node = new AppNode("127.0.0.1", 5050);
             Program.logger.log(node.id, node.getAddress(), "AppNode created.");
-
-            NumbersFileHandler nfh = new NumbersFileHandler("data/numbers.txt", "data/status.txt");
-            int number = nfh.getNextNumber();
-            Console.WriteLine("Number:" + number);
-
-            number = nfh.getNextNumber();
-            Console.WriteLine("Number:" + number);
         }
     }
 }

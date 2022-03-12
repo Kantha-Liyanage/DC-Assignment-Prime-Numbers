@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading;
 using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.models;
+using dc.assignment.primenumbers.utils.filehandler;
 using dc.assignment.primenumbers.utils.tcplistener;
 
 namespace dc.assignment.primenumbers
@@ -10,11 +11,13 @@ namespace dc.assignment.primenumbers
     public class AppNode
     {
         public int id { get; }
+        public AppNodeType type { get; }
         private string ipAddress;
         private int port;
         // aggregations
         KTCPListener tcpListener;
         PrimeNumberChecker primeNumberChecker;
+        NumbersFileHandler numbersDatFileHandler;
         public AppNode(string ipAddress, int port)
         {
             // get node id
@@ -34,6 +37,11 @@ namespace dc.assignment.primenumbers
             this.primeNumberChecker.onPrimeNumberDetected += primeNumberDetected;
             this.primeNumberChecker.onPrimeNumberNotDetected += primeNumberNotDetected;
 
+            // numbers data file
+            this.numbersDatFileHandler = new NumbersFileHandler("data/numbers.txt", "data/status.txt");
+
+            this.type = AppNodeType.Initial;
+
             // start lifecycle method
             var worker = new Thread(() =>
             {
@@ -49,6 +57,10 @@ namespace dc.assignment.primenumbers
             {
                 Thread.Sleep(1000);
                 Console.WriteLine("I'm alive.");
+
+                // check for Master
+                // no master, run an election
+
             }
         }
 
@@ -57,20 +69,30 @@ namespace dc.assignment.primenumbers
             return this.ipAddress + ":" + this.port;
         }
 
+        //===============================================================================
+        // HTTP APIs of AppNode
+        //===============================================================================
+
         // API calls routings handler
         private void processClientRequest(object? sender, KTCPListenerEventArgs e)
         {
             KHTTPResponse reponse;
+            string service = e.request.resourceURL;
+            HTTPMethod method = e.request.httpMethod;
 
-            if (e.request.resourceURL.Equals("check") && e.request.httpMethod == HTTPMethod.POST)
+            if (service.Equals("transform") && method == HTTPMethod.POST)
+            {
+                reponse = handleRequestTransform(e.request.bodyContent);
+            }
+            else if (service.Equals("check") && method == HTTPMethod.POST)
             {
                 reponse = handleRequestCheck(e.request.bodyContent);
             }
-            else if (e.request.resourceURL.Equals("abort") && e.request.httpMethod == HTTPMethod.POST)
+            else if (service.Equals("abort") && method == HTTPMethod.POST)
             {
                 reponse = handleRequestAbort();
             }
-            else if (e.request.resourceURL.Equals("health") && e.request.httpMethod == HTTPMethod.GET)
+            else if (service.Equals("health") && method == HTTPMethod.GET)
             {
                 reponse = handleRequestHealth();
             }
@@ -81,6 +103,12 @@ namespace dc.assignment.primenumbers
 
             // send response
             reponse.send(e.tcpClient);
+        }
+
+        // API: node transform
+        private KHTTPResponse handleRequestTransform(string bodyContent)
+        {
+            throw new NotImplementedException();
         }
 
         // API: check
@@ -96,7 +124,7 @@ namespace dc.assignment.primenumbers
             {
                 // convert body string to object
                 CheckRequestDTO? dto = JsonSerializer.Deserialize<CheckRequestDTO>(body);
-                bool accepted = this.primeNumberChecker.check(dto.theNumber, dto.fromNumber, dto.toNumber);
+                bool accepted = this.checkNumber(dto.theNumber, dto.fromNumber, dto.toNumber);
                 if (accepted)
                 {
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
@@ -125,6 +153,18 @@ namespace dc.assignment.primenumbers
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "AppNode is healthy." });
         }
 
+        //===============================================================================
+        // Master section
+        //===============================================================================
+
+        //===============================================================================
+        // Proposer section
+        //===============================================================================
+        private bool checkNumber(int theNumber, int fromNumber, int toNumber)
+        {
+            return this.primeNumberChecker.check(theNumber, fromNumber, toNumber);
+        }
+
         // Inform: prime number NOT detected
         private void primeNumberNotDetected(object? sender, PrimeNumberNotDetectedEventArgs e)
         {
@@ -136,6 +176,22 @@ namespace dc.assignment.primenumbers
         {
 
         }
+
+        //===============================================================================
+        // Acceptor section
+        //===============================================================================
+
+        //===============================================================================
+        // Learner section
+        //===============================================================================
     }
 
+    public enum AppNodeType
+    {
+        Master,
+        Proposer,
+        Acceptor,
+        Learner,
+        Initial // not assigned yet
+    }
 }
