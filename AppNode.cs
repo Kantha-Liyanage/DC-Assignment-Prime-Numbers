@@ -2,17 +2,21 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using dc.assignment.primenumbers.dto;
+using dc.assignment.primenumbers.models;
 using dc.assignment.primenumbers.utils.tcplistener;
 
-namespace dc.assignment.primenumbers.models{
-    public class AppNode {
-        public int id {get;}
+namespace dc.assignment.primenumbers
+{
+    public class AppNode
+    {
+        public int id { get; }
         private string ipAddress;
         private int port;
         // aggregations
         KTCPListener tcpListener;
         PrimeNumberChecker primeNumberChecker;
-        public AppNode(string ipAddress, int port){
+        public AppNode(string ipAddress, int port)
+        {
             // get node id
             Random random = new Random();
             //yyyyMMdd
@@ -22,7 +26,7 @@ namespace dc.assignment.primenumbers.models{
             this.port = port;
 
             // TCP Listener
-            this.tcpListener = new KTCPListener(this.ipAddress,this.port);
+            this.tcpListener = new KTCPListener(this.ipAddress, this.port);
             this.tcpListener.onClientRequest += processClientRequest;
 
             // prime number checker
@@ -31,21 +35,25 @@ namespace dc.assignment.primenumbers.models{
             this.primeNumberChecker.onPrimeNumberNotDetected += primeNumberNotDetected;
 
             // start lifecycle method
-            var worker = new Thread(() => { 
+            var worker = new Thread(() =>
+            {
                 process();
             });
             worker.Start();
         }
 
         // lifecycle method
-        private void process(){
-            while(true){
+        private void process()
+        {
+            while (true)
+            {
                 Thread.Sleep(1000);
                 Console.WriteLine("I'm alive.");
             }
         }
 
-        public string getAddress(){
+        public string getAddress()
+        {
             return this.ipAddress + ":" + this.port;
         }
 
@@ -54,16 +62,20 @@ namespace dc.assignment.primenumbers.models{
         {
             KHTTPResponse reponse;
 
-            if(e.request.resourceURL.Equals("check") && e.request.httpMethod == HTTPMethod.POST){
+            if (e.request.resourceURL.Equals("check") && e.request.httpMethod == HTTPMethod.POST)
+            {
                 reponse = handleRequestCheck(e.request.bodyContent);
             }
-            else if(e.request.resourceURL.Equals("abort") && e.request.httpMethod == HTTPMethod.POST){
+            else if (e.request.resourceURL.Equals("abort") && e.request.httpMethod == HTTPMethod.POST)
+            {
                 reponse = handleRequestAbort();
             }
-            else if(e.request.resourceURL.Equals("health") && e.request.httpMethod == HTTPMethod.GET){
+            else if (e.request.resourceURL.Equals("health") && e.request.httpMethod == HTTPMethod.GET)
+            {
                 reponse = handleRequestHealth();
             }
-            else{
+            else
+            {
                 reponse = new KHTTPResponse(HTTPResponseCode.Not_Found_404, new { message = "Resource not found" });
             }
 
@@ -75,19 +87,22 @@ namespace dc.assignment.primenumbers.models{
         private KHTTPResponse handleRequestCheck(string body)
         {
             // already working on somthing?
-            if(this.primeNumberChecker.isChecking()){
+            if (this.primeNumberChecker.isChecking())
+            {
                 return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being chekced currently." });
             }
 
-            try{
+            try
+            {
                 // convert body string to object
                 CheckRequestDTO? dto = JsonSerializer.Deserialize<CheckRequestDTO>(body);
-                bool accepted = this.primeNumberChecker.check(dto.theNumber,dto.fromNumber,dto.toNumber);
-                if(accepted){
+                bool accepted = this.primeNumberChecker.check(dto.theNumber, dto.fromNumber, dto.toNumber);
+                if (accepted)
+                {
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
                 }
             }
-            catch(Exception er){}
+            catch (Exception er) { }
 
             return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. Invalid input." });
         }
@@ -95,29 +110,31 @@ namespace dc.assignment.primenumbers.models{
         // API: abort
         private KHTTPResponse handleRequestAbort()
         {
-            if(this.primeNumberChecker.isChecking()){
+            if (this.primeNumberChecker.isChecking())
+            {
                 this.primeNumberChecker.abort();
                 return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Checking aborted." });
             }
 
-            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Already idle."});
+            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Already idle." });
         }
 
         // API: health
-        private KHTTPResponse handleRequestHealth(){
-            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "AppNode is healthy."});
+        private KHTTPResponse handleRequestHealth()
+        {
+            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "AppNode is healthy." });
         }
 
         // Inform: prime number NOT detected
         private void primeNumberNotDetected(object? sender, PrimeNumberNotDetectedEventArgs e)
         {
-            
+
         }
 
         // Inform: prime number detected
         private void primeNumberDetected(object? sender, EventArgs e)
         {
-            
+
         }
     }
 
