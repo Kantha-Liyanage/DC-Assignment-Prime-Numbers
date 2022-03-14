@@ -15,7 +15,13 @@ namespace dc.assignment.primenumbers.utils.tcplistener
             this.payload = payload;
         }
 
-        public void send(TcpClient? tcpClient)
+        public KHTTPResponse(Object payload)
+        {
+            this.code = HTTPResponseCode.OK_200;
+            this.payload = payload;
+        }
+
+        public void sendJSON(TcpClient? tcpClient)
         {
             string jsonString = JsonSerializer.Serialize(this.payload);
             byte[] payloadBytes = Encoding.ASCII.GetBytes(jsonString);
@@ -34,6 +40,22 @@ namespace dc.assignment.primenumbers.utils.tcplistener
             }
 
             header.Append("Content-Type: application/json\r\n");
+            header.Append("Content-Length: " + payloadBytes.Length + "\r\n\n");
+            byte[] headerBytes = Encoding.ASCII.GetBytes(header.ToString());
+
+            tcpClient?.GetStream().Write(headerBytes, 0, headerBytes.Length);
+            tcpClient?.GetStream().Write(payloadBytes, 0, payloadBytes.Length);
+
+            Console.WriteLine("HTTP Status " + this.code + " returned.");
+        }
+
+        public void sendHTML(TcpClient? tcpClient)
+        {
+            byte[] payloadBytes = Encoding.ASCII.GetBytes(this.payload.ToString());
+
+            StringBuilder header = new StringBuilder();
+            header.Append("HTTP/1.1 200 OK\r\n");
+            header.Append("Content-Type: text/html\r\n");
             header.Append("Content-Length: " + payloadBytes.Length + "\r\n\n");
             byte[] headerBytes = Encoding.ASCII.GetBytes(header.ToString());
 

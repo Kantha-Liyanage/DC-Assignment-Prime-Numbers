@@ -25,9 +25,9 @@ namespace dc.assignment.primenumbers.utils.tcplistener
             try
             {
                 // start listing on the given port  
-                tcpListener = new TcpListener(IPAddress.Parse(this.ipAddress), port);
+                tcpListener = new TcpListener(IPAddress.Parse(this.ipAddress), this.port);
                 tcpListener.Start();
-                Console.WriteLine("TCP Listener started.");
+                Console.WriteLine("TCP Listener started for " + this.ipAddress + ":" + this.port);
 
                 // start the thread which calls the method 'StartListen'  
                 Thread listenerThread = new Thread(

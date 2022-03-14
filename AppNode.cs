@@ -10,7 +10,7 @@ namespace dc.assignment.primenumbers
 {
     public class AppNode
     {
-        public int id { get; }
+        public Int64 id { get; }
         public AppNodeType type { get; }
         private string ipAddress;
         private int port;
@@ -23,7 +23,7 @@ namespace dc.assignment.primenumbers
             // get node id
             Random random = new Random();
             //yyyyMMdd
-            this.id = int.Parse(DateTime.Now.ToString("HHmmssffff")) + random.Next(1, 100);
+            this.id = Int64.Parse(DateTime.Now.ToString("HHmmssffff")) + random.Next(1, 100);
 
             this.ipAddress = ipAddress;
             this.port = port;
@@ -102,7 +102,7 @@ namespace dc.assignment.primenumbers
             }
 
             // send response
-            reponse.send(e.tcpClient);
+            reponse.sendJSON(e.tcpClient);
         }
 
         // API: node transform

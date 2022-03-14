@@ -1,6 +1,4 @@
 ﻿using System;
-using dc.assignment.primenumbers.models;
-using dc.assignment.primenumbers.utils.filehandler;
 using dc.assignment.primenumbers.utils.logger;
 
 namespace dc.assignment.primenumbers
@@ -12,20 +10,36 @@ namespace dc.assignment.primenumbers
 
         static void Main(string[] args)
         {
-            // application logger
-            Program.logger = new KLogger();
-
-            /* only needed for the demo
-            if(args.Length != 2){
-                Console.WriteLine("Invalid input.");
-                return;
+            if (args.Length == 1)
+            {
+                if (args[0].Equals("logview"))
+                {
+                    // application logger
+                    Program.logger = new KLogger(true);
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input.");
+                    return;
+                }
             }
-            string ip = args[0];
-            int port = int.Parse(args[1]);
-            */
+            else
+            {
+                // application logger
+                Program.logger = new KLogger(false);
 
-            AppNode node = new AppNode("127.0.0.1", 5050);
-            Program.logger.log(node.id, node.getAddress(), "AppNode created.");
+                /* only needed for the demo
+                    if(args.Length != 2){
+                        Console.WriteLine("Invalid input.");
+                        return;
+                    }
+                    string ip = args[0];
+                    int port = int.Parse(args[1]);
+                */
+
+                AppNode node = new AppNode("127.0.0.1", 5050);
+                Program.logger.log(node.id, node.getAddress(), "AppNode created.");
+            }
         }
     }
 }
