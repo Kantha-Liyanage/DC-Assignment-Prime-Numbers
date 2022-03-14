@@ -11,7 +11,7 @@ namespace dc.assignment.primenumbers.utils.logger
     {
         IMongoCollection<KLog> _logsCollection;
         KTCPListener tcpListener;
-        public KLogger(bool logViewServer)
+        public KLogger(bool logViewServerMode)
         {
             // database
             var mongoClient = new MongoClient("mongodb://localhost:27017");
@@ -19,7 +19,7 @@ namespace dc.assignment.primenumbers.utils.logger
             _logsCollection = mongoDatabase.GetCollection<KLog>("logs");
 
             // web view
-            if (logViewServer)
+            if (logViewServerMode)
             {
                 tcpListener = new KTCPListener("127.0.0.1", 8181);
                 this.tcpListener.onClientRequest += handleRequests;
@@ -49,57 +49,8 @@ namespace dc.assignment.primenumbers.utils.logger
             else if (e.request.resourceURL.Equals("Index"))
             {
                 // HTML Page: Log entries
-                // Grid control taken from https://gridjs.io/
-                string html =
-                @"<html>
-                    <head>
-                        <title>Prime Numbers - Distributed System - Logs</title>
-                        <script src='https://unpkg.com/jquery/dist/jquery.min.js'></script>
-                        <script src='https://unpkg.com/gridjs-jquery/dist/gridjs.production.min.js'></script>
-                        <link rel='stylesheet' type='text/css' href='https://unpkg.com/gridjs/dist/theme/mermaid.min.css'/>
-                        <body>
-                            <div id='wrapper'></div>
-                            <script>
-                                $.get('http://localhost:8181/Logs', function(dataJSON, status){
-                                    //data received
-                                    $('div#wrapper').Grid({
-                                        search: true,
-                                        sort: true,
-                                        autoWidth: true,
-                                        pagination: false,
-                                        columns: [
-                                            {id: 'Id', name: 'Log Id'},
-                                            {id: 'timestamp', name: 'Timestamp'},
-                                            {id: 'nodeId', name: 'Node Id'},
-                                            {id: 'nodeAddress', name: 'Node Address'},
-                                            {id: 'message', name: 'Message'}
-                                        ],
-                                        data: dataJSON,
-                                        style: {
-                                            table: {
-                                                'border': '3px solid #ccc',
-                                                'font-family':'Courier New'
-                                            },
-                                            th: {
-                                                'background-color': 'rgba(0, 0, 0, 0.1)',
-                                                'color': '#000',
-                                                'border-bottom': '3px solid #ccc',
-                                                'text-align': 'center',
-                                                'font-size': 12,
-                                                'font-weight': 'bold'
-                                            },
-                                            td: {
-                                                'text-align': 'left',
-                                                'font-size': 12,
-                                            }
-                                        }
-                                    });
-                                });
-                                </script>
-                        </body>
-                    <head>
-                </html>";
-                KHTTPResponse response = new KHTTPResponse(html);
+                string pageHTML = System.IO.File.ReadAllText("utils/logger/index.html");
+                KHTTPResponse response = new KHTTPResponse(pageHTML);
                 response.sendHTML(e.tcpClient);
             }
         }
