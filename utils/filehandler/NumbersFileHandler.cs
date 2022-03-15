@@ -1,24 +1,26 @@
+using System;
+using System.Linq;
+
 namespace dc.assignment.primenumbers.utils.filehandler
 {
     public class NumbersFileHandler
     {
-        private string dataFile;
-        private string statusFile;
+        private string inputFile;
+        private string outputFile;
         private string[] fileLines;
         private int currentNumberPosition = -1;
-        public NumbersFileHandler(string dataFile, string statusFile)
+        public NumbersFileHandler(string inputFile, string outputFile)
         {
-            this.dataFile = dataFile;
-            this.statusFile = statusFile;
+            this.inputFile = inputFile;
+            this.outputFile = outputFile;
         }
 
-        public void loadData()
+        public void readAllNumber()
         {
-            this.fileLines = System.IO.File.ReadAllLines(dataFile);
-            this.currentNumberPosition = int.Parse(System.IO.File.ReadAllText(statusFile));
+            this.fileLines = System.IO.File.ReadAllLines(inputFile);
+            this.currentNumberPosition = -1;
         }
 
-        //Previous number is completed automatically
         public int getNextNumber()
         {
             if (this.fileLines == null)
@@ -26,10 +28,28 @@ namespace dc.assignment.primenumbers.utils.filehandler
                 return -1;
             }
 
-            System.IO.File.WriteAllText(statusFile, this.currentNumberPosition.ToString());
+            // next number
             currentNumberPosition++;
             int currentNumber = int.Parse(fileLines[currentNumberPosition]);
+
+            // check whether already checked
+            while (true)
+            {
+                string[] completedFileLines = System.IO.File.ReadAllLines(outputFile);
+                bool alreadyChecked = (Array.IndexOf(completedFileLines, currentNumber) > -1);
+                if (!alreadyChecked)
+                {
+                    break;
+                }
+                currentNumber = int.Parse(fileLines[currentNumberPosition]);
+            }
             return currentNumber;
+        }
+
+        public bool writeResult(int theNumber, bool isPrime)
+        {
+            System.IO.File.AppendAllText(this.outputFile, theNumber.ToString() + ":" + isPrime.ToString());
+            return true;
         }
     }
 }

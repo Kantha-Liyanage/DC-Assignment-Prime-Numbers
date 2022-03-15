@@ -23,6 +23,7 @@ sequenceDiagram
         Consul-->>ServiceRegister: [nodes]
         ServiceRegister-->>Node: [nodes]
         Node->>Node: assessDistributedSystem(a:2,l:1,p:n)
+        Node->>Node: distributeWorkLoad()
         loop Assign Role for each node
             Node->>otherNode: role
             otherNode-->>Node: ACK

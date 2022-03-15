@@ -1,0 +1,10 @@
+sequenceDiagram 
+    loop for every response from acceptors
+        Learner->>Learner: countResponses()
+        alt responses count == proposers count
+            Learner->>Learner: decide()
+            Learner->>masterNode: writeResultToFile()
+        else pending responses
+            Learner->>Learner: continue
+        end    
+    end

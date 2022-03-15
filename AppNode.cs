@@ -38,7 +38,7 @@ namespace dc.assignment.primenumbers
             this.primeNumberChecker.onPrimeNumberNotDetected += primeNumberNotDetected;
 
             // numbers data file
-            this.numbersDatFileHandler = new NumbersFileHandler("data/numbers.txt", "data/status.txt");
+            this.numbersDatFileHandler = new NumbersFileHandler("data/numbers.txt", "data/output.txt");
 
             this.type = AppNodeType.Initial;
 

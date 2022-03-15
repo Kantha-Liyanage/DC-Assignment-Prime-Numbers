@@ -1,0 +1,11 @@
+sequenceDiagram 
+    # At node init, check whether a leader is already in the ssystem.
+    masterNode->>NumbersFileHandler: readAllNumber()
+    loop for each number  
+        masterNode->>NumbersFileHandler: getNextNumber()
+        NumbersFileHandler-->>masterNode: [next number]
+        loop for each node 
+            masterNode->>proposerNode: checkNumber()
+            proposerNode-->>masterNode: ACK
+        end
+    end
