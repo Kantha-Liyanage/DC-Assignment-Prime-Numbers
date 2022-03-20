@@ -4,6 +4,7 @@ sequenceDiagram
         alt responses count == proposers count
             Learner->>Learner: decide()
             Learner->>masterNode: writeResultToFile()
+            masterNode-->>Learner: ACK
         else pending responses
             Learner->>Learner: continue
         end    
