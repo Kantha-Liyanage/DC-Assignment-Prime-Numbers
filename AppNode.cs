@@ -4,6 +4,7 @@ using System.Threading;
 using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.models;
 using dc.assignment.primenumbers.utils.filehandler;
+using dc.assignment.primenumbers.utils.serviceregister;
 using dc.assignment.primenumbers.utils.tcplistener;
 
 namespace dc.assignment.primenumbers
@@ -42,6 +43,10 @@ namespace dc.assignment.primenumbers
 
             this.type = AppNodeType.Initial;
 
+            //Consul Test
+            ConsulServiceRegister.setLeader(this.getAddress());
+            //ConsulServiceRegister.clearLeader();
+
             // start lifecycle method
             var worker = new Thread(() =>
             {
@@ -60,13 +65,17 @@ namespace dc.assignment.primenumbers
 
                 // check for Master
                 // no master, run an election
-
+                Node node = ConsulServiceRegister.getLeader();
+                if (node != null)
+                {
+                    Console.WriteLine(node.type + " is " + (node.isAlive ? "alive" : "not dead"));
+                }
             }
         }
 
         public string getAddress()
         {
-            return this.ipAddress + ":" + this.port;
+            return "http://" + this.ipAddress + ":" + this.port;
         }
 
         //===============================================================================

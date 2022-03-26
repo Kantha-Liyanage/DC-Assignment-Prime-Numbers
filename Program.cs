@@ -10,25 +10,37 @@ namespace dc.assignment.primenumbers
 
         static void Main(string[] args)
         {
-            if (args.Length == 0)
+            string[] inputArgs;
+            string[] test = { "appnode", "127.0.0.1", "5050" };
+
+            if (args.Length > 0)
+            {
+                inputArgs = args;
+            }
+            else
+            {
+                inputArgs = test;
+            }
+
+            if (inputArgs.Length == 0)
             {
                 Console.WriteLine("Error: Missing arguments!");
                 return;
             }
             // logger viewer node runner
-            else if (args.Length == 1 && args[0].Equals("logviewer"))
+            else if (inputArgs.Length == 1 && inputArgs[0].Equals("logviewer"))
             {
                 // application logger
                 Program.logger = new KLogger(true);
             }
             // AppNode runner
-            else if (args.Length == 3 && args[0].Equals("appnode"))
+            else if (inputArgs.Length == 3 && inputArgs[0].Equals("appnode"))
             {
                 // application logger
                 Program.logger = new KLogger(false);
 
-                string ip = args[1];
-                int port = int.Parse(args[2]);
+                string ip = inputArgs[1];
+                int port = int.Parse(inputArgs[2]);
 
                 AppNode node = new AppNode(ip, port);
                 Program.logger.log(node.id, node.getAddress(), "AppNode created.");
