@@ -34,6 +34,24 @@ namespace dc.assignment.primenumbers.utils.serviceregister
             return response;
         }
 
+        public static Task<HttpResponseMessage> setTheLeader(string appNodeAddress)
+        {
+            Node node = new Node();
+            node.name = "leader";
+            node.address = appNodeAddress;
+            node.meta.nodeType = AppNodeType.Master;
+            node.check.arg = new string[] { "curl", appNodeAddress + "/health" };
+
+            var client = new HttpClient();
+            // PUT and get the response.
+            Task<HttpResponseMessage> response = client.PutAsJsonAsync(
+                "http://localhost:8500/v1/agent/service/register",
+                node
+            );
+
+            return response;
+        }
+
         public static Node getLeader()
         {
             using (var client = new HttpClient())
@@ -44,15 +62,21 @@ namespace dc.assignment.primenumbers.utils.serviceregister
                     // by calling .Result you are synchronously reading the result
                     string responseString = response.Content.ReadAsStringAsync().Result;
 
-                    Node node = new Node();
-                    node.type = AppNodeType.Master;
                     // node check
-                    node.isAlive = responseString.Contains("\"AggregatedStatus\": \"passing\"");
-                    //Address
-                    string[] arr1 = responseString.Split("\"Address\": \"");
-                    string[] arr2 = arr1[1].Split("\",\n");
-                    node.address = arr2[0];
-                    return node;
+                    bool isAlive = responseString.Contains("\"AggregatedStatus\": \"passing\"");
+
+                    if (isAlive)
+                    {
+                        // Node
+                        Node node = new Node();
+                        node.name = "master";
+                        node.meta.nodeType = AppNodeType.Master;
+                        //Address
+                        string[] arr1 = responseString.Split("\"Address\": \"");
+                        string[] arr2 = arr1[1].Split("\",\n");
+                        node.address = arr2[0];
+                        return node;
+                    }
                 }
             }
 

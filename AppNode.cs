@@ -44,7 +44,7 @@ namespace dc.assignment.primenumbers
             this.type = AppNodeType.Initial;
 
             //Consul Test
-            ConsulServiceRegister.setLeader(this.getAddress());
+            ConsulServiceRegister.setTheLeader(this.getAddress());
             //ConsulServiceRegister.clearLeader();
 
             // start lifecycle method
