@@ -44,7 +44,7 @@ namespace dc.assignment.primenumbers
             this.type = AppNodeType.Initial;
 
             //Consul Test
-            ConsulServiceRegister.setTheLeader(this.getAddress());
+            ConsulServiceRegister.setLeader(this.getAddress());
             //ConsulServiceRegister.clearLeader();
 
             // start lifecycle method
@@ -62,14 +62,6 @@ namespace dc.assignment.primenumbers
             {
                 Thread.Sleep(1000);
                 Console.WriteLine("I'm alive.");
-
-                // check for Master
-                // no master, run an election
-                Node node = ConsulServiceRegister.getLeader();
-                if (node != null)
-                {
-                    Console.WriteLine(node.type + " is " + (node.isAlive ? "alive" : "not dead"));
-                }
             }
         }
 
