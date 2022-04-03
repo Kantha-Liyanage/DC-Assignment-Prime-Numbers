@@ -44,8 +44,9 @@ namespace dc.assignment.primenumbers
             this.type = AppNodeType.Initial;
 
             //Consul Test
-            ConsulServiceRegister.setLeader(this.getAddress());
+            ConsulServiceRegister.setLeader(this);
             //ConsulServiceRegister.clearLeader();
+            ConsulServiceRegister.setNode(this);
 
             // start lifecycle method
             var worker = new Thread(() =>
@@ -68,6 +69,11 @@ namespace dc.assignment.primenumbers
         public string getAddress()
         {
             return "http://" + this.ipAddress + ":" + this.port;
+        }
+
+        public string getName()
+        {
+            return this.ipAddress + ":" + this.port;
         }
 
         //===============================================================================
