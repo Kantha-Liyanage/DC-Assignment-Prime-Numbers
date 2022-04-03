@@ -4,7 +4,7 @@ namespace dc.assignment.primenumbers.utils.tcplistener
 {
     class KHTTPRequest
     {
-        private HTTPMethod _httpMethod;
+        private KHTTPMethod _httpMethod;
         private string _resourceURL;
         private List<KeyValuePair<string, string>> _headers = new List<KeyValuePair<string, string>>();
         private List<KeyValuePair<string, string>> _params = new List<KeyValuePair<string, string>>();
@@ -18,9 +18,9 @@ namespace dc.assignment.primenumbers.utils.tcplistener
             str1 = str1.Trim();
             switch (str1)
             {
-                case "GET": _httpMethod = HTTPMethod.GET; break;
-                case "POST": _httpMethod = HTTPMethod.POST; break;
-                default: _httpMethod = HTTPMethod.ERROR; break;
+                case "GET": _httpMethod = KHTTPMethod.GET; break;
+                case "POST": _httpMethod = KHTTPMethod.POST; break;
+                default: _httpMethod = KHTTPMethod.ERROR; break;
             }
 
             //Resource URL
@@ -54,20 +54,20 @@ namespace dc.assignment.primenumbers.utils.tcplistener
                 _headers.Add(new KeyValuePair<string, string>(keyValueStr[0], keyValueStr[1].Trim()));
             }
             //Body
-            if (httpMethod == HTTPMethod.POST)
+            if (httpMethod == KHTTPMethod.POST)
             {
                 _bodyContent = parts[parts.Length - 1];
             }
         }
 
-        public HTTPMethod httpMethod { get => _httpMethod; }
+        public KHTTPMethod httpMethod { get => _httpMethod; }
         public string resourceURL { get => _resourceURL; }
         public List<KeyValuePair<string, string>> headers { get => _headers; }
         public List<KeyValuePair<string, string>> urlParams { get => _params; }
         public string bodyContent { get => _bodyContent; }
     }
 
-    enum HTTPMethod
+    enum KHTTPMethod
     {
         GET,
         POST,

@@ -91,31 +91,31 @@ namespace dc.assignment.primenumbers
         {
             KHTTPResponse reponse;
             string service = e.request.resourceURL;
-            HTTPMethod method = e.request.httpMethod;
+            KHTTPMethod method = e.request.httpMethod;
 
-            if (service.Equals("vote") && method == HTTPMethod.POST)
+            if (service.Equals("vote") && method == KHTTPMethod.POST)
             {
                 reponse = handleRequestVote(e.request.bodyContent);
             }
-            else if (service.Equals("transform") && method == HTTPMethod.POST)
+            else if (service.Equals("transform") && method == KHTTPMethod.POST)
             {
                 reponse = handleRequestTransform(e.request.bodyContent);
             }
-            else if (service.Equals("check") && method == HTTPMethod.POST)
+            else if (service.Equals("check") && method == KHTTPMethod.POST)
             {
                 reponse = handleRequestCheck(e.request.bodyContent);
             }
-            else if (service.Equals("abort") && method == HTTPMethod.POST)
+            else if (service.Equals("abort") && method == KHTTPMethod.POST)
             {
                 reponse = handleRequestAbort();
             }
-            else if (service.Equals("health") && method == HTTPMethod.GET)
+            else if (service.Equals("health") && method == KHTTPMethod.GET)
             {
                 reponse = handleRequestHealth();
             }
             else
             {
-                reponse = new KHTTPResponse(HTTPResponseCode.Not_Found_404, new { message = "Resource not found" });
+                reponse = new KHTTPResponse(HTTPResponseCode.Not_Found_404, new { message = "Resource not found." });
             }
 
             // send response

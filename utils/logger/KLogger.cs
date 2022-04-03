@@ -39,7 +39,7 @@ namespace dc.assignment.primenumbers.utils.logger
 
         private void handleRequests(object? sender, KTCPListenerEventArgs e)
         {
-            if (e.request.resourceURL.Equals("Logs") && e.request.httpMethod == HTTPMethod.GET)
+            if (e.request.resourceURL.Equals("Logs") && e.request.httpMethod == KHTTPMethod.GET)
             {
                 // API: log entries
                 List<KLog> array = getLogs();
