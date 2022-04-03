@@ -1,27 +1,22 @@
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.models;
+using dc.assignment.primenumbers.utils.election;
 using dc.assignment.primenumbers.utils.filehandler;
 using dc.assignment.primenumbers.utils.serviceregister;
 using dc.assignment.primenumbers.utils.tcplistener;
 
 namespace dc.assignment.primenumbers
 {
-    public class AppNode
+    public class AppNode : Node
     {
-        public Int64 id { get; }
-        public AppNodeType type { get; set; }
-        private string ipAddress;
-        private int port;
         // aggregations
         private KTCPListener tcpListener;
         private PrimeNumberChecker primeNumberChecker;
         private NumbersFileHandler numbersDatFileHandler;
+        private ElectionHandler electionHandler;
         private const int ELECTION_DELAY = 10000;
         public AppNode(string ipAddress, int port)
         {
@@ -29,9 +24,11 @@ namespace dc.assignment.primenumbers
             Random random = new Random();
             //yyyyMMdd
             this.id = Int64.Parse(DateTime.Now.ToString("HHmmssffff")) + random.Next(100, 999);
-
+            this.type = AppNodeType.Initial;
             this.ipAddress = ipAddress;
             this.port = port;
+            this.address = "http://" + this.ipAddress + ":" + this.port;
+            this.name = this.ipAddress + ":" + this.port;
 
             // TCP Listener
             this.tcpListener = new KTCPListener(this.ipAddress, this.port);
@@ -45,7 +42,9 @@ namespace dc.assignment.primenumbers
             // numbers data file
             this.numbersDatFileHandler = new NumbersFileHandler("data/numbers.txt", "data/output.txt");
 
-            this.type = AppNodeType.Initial;
+            // election handler
+            electionHandler = new ElectionHandler(this);
+            electionHandler.onLeaderElected += electedAsTheLeader;
 
             // set node inital status
             ConsulServiceRegister.setNode(this);
@@ -75,79 +74,11 @@ namespace dc.assignment.primenumbers
                 if (node == null)
                 {
                     Console.WriteLine("Leader not found! Starting an election...");
+                    electionHandler.start();
 
-                    runElection();
                     // wait for a while and check again
                     Thread.Sleep(ELECTION_DELAY);
                 }
-            }
-        }
-
-        public string getAddress()
-        {
-            return "http://" + this.ipAddress + ":" + this.port;
-        }
-
-        public string getName()
-        {
-            return this.ipAddress + ":" + this.port;
-        }
-
-        private void runElection()
-        {
-            // get all healthy nodes
-            AppNodeType[] nodeTypes = { };
-            List<Node> nodes = ConsulServiceRegister.getHealthyNodes(
-                ConsulServiceRegister.getNodes(nodeTypes)
-            );
-
-            // Reqeust vote from each node
-            int olderCount = 0;
-            foreach (Node node in nodes)
-            {
-                // avoid self
-                if (node.id == this.id)
-                {
-                    continue;
-                }
-
-                using (var client = new HttpClient())
-                {
-                    VoteDTO obj = new VoteDTO();
-                    obj.nodeId = this.id;
-                    obj.nodeAddress = this.getAddress();
-
-                    try
-                    {
-                        var content = new StringContent(JsonSerializer.Serialize(obj), Encoding.UTF8, "application/json");
-                        var response = client.PostAsync(node.address + "/vote", content).Result;
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            string responseString = response.Content.ReadAsStringAsync().Result;
-                            if (responseString.Contains("Older"))
-                            {
-                                olderCount++;
-                            }
-                        }
-                    }
-                    catch (Exception er)
-                    {
-                        Console.WriteLine("Error: " + er.Message);
-                    }
-                }
-            }
-
-            // All nodes have confirmed that this node is the Oldest 
-            if (olderCount == (nodes.Count - 1))
-            {
-                // assing roles
-                // Master
-                this.type = AppNodeType.Master;
-                ConsulServiceRegister.setLeader(this);
-                ConsulServiceRegister.setNode(this);
-
-                Console.WriteLine("I'm the leader now!!!");
             }
         }
 
@@ -223,6 +154,30 @@ namespace dc.assignment.primenumbers
             throw new NotImplementedException();
         }
 
+        // API: health
+        private KHTTPResponse handleRequestHealth()
+        {
+            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "AppNode is healthy." });
+        }
+
+        //===============================================================================
+        // Master section
+        //===============================================================================
+        private void electedAsTheLeader(object? sender, EventArgs e)
+        {
+            // assing roles
+            // Master
+            this.type = AppNodeType.Master;
+            ConsulServiceRegister.setLeader(this);
+            ConsulServiceRegister.setNode(this);
+
+            Console.WriteLine("I'm the leader now!!!");
+        }
+
+        //===============================================================================
+        // Proposer section
+        //===============================================================================
+
         // API: check
         private KHTTPResponse handleRequestCheck(string body)
         {
@@ -236,7 +191,7 @@ namespace dc.assignment.primenumbers
             {
                 // convert body string to object
                 CheckRequestDTO? dto = JsonSerializer.Deserialize<CheckRequestDTO>(body);
-                bool accepted = this.checkNumber(dto.theNumber, dto.fromNumber, dto.toNumber);
+                bool accepted = this.primeNumberChecker.check(dto.theNumber, dto.fromNumber, dto.toNumber);
                 if (accepted)
                 {
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
@@ -259,24 +214,6 @@ namespace dc.assignment.primenumbers
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Already idle." });
         }
 
-        // API: health
-        private KHTTPResponse handleRequestHealth()
-        {
-            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "AppNode is healthy." });
-        }
-
-        //===============================================================================
-        // Master section
-        //===============================================================================
-
-        //===============================================================================
-        // Proposer section
-        //===============================================================================
-        private bool checkNumber(int theNumber, int fromNumber, int toNumber)
-        {
-            return this.primeNumberChecker.check(theNumber, fromNumber, toNumber);
-        }
-
         // Inform: prime number NOT detected
         private void primeNumberNotDetected(object? sender, PrimeNumberNotDetectedEventArgs e)
         {
@@ -296,14 +233,5 @@ namespace dc.assignment.primenumbers
         //===============================================================================
         // Learner section
         //===============================================================================
-    }
-
-    public enum AppNodeType
-    {
-        Master,
-        Proposer,
-        Acceptor,
-        Learner,
-        Initial // not assigned yet
     }
 }

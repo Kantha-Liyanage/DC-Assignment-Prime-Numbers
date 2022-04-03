@@ -15,12 +15,12 @@ namespace dc.assignment.primenumbers.utils.serviceregister
 
         public static bool setLeader(AppNode appNode)
         {
-            string[] checkArgs = { "curl", appNode.getAddress() + "/health" };
+            string[] checkArgs = { "curl", appNode.address + "/health" };
 
             var jsonService = new
             {
                 name = "leader",
-                address = appNode.getAddress(),
+                address = appNode.address,
                 meta = new
                 {
                     nodeId = appNode.id.ToString(),
@@ -90,12 +90,12 @@ namespace dc.assignment.primenumbers.utils.serviceregister
 
         public static Task<HttpResponseMessage> setNode(AppNode appNode)
         {
-            string[] checkArgs = { "curl", appNode.getAddress() + "/health" };
+            string[] checkArgs = { "curl", appNode.address + "/health" };
 
             var jsonService = new
             {
-                name = "node:" + appNode.getName(),
-                address = appNode.getAddress(),
+                name = "node:" + appNode.name,
+                address = appNode.address,
                 meta = new
                 {
                     nodeId = appNode.id.ToString(),
