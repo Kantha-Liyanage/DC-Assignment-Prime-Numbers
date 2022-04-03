@@ -9,9 +9,9 @@ namespace dc.assignment.primenumbers.utils.serviceregister
 {
     class ConsulServiceRegister
     {
-        private const string SERVICE_DEREGISTER_TIME = "15s";
-        private const string CHECK_INTERVAL = "3s";
-        private const string CHECK_TIMEOUT = "2s";
+        private const string SERVICE_DEREGISTER_TIME = "10s";
+        private const string CHECK_INTERVAL = "5s";
+        private const string CHECK_TIMEOUT = "3s";
 
         public static bool setLeader(AppNode appNode)
         {
