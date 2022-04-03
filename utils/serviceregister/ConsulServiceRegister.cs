@@ -9,33 +9,47 @@ namespace dc.assignment.primenumbers.utils.serviceregister
 {
     class ConsulServiceRegister
     {
-        private const string SERVICE_DEREGISTER_TIME = "30s";
+        private const string SERVICE_DEREGISTER_TIME = "15s";
+        private const string CHECK_INTERVAL = "3s";
+        private const string CHECK_TIMEOUT = "2s";
 
-        public static Task<HttpResponseMessage> setLeader(AppNode appNode)
+        public static bool setLeader(AppNode appNode)
         {
             string[] checkArgs = { "curl", appNode.getAddress() + "/health" };
 
             var jsonService = new
             {
-                name = "Leader:" + appNode.getName(),
+                name = "leader",
                 address = appNode.getAddress(),
+                meta = new
+                {
+                    nodeId = appNode.id.ToString(),
+                    nodeType = appNode.type.ToString()
+                },
                 check = new
                 {
                     deregisterCriticalServiceAfter = SERVICE_DEREGISTER_TIME,
                     args = checkArgs,
-                    interval = "5s",
-                    timeout = "5s"
+                    interval = CHECK_INTERVAL,
+                    timeout = CHECK_TIMEOUT
                 }
             };
 
             var client = new HttpClient();
-            // PUT and get the response.
-            Task<HttpResponseMessage> response = client.PutAsJsonAsync(
-                "http://localhost:8500/v1/agent/service/register",
-                jsonService
-            );
 
-            return response;
+            var response = client.PutAsJsonAsync(
+                 "http://localhost:8500/v1/agent/service/register",
+                 jsonService
+             ).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public static Node getLeader()
@@ -91,8 +105,8 @@ namespace dc.assignment.primenumbers.utils.serviceregister
                 {
                     deregisterCriticalServiceAfter = SERVICE_DEREGISTER_TIME,
                     args = checkArgs,
-                    interval = "5s",
-                    timeout = "5s"
+                    interval = CHECK_INTERVAL,
+                    timeout = CHECK_TIMEOUT
                 }
             };
 
@@ -115,14 +129,14 @@ namespace dc.assignment.primenumbers.utils.serviceregister
             {
                 if (filter.Equals(""))
                 {
-                    filter = "Meta.nodeType==" + type.ToString();
+                    filter = "and Meta.nodeType==" + type.ToString();
                 }
                 else
                 {
                     filter += " or Meta.nodeType==" + type.ToString();
                 }
             }
-            string url = "http://localhost:8500/v1/catalog/node-services/ubuntu?filter=Service!=consul and " + filter;
+            string url = "http://localhost:8500/v1/catalog/node-services/ubuntu?filter=Service!=consul" + filter;
 
             using (var client = new HttpClient())
             {

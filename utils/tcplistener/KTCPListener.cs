@@ -76,7 +76,19 @@ namespace dc.assignment.primenumbers.utils.tcplistener
 
                     // prepare custom request object 
                     KHTTPRequest request = new KHTTPRequest(received);
-                    Console.WriteLine("A " + request.httpMethod + " request came from client at " + tcpClient?.Client?.RemoteEndPoint?.ToString());
+
+                    // log
+                    var remoteIP = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address;
+                    var remotePort = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Port;
+
+                    var defaultColor = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write(request.httpMethod);
+                    Console.ForegroundColor = defaultColor;
+                    Console.Write(" request came from client at " + remoteIP + ":" + remotePort + " for ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("[" + request.resourceURL + "]");
+                    Console.ForegroundColor = defaultColor;
 
                     // event call for request processing
                     onClientRequest?.Invoke(this, new KTCPListenerEventArgs(request, tcpClient));

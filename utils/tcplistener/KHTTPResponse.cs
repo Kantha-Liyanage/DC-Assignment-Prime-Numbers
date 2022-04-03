@@ -45,8 +45,6 @@ namespace dc.assignment.primenumbers.utils.tcplistener
 
             tcpClient?.GetStream().Write(headerBytes, 0, headerBytes.Length);
             tcpClient?.GetStream().Write(payloadBytes, 0, payloadBytes.Length);
-
-            Console.WriteLine("HTTP Status " + this.code + " returned.");
         }
 
         public void sendHTML(TcpClient? tcpClient)
@@ -61,8 +59,6 @@ namespace dc.assignment.primenumbers.utils.tcplistener
 
             tcpClient?.GetStream().Write(headerBytes, 0, headerBytes.Length);
             tcpClient?.GetStream().Write(payloadBytes, 0, payloadBytes.Length);
-
-            Console.WriteLine("HTTP Status " + this.code + " returned.");
         }
     }
 

@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using dc.assignment.primenumbers.dto;
@@ -12,19 +15,20 @@ namespace dc.assignment.primenumbers
     public class AppNode
     {
         public Int64 id { get; }
-        public AppNodeType type { get; }
+        public AppNodeType type { get; set; }
         private string ipAddress;
         private int port;
         // aggregations
-        KTCPListener tcpListener;
-        PrimeNumberChecker primeNumberChecker;
-        NumbersFileHandler numbersDatFileHandler;
+        private KTCPListener tcpListener;
+        private PrimeNumberChecker primeNumberChecker;
+        private NumbersFileHandler numbersDatFileHandler;
+        private const int ELECTION_DELAY = 10000;
         public AppNode(string ipAddress, int port)
         {
             // get node id
             Random random = new Random();
             //yyyyMMdd
-            this.id = Int64.Parse(DateTime.Now.ToString("HHmmssffff")) + random.Next(1, 100);
+            this.id = Int64.Parse(DateTime.Now.ToString("HHmmssffff")) + random.Next(100, 999);
 
             this.ipAddress = ipAddress;
             this.port = port;
@@ -43,9 +47,7 @@ namespace dc.assignment.primenumbers
 
             this.type = AppNodeType.Initial;
 
-            //Consul Test
-            ConsulServiceRegister.setLeader(this);
-            //ConsulServiceRegister.clearLeader();
+            // set node inital status
             ConsulServiceRegister.setNode(this);
 
             // start lifecycle method
@@ -59,10 +61,25 @@ namespace dc.assignment.primenumbers
         // lifecycle method
         private void process()
         {
+            int randomStartTime = new Random().Next(10000, 50000);
+            Console.WriteLine("Node:" + this.id + " is frozen for " + randomStartTime);
+            Thread.Sleep(randomStartTime);
+            Console.WriteLine("I'm alive.");
+
             while (true)
             {
-                Thread.Sleep(1000);
-                Console.WriteLine("I'm alive.");
+                // check leader
+                Node node = ConsulServiceRegister.getLeader();
+
+                // leader dead, run election
+                if (node == null)
+                {
+                    Console.WriteLine("Leader not found! Starting an election...");
+
+                    runElection();
+                    // wait for a while and check again
+                    Thread.Sleep(ELECTION_DELAY);
+                }
             }
         }
 
@@ -76,6 +93,64 @@ namespace dc.assignment.primenumbers
             return this.ipAddress + ":" + this.port;
         }
 
+        private void runElection()
+        {
+            // get all healthy nodes
+            AppNodeType[] nodeTypes = { };
+            List<Node> nodes = ConsulServiceRegister.getHealthyNodes(
+                ConsulServiceRegister.getNodes(nodeTypes)
+            );
+
+            // Reqeust vote from each node
+            int olderCount = 0;
+            foreach (Node node in nodes)
+            {
+                // avoid self
+                if (node.id == this.id)
+                {
+                    continue;
+                }
+
+                using (var client = new HttpClient())
+                {
+                    VoteDTO obj = new VoteDTO();
+                    obj.nodeId = this.id;
+                    obj.nodeAddress = this.getAddress();
+
+                    try
+                    {
+                        var content = new StringContent(JsonSerializer.Serialize(obj), Encoding.UTF8, "application/json");
+                        var response = client.PostAsync(node.address + "/vote", content).Result;
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string responseString = response.Content.ReadAsStringAsync().Result;
+                            if (responseString.Contains("Older"))
+                            {
+                                olderCount++;
+                            }
+                        }
+                    }
+                    catch (Exception er)
+                    {
+                        Console.WriteLine("Error: " + er.Message);
+                    }
+                }
+            }
+
+            // All nodes have confirmed that this node is the Oldest 
+            if (olderCount == (nodes.Count - 1))
+            {
+                // assing roles
+                // Master
+                this.type = AppNodeType.Master;
+                ConsulServiceRegister.setLeader(this);
+                ConsulServiceRegister.setNode(this);
+
+                Console.WriteLine("I'm the leader now!!!");
+            }
+        }
+
         //===============================================================================
         // HTTP APIs of AppNode
         //===============================================================================
@@ -87,7 +162,11 @@ namespace dc.assignment.primenumbers
             string service = e.request.resourceURL;
             HTTPMethod method = e.request.httpMethod;
 
-            if (service.Equals("transform") && method == HTTPMethod.POST)
+            if (service.Equals("vote") && method == HTTPMethod.POST)
+            {
+                reponse = handleRequestVote(e.request.bodyContent);
+            }
+            else if (service.Equals("transform") && method == HTTPMethod.POST)
             {
                 reponse = handleRequestTransform(e.request.bodyContent);
             }
@@ -112,8 +191,34 @@ namespace dc.assignment.primenumbers
             reponse.sendJSON(e.tcpClient);
         }
 
+        //===============================================================================
+        // AppNode common APIs section
+        //===============================================================================
+
+        // API: vote
+        private KHTTPResponse handleRequestVote(string body)
+        {
+            try
+            {
+                // Received vote request
+                VoteDTO? dto = JsonSerializer.Deserialize<VoteDTO>(body);
+
+                if (dto.nodeId > this.id)
+                {
+                    return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Younger." });
+                }
+                else
+                {
+                    return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Older." });
+                }
+            }
+            catch (Exception er) { }
+
+            return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Invalid input." });
+        }
+
         // API: node transform
-        private KHTTPResponse handleRequestTransform(string bodyContent)
+        private KHTTPResponse handleRequestTransform(string body)
         {
             throw new NotImplementedException();
         }
