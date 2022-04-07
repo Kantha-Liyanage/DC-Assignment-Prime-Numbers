@@ -51,7 +51,7 @@ namespace dc.assignment.primenumbers.utils.election
                         if (response.IsSuccessStatusCode)
                         {
                             string responseString = response.Content.ReadAsStringAsync().Result;
-                            if (responseString.Contains("Older"))
+                            if (responseString.Contains("Younger"))
                             {
                                 olderCount++;
                             }

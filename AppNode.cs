@@ -55,25 +55,37 @@ namespace dc.assignment.primenumbers
                 process();
             });
             worker.Start();
+
+            // log
+            Program.logger.log(this.id, this.name, "Node created.");
         }
 
         // lifecycle method
         private void process()
         {
-            int randomStartTime = new Random().Next(10000, 50000);
-            Console.WriteLine("Node:" + this.id + " is frozen for " + randomStartTime);
+            // sleeping time
+            int randomStartTime = new Random().Next(10000, 20000);
+            // log
+            Program.logger.log(this.id, this.name, "Node is frozen for " + (randomStartTime / 1000) + "s 🕙");
+
+            // sleep
             Thread.Sleep(randomStartTime);
-            Console.WriteLine("I'm alive.");
+
+            // log
+            Program.logger.log(this.id, this.name, "Node lifecycle started.🟢");
 
             while (true)
             {
                 // check leader
-                Node node = ConsulServiceRegister.getLeader();
+                Node node = ConsulServiceRegister.getHealthyLeader();
 
                 // leader dead, run election
                 if (node == null)
                 {
-                    Console.WriteLine("Leader not found! Starting an election...");
+                    // log
+                    Program.logger.log(this.id, this.name, "Leader not found. Starting an election...📢");
+
+                    // election
                     electionHandler.start();
 
                     // wait for a while and check again
@@ -136,10 +148,16 @@ namespace dc.assignment.primenumbers
 
                 if (dto.nodeId > this.id)
                 {
+                    // log
+                    Program.logger.log(this.id, this.name, "Node voted as Younger. ❌");
+
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Younger." });
                 }
                 else
                 {
+                    // log
+                    Program.logger.log(this.id, this.name, "Node voted as Older. ✅");
+
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Older." });
                 }
             }
@@ -168,10 +186,10 @@ namespace dc.assignment.primenumbers
             // assing roles
             // Master
             this.type = AppNodeType.Master;
-            ConsulServiceRegister.setLeader(this);
             ConsulServiceRegister.setNode(this);
 
-            Console.WriteLine("I'm the leader now!!!");
+            // log
+            Program.logger.log(this.id, this.name, "Node is the leader now. 🤴");
         }
 
         //===============================================================================

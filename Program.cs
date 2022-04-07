@@ -43,7 +43,6 @@ namespace dc.assignment.primenumbers
                 int port = int.Parse(inputArgs[2]);
 
                 AppNode node = new AppNode(ip, port);
-                Program.logger.log(node.id, node.address, "AppNode created.");
             }
             else
             {

@@ -9,84 +9,9 @@ namespace dc.assignment.primenumbers.utils.serviceregister
 {
     class ConsulServiceRegister
     {
-        private const string SERVICE_DEREGISTER_TIME = "10s";
+        private const string SERVICE_DEREGISTER_TIME = "15s";
         private const string CHECK_INTERVAL = "5s";
-        private const string CHECK_TIMEOUT = "3s";
-
-        public static bool setLeader(AppNode appNode)
-        {
-            string[] checkArgs = { "curl", appNode.address + "/health" };
-
-            var jsonService = new
-            {
-                name = "leader",
-                address = appNode.address,
-                meta = new
-                {
-                    nodeId = appNode.id.ToString(),
-                    nodeType = appNode.type.ToString()
-                },
-                check = new
-                {
-                    deregisterCriticalServiceAfter = SERVICE_DEREGISTER_TIME,
-                    args = checkArgs,
-                    interval = CHECK_INTERVAL,
-                    timeout = CHECK_TIMEOUT
-                }
-            };
-
-            var client = new HttpClient();
-
-            var response = client.PutAsJsonAsync(
-                 "http://localhost:8500/v1/agent/service/register",
-                 jsonService
-             ).Result;
-
-            if (response.IsSuccessStatusCode)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public static Node getLeader()
-        {
-            using (var client = new HttpClient())
-            {
-                var response = client.GetAsync("http://localhost:8500/v1/agent/health/service/name/leader").Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    // by calling .Result you are synchronously reading the result
-                    string responseString = response.Content.ReadAsStringAsync().Result;
-
-                    // Node
-                    Node node = new Node();
-                    node.name = "master";
-                    node.type = AppNodeType.Master;
-                    node.address = getValueFromJSON(responseString, "Address", false);
-                    // Status
-                    node.isAlive = responseString.Contains("\"AggregatedStatus\": \"passing\"");
-                    return node;
-                }
-            }
-
-            return null;
-        }
-
-        public static Task<HttpResponseMessage> clearLeader()
-        {
-            var client = new HttpClient();
-            // PUT and get the response.
-            Task<HttpResponseMessage> response = client.PutAsJsonAsync(
-                "http://localhost:8500/v1/agent/service/deregister/leader",
-                new { }
-            );
-
-            return response;
-        }
+        private const string CHECK_TIMEOUT = "5s";
 
         public static Task<HttpResponseMessage> setNode(AppNode appNode)
         {
@@ -129,7 +54,7 @@ namespace dc.assignment.primenumbers.utils.serviceregister
             {
                 if (filter.Equals(""))
                 {
-                    filter = "and Meta.nodeType==" + type.ToString();
+                    filter = " and Meta.nodeType==" + type.ToString();
                 }
                 else
                 {
@@ -197,6 +122,24 @@ namespace dc.assignment.primenumbers.utils.serviceregister
             }
 
             return healthyNodes;
+        }
+
+        public static Node getHealthyLeader()
+        {
+            // get all healthy nodes
+            AppNodeType[] nodeTypes = { AppNodeType.Master };
+            List<Node> nodes = ConsulServiceRegister.getHealthyNodes(
+                ConsulServiceRegister.getNodes(nodeTypes)
+            );
+
+            if (nodes.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                return nodes[0];
+            }
         }
 
         public static List<Node> getHealthyProposers()

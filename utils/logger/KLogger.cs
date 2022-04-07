@@ -23,15 +23,18 @@ namespace dc.assignment.primenumbers.utils.logger
             {
                 tcpListener = new KTCPListener("127.0.0.1", 8181);
                 this.tcpListener.onClientRequest += handleRequests;
+
+                // clear all old logs
+                _logsCollection.DeleteMany(new BsonDocument());
             }
         }
 
-        public void log(Int64 nodeId, string nodeAddress, string message)
+        public void log(Int64 nodeId, string nodeName, string message)
         {
             KLog log = new KLog();
             log.nodeId = nodeId;
-            log.nodeAddress = nodeAddress;
-            log.timestamp = "now";
+            log.nodeName = nodeName;
+            log.timestamp = DateTime.Now.Ticks + "";
             log.message = message;
             Task task = logAsync(log);
             task.Wait();
@@ -49,7 +52,7 @@ namespace dc.assignment.primenumbers.utils.logger
             else if (e.request.resourceURL.Equals("Index"))
             {
                 // HTML Page: Log entries
-                string pageHTML = System.IO.File.ReadAllText("utils/logger/index.html");
+                string pageHTML = System.IO.File.ReadAllText("index.html");
                 KHTTPResponse response = new KHTTPResponse(pageHTML);
                 response.sendHTML(e.tcpClient);
             }
