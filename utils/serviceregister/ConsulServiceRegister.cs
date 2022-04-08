@@ -13,7 +13,7 @@ namespace dc.assignment.primenumbers.utils.serviceregister
         private const string CHECK_INTERVAL = "5s";
         private const string CHECK_TIMEOUT = "5s";
 
-        public static Task<HttpResponseMessage> setNode(AppNode appNode)
+        public static void setNode(AppNode appNode)
         {
             string[] checkArgs = { "curl", appNode.address + "/health" };
 
@@ -42,7 +42,7 @@ namespace dc.assignment.primenumbers.utils.serviceregister
                 jsonService
             );
 
-            return response;
+            var result = response.Result;
         }
 
         public static List<Node> getNodes(AppNodeType[] nodeTypes)
@@ -112,8 +112,8 @@ namespace dc.assignment.primenumbers.utils.serviceregister
                         // by calling .Result you are synchronously reading the result
                         string responseString = response.Content.ReadAsStringAsync().Result;
                         // Status
-                        node.isAlive = responseString.Contains("\"AggregatedStatus\": \"passing\"");
-                        if (node.isAlive)
+                        bool isAlive = responseString.Contains("\"AggregatedStatus\": \"passing\"");
+                        if (isAlive)
                         {
                             healthyNodes.Add(node);
                         }

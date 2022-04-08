@@ -8,7 +8,6 @@ namespace dc.assignment.primenumbers.models
         public string name { get; set; } = "";
         public Int64 id { get; set; }
         public string address { get; set; } = "";
-        public bool isAlive { get; set; }
         public string ipAddress;
         public int port;
     }

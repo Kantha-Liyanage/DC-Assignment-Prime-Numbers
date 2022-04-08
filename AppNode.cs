@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using dc.assignment.primenumbers.dto;
@@ -18,6 +21,7 @@ namespace dc.assignment.primenumbers
         private NumbersFileHandler numbersDatFileHandler;
         private ElectionHandler electionHandler;
         private const int ELECTION_DELAY = 10000;
+        private const int LEADER_DETECTION_DELAY = 3000;
         public AppNode(string ipAddress, int port)
         {
             // get node id
@@ -55,9 +59,6 @@ namespace dc.assignment.primenumbers
                 process();
             });
             worker.Start();
-
-            // log
-            Program.logger.log(this.id, this.name, "Node created.");
         }
 
         // lifecycle method
@@ -66,7 +67,7 @@ namespace dc.assignment.primenumbers
             // sleeping time
             int randomStartTime = new Random().Next(10000, 20000);
             // log
-            Program.logger.log(this.id, this.name, "Node is frozen for " + (randomStartTime / 1000) + "s 🕙");
+            Program.logger.log(this.id, this.name, "Node created and frozen for " + (randomStartTime / 1000) + "s ⏳");
 
             // sleep
             Thread.Sleep(randomStartTime);
@@ -91,6 +92,11 @@ namespace dc.assignment.primenumbers
                     // wait for a while and check again
                     Thread.Sleep(ELECTION_DELAY);
                 }
+                else
+                {
+                    // leader detection delay
+                    Thread.Sleep(LEADER_DETECTION_DELAY);
+                }
             }
         }
 
@@ -105,7 +111,11 @@ namespace dc.assignment.primenumbers
             string service = e.request.resourceURL;
             KHTTPMethod method = e.request.httpMethod;
 
-            if (service.Equals("vote") && method == KHTTPMethod.POST)
+            if (service.Equals("health") && method == KHTTPMethod.GET)
+            {
+                reponse = handleRequestHealth();
+            }
+            else if (service.Equals("vote") && method == KHTTPMethod.POST)
             {
                 reponse = handleRequestVote(e.request.bodyContent);
             }
@@ -113,17 +123,13 @@ namespace dc.assignment.primenumbers
             {
                 reponse = handleRequestTransform(e.request.bodyContent);
             }
-            else if (service.Equals("check") && method == KHTTPMethod.POST)
+            else if (service.Equals("check") && method == KHTTPMethod.POST && this.type == AppNodeType.Proposer)
             {
                 reponse = handleRequestCheck(e.request.bodyContent);
             }
-            else if (service.Equals("abort") && method == KHTTPMethod.POST)
+            else if (service.Equals("abort") && method == KHTTPMethod.GET && this.type == AppNodeType.Proposer)
             {
                 reponse = handleRequestAbort();
-            }
-            else if (service.Equals("health") && method == KHTTPMethod.GET)
-            {
-                reponse = handleRequestHealth();
             }
             else
             {
@@ -149,14 +155,14 @@ namespace dc.assignment.primenumbers
                 if (dto.nodeId > this.id)
                 {
                     // log
-                    Program.logger.log(this.id, this.name, "Node voted as Younger. ❌");
+                    Program.logger.log(this.id, this.name, "Node voted as Younger. ✅");
 
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Younger." });
                 }
                 else
                 {
                     // log
-                    Program.logger.log(this.id, this.name, "Node voted as Older. ✅");
+                    Program.logger.log(this.id, this.name, "Node voted as Older. ⭕");
 
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Older." });
                 }
@@ -169,7 +175,41 @@ namespace dc.assignment.primenumbers
         // API: node transform
         private KHTTPResponse handleRequestTransform(string body)
         {
-            throw new NotImplementedException();
+            try
+            {
+                // Received transform request
+                RoleDTO? dto = JsonSerializer.Deserialize<RoleDTO>(body);
+                switch (dto.role)
+                {
+                    case "Proposer":
+                        this.type = AppNodeType.Proposer;
+                        ConsulServiceRegister.setNode(this);
+
+                        // log
+                        Program.logger.log(this.id, this.name, "Node role changed to a Proposer. 🧮");
+
+                        return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Node role changed." });
+                    case "Acceptor":
+                        this.type = AppNodeType.Acceptor;
+                        ConsulServiceRegister.setNode(this);
+
+                        // log
+                        Program.logger.log(this.id, this.name, "Node role changed to an Acceptor. 📥");
+
+                        return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Node role changed." });
+                    case "Learner":
+                        this.type = AppNodeType.Learner;
+                        ConsulServiceRegister.setNode(this);
+
+                        // log
+                        Program.logger.log(this.id, this.name, "Node role changed to a Learner. 💡");
+
+                        return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Node role changed." });
+                }
+            }
+            catch (Exception er) { }
+
+            return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Invalid input." });
         }
 
         // API: health
@@ -183,13 +223,119 @@ namespace dc.assignment.primenumbers
         //===============================================================================
         private void electedAsTheLeader(object? sender, EventArgs e)
         {
-            // assing roles
             // Master
             this.type = AppNodeType.Master;
             ConsulServiceRegister.setNode(this);
 
-            // log
-            Program.logger.log(this.id, this.name, "Node is the leader now. 🤴");
+            // get all healthy nodes and assign roles
+            AppNodeType[] nodeTypes = {
+                AppNodeType.Proposer,
+                AppNodeType.Acceptor,
+                AppNodeType.Learner,
+                AppNodeType.Initial
+            };
+            List<Node> nodes = ConsulServiceRegister.getHealthyNodes(
+                ConsulServiceRegister.getNodes(nodeTypes)
+            );
+
+            // check ecosystem
+            if (nodes.Count < 5)
+            {
+                // revert
+                this.type = AppNodeType.Initial;
+                ConsulServiceRegister.setNode(this);
+
+                // log
+                Program.logger.log(this.id, this.name, "Ecosystem unstable. 🚑");
+            }
+            else
+            {
+                // log
+                Program.logger.log(this.id, this.name, "Node is the leader now. 🤴");
+
+                // other roles
+                // Step 1: abort currently running Proposer jobs
+                foreach (Node node in nodes)
+                {
+                    if (node.type == AppNodeType.Proposer)
+                    {
+                        invokeGET(node.address + "/abort");
+                    }
+                }
+
+                // Step 2: assign new roles
+                int nodeIndex = 0;
+                foreach (Node node in nodes)
+                {
+                    nodeIndex++;
+
+                    // Acceptors
+                    if (nodeIndex <= 2)
+                    {
+                        invokePOST(node.address + "/transform", "{\"role\":\"Acceptor\"}");
+                    }
+
+                    // Learner
+                    else if (nodeIndex == 3)
+                    {
+                        invokePOST(node.address + "/transform", "{\"role\":\"Learner\"}");
+                    }
+
+                    // Proposers
+                    else
+                    {
+                        invokePOST(node.address + "/transform", "{\"role\":\"Proposer\"}");
+                    }
+                }
+
+                // log
+                Program.logger.log(this.id, this.name, "New roles assigned. 🪄");
+            }
+        }
+
+        private bool invokePOST(string url, string json)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    var response = client.PostAsync(url, content).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseString = response.Content.ReadAsStringAsync().Result;
+                        return true;
+                    }
+                }
+                catch (Exception er)
+                {
+                    Console.WriteLine("Error: " + er.Message);
+                }
+            }
+            return false;
+        }
+
+        private bool invokeGET(string url)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    var response = client.GetAsync(url).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseString = response.Content.ReadAsStringAsync().Result;
+                        return true;
+                    }
+                }
+                catch (Exception er)
+                {
+                    Console.WriteLine("Error: " + er.Message);
+                }
+            }
+            return false;
         }
 
         //===============================================================================
