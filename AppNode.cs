@@ -293,51 +293,6 @@ namespace dc.assignment.primenumbers
             }
         }
 
-        private bool invokePOST(string url, string json)
-        {
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    var response = client.PostAsync(url, content).Result;
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string responseString = response.Content.ReadAsStringAsync().Result;
-                        return true;
-                    }
-                }
-                catch (Exception er)
-                {
-                    Console.WriteLine("Error: " + er.Message);
-                }
-            }
-            return false;
-        }
-
-        private bool invokeGET(string url)
-        {
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    var response = client.GetAsync(url).Result;
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string responseString = response.Content.ReadAsStringAsync().Result;
-                        return true;
-                    }
-                }
-                catch (Exception er)
-                {
-                    Console.WriteLine("Error: " + er.Message);
-                }
-            }
-            return false;
-        }
-
         //===============================================================================
         // Proposer section
         //===============================================================================
@@ -397,5 +352,53 @@ namespace dc.assignment.primenumbers
         //===============================================================================
         // Learner section
         //===============================================================================
+
+        //===============================================================================
+        // private utility functionalities
+        //===============================================================================
+        private bool invokePOST(string url, string json)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    var response = client.PostAsync(url, content).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseString = response.Content.ReadAsStringAsync().Result;
+                        return true;
+                    }
+                }
+                catch (Exception er)
+                {
+                    Console.WriteLine("Error: " + er.Message);
+                }
+            }
+            return false;
+        }
+
+        private bool invokeGET(string url)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    var response = client.GetAsync(url).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseString = response.Content.ReadAsStringAsync().Result;
+                        return true;
+                    }
+                }
+                catch (Exception er)
+                {
+                    Console.WriteLine("Error: " + er.Message);
+                }
+            }
+            return false;
+        }
     }
 }
