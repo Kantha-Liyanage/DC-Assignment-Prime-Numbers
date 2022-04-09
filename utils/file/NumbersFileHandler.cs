@@ -1,6 +1,6 @@
 using System;
 
-namespace dc.assignment.primenumbers.utils.filehandler
+namespace dc.assignment.primenumbers.utils.file
 {
     public class NumbersFileHandler
     {

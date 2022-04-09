@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.models;
+using dc.assignment.primenumbers.utils.api;
 using dc.assignment.primenumbers.utils.election;
-using dc.assignment.primenumbers.utils.filehandler;
+using dc.assignment.primenumbers.utils.file;
 using dc.assignment.primenumbers.utils.serviceregister;
 using dc.assignment.primenumbers.utils.tcplistener;
 
@@ -20,6 +19,7 @@ namespace dc.assignment.primenumbers
         private PrimeNumberChecker primeNumberChecker;
         private NumbersFileHandler numbersDatFileHandler;
         private ElectionHandler electionHandler;
+        private APIInvocationHandler apiInvocationHandler;
         private const int ELECTION_DELAY = 10000;
         private const int LEADER_DETECTION_DELAY = 3000;
         public AppNode(string ipAddress, int port)
@@ -37,6 +37,9 @@ namespace dc.assignment.primenumbers
             // TCP Listener
             this.tcpListener = new KTCPListener(this.ipAddress, this.port);
             this.tcpListener.onClientRequest += processClientRequest;
+
+            // API handler
+            this.apiInvocationHandler = new APIInvocationHandler();
 
             // prime number checker
             this.primeNumberChecker = new PrimeNumberChecker();
@@ -98,6 +101,11 @@ namespace dc.assignment.primenumbers
                     Thread.Sleep(LEADER_DETECTION_DELAY);
                 }
             }
+        }
+
+        public APIInvocationHandler getAPIInvocationHandler()
+        {
+            return this.apiInvocationHandler;
         }
 
         //===============================================================================
@@ -188,7 +196,7 @@ namespace dc.assignment.primenumbers
                         // log
                         Program.logger.log(this.id, this.name, "Node role changed to a Proposer. 🧮");
 
-                        return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Node role changed." });
+                        break;
                     case "Acceptor":
                         this.type = AppNodeType.Acceptor;
                         ConsulServiceRegister.setNode(this);
@@ -196,19 +204,25 @@ namespace dc.assignment.primenumbers
                         // log
                         Program.logger.log(this.id, this.name, "Node role changed to an Acceptor. 📥");
 
-                        return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Node role changed." });
+                        break;
                     case "Learner":
                         this.type = AppNodeType.Learner;
                         ConsulServiceRegister.setNode(this);
 
                         // log
                         Program.logger.log(this.id, this.name, "Node role changed to a Learner. 💡");
-
-                        return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Node role changed." });
+                        break;
+                    default:
+                        // error
+                        return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Invalid input." });
                 }
+
+                // success
+                return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Node role changed." });
             }
             catch (Exception er) { }
 
+            // error
             return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Invalid input." });
         }
 
@@ -259,7 +273,8 @@ namespace dc.assignment.primenumbers
                 {
                     if (node.type == AppNodeType.Proposer)
                     {
-                        invokeGET(node.address + "/abort");
+                        // abort 
+                        this.apiInvocationHandler.invokeGET(node.address + "/abort");
                     }
                 }
 
@@ -269,22 +284,22 @@ namespace dc.assignment.primenumbers
                 {
                     nodeIndex++;
 
-                    // Acceptors
+                    // two Acceptors
                     if (nodeIndex <= 2)
                     {
-                        invokePOST(node.address + "/transform", "{\"role\":\"Acceptor\"}");
+                        this.apiInvocationHandler.invokePOST(node.address + "/transform", "{\"role\":\"Acceptor\"}");
                     }
 
-                    // Learner
+                    // one Learner
                     else if (nodeIndex == 3)
                     {
-                        invokePOST(node.address + "/transform", "{\"role\":\"Learner\"}");
+                        this.apiInvocationHandler.invokePOST(node.address + "/transform", "{\"role\":\"Learner\"}");
                     }
 
-                    // Proposers
+                    // rest are Proposers
                     else
                     {
-                        invokePOST(node.address + "/transform", "{\"role\":\"Proposer\"}");
+                        this.apiInvocationHandler.invokePOST(node.address + "/transform", "{\"role\":\"Proposer\"}");
                     }
                 }
 
@@ -303,7 +318,7 @@ namespace dc.assignment.primenumbers
             // already working on somthing?
             if (this.primeNumberChecker.isChecking())
             {
-                return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being chekced currently." });
+                return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being checked currently." });
             }
 
             try
@@ -352,53 +367,5 @@ namespace dc.assignment.primenumbers
         //===============================================================================
         // Learner section
         //===============================================================================
-
-        //===============================================================================
-        // private utility functionalities
-        //===============================================================================
-        private bool invokePOST(string url, string json)
-        {
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    var response = client.PostAsync(url, content).Result;
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string responseString = response.Content.ReadAsStringAsync().Result;
-                        return true;
-                    }
-                }
-                catch (Exception er)
-                {
-                    Console.WriteLine("Error: " + er.Message);
-                }
-            }
-            return false;
-        }
-
-        private bool invokeGET(string url)
-        {
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    var response = client.GetAsync(url).Result;
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string responseString = response.Content.ReadAsStringAsync().Result;
-                        return true;
-                    }
-                }
-                catch (Exception er)
-                {
-                    Console.WriteLine("Error: " + er.Message);
-                }
-            }
-            return false;
-        }
     }
 }

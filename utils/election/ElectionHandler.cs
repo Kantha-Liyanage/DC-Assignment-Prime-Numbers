@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.models;
@@ -37,30 +35,21 @@ namespace dc.assignment.primenumbers.utils.election
                     continue;
                 }
 
-                using (var client = new HttpClient())
+                VoteDTO obj = new VoteDTO();
+                obj.nodeId = appNode.id;
+                obj.nodeAddress = appNode.address;
+
+                try
                 {
-                    VoteDTO obj = new VoteDTO();
-                    obj.nodeId = appNode.id;
-                    obj.nodeAddress = appNode.address;
-
-                    try
+                    string responseString = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/vote", JsonSerializer.Serialize(obj));
+                    if (responseString.Contains("Younger"))
                     {
-                        var content = new StringContent(JsonSerializer.Serialize(obj), Encoding.UTF8, "application/json");
-                        var response = client.PostAsync(node.address + "/vote", content).Result;
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            string responseString = response.Content.ReadAsStringAsync().Result;
-                            if (responseString.Contains("Younger"))
-                            {
-                                olderCount++;
-                            }
-                        }
+                        olderCount++;
                     }
-                    catch (Exception er)
-                    {
-                        Console.WriteLine("Error: " + er.Message);
-                    }
+                }
+                catch (Exception er)
+                {
+                    Console.WriteLine("Error: " + er.Message);
                 }
             }
 

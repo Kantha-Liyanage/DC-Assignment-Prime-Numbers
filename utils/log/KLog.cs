@@ -2,7 +2,7 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace dc.assignment.primenumbers.utils.logger
+namespace dc.assignment.primenumbers.utils.log
 {
     class KLog
     {

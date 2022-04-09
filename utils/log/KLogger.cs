@@ -5,7 +5,7 @@ using dc.assignment.primenumbers.utils.tcplistener;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace dc.assignment.primenumbers.utils.logger
+namespace dc.assignment.primenumbers.utils.log
 {
     class KLogger
     {
@@ -34,7 +34,7 @@ namespace dc.assignment.primenumbers.utils.logger
             KLog log = new KLog();
             log.nodeId = nodeId;
             log.nodeName = nodeName;
-            log.timestamp = DateTime.Now.Ticks + "";
+            log.timestamp = DateTime.Now.ToString("hh.mm.ss.ffffff");
             log.message = message;
             Task task = logAsync(log);
             task.Wait();

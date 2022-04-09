@@ -1,5 +1,5 @@
 ﻿using System;
-using dc.assignment.primenumbers.utils.logger;
+using dc.assignment.primenumbers.utils.log;
 
 namespace dc.assignment.primenumbers
 {
