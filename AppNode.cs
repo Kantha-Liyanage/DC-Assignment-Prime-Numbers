@@ -343,6 +343,7 @@ namespace dc.assignment.primenumbers
             while (true)
             {
                 // get next number
+                // improve this to return a number only when the current number is completed
                 int theNumber = this.numbersDatFileHandler.getNextNumber();
                 if (theNumber == -1)
                 {
