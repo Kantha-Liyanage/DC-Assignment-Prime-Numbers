@@ -75,7 +75,7 @@ namespace dc.assignment.primenumbers
             Thread.Sleep(randomStartTime);
 
             // log
-            Program.logger.log(this.id, this.name, "Node lifecycle started.🟢");
+            Program.logger.log(this.id, this.name, "Node lifecycle started. 🟢");
 
             while (true)
             {
@@ -129,9 +129,9 @@ namespace dc.assignment.primenumbers
             {
                 reponse = handleRequestTransform(e.request.bodyContent);
             }
-            else if (service.Equals("check") && method == KHTTPMethod.POST && this.type == AppNodeType.Proposer)
+            else if (service.Equals("evaluate") && method == KHTTPMethod.POST && this.type == AppNodeType.Proposer)
             {
-                reponse = handleRequestCheck(e.request.bodyContent);
+                reponse = handleRequestEvaluate(e.request.bodyContent);
             }
             else if (service.Equals("abort") && method == KHTTPMethod.GET && this.type == AppNodeType.Proposer)
             {
@@ -288,19 +288,19 @@ namespace dc.assignment.primenumbers
                     // two Acceptors
                     if (nodeIndex <= 2)
                     {
-                        this.apiInvocationHandler.invokePOST(node.address + "/transform", "{\"role\":\"Acceptor\"}");
+                        this.apiInvocationHandler.invokePOST(node.address + "/transform", new { role = "Acceptor" });
                     }
 
                     // one Learner
                     else if (nodeIndex == 3)
                     {
-                        this.apiInvocationHandler.invokePOST(node.address + "/transform", "{\"role\":\"Learner\"}");
+                        this.apiInvocationHandler.invokePOST(node.address + "/transform", new { role = "Learner" });
                     }
 
                     // rest are Proposers
                     else
                     {
-                        this.apiInvocationHandler.invokePOST(node.address + "/transform", "{\"role\":\"Proposer\"}");
+                        this.apiInvocationHandler.invokePOST(node.address + "/transform", new { role = "Proposer" });
                     }
                 }
 
@@ -367,11 +367,17 @@ namespace dc.assignment.primenumbers
                         node.toNumber += remainder;
                     }
 
-                    Console.WriteLine("From:" + node.fromNumber);
-                    Console.WriteLine("To:" + node.toNumber);
-
                     // log
                     Program.logger.log(this.id, this.name, "Node: " + node.name + " was assigned to evaluate the range " + node.fromNumber + " - " + node.toNumber + ". 🔢");
+
+                    // assign task
+                    var evaluateRequest = new
+                    {
+                        theNumber = theNumber,
+                        fromNumber = node.fromNumber,
+                        toNumber = node.toNumber
+                    };
+                    this.apiInvocationHandler.invokePOST(node.address + "/evaluate", evaluateRequest);
                 }
             }
         }
@@ -381,19 +387,19 @@ namespace dc.assignment.primenumbers
         //===============================================================================
 
         // API: check
-        private KHTTPResponse handleRequestCheck(string body)
+        private KHTTPResponse handleRequestEvaluate(string body)
         {
             // already working on somthing?
-            if (this.primeNumberChecker.isChecking())
+            if (this.primeNumberChecker.isEvaluating())
             {
-                return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being checked currently." });
+                return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being evaluated currently." });
             }
 
             try
             {
                 // convert body string to object
-                CheckRequestDTO? dto = JsonSerializer.Deserialize<CheckRequestDTO>(body);
-                bool accepted = this.primeNumberChecker.check(dto.theNumber, dto.fromNumber, dto.toNumber);
+                EvaluateRequestDTO? dto = JsonSerializer.Deserialize<EvaluateRequestDTO>(body);
+                bool accepted = this.primeNumberChecker.evaluate(dto.theNumber, dto.fromNumber, dto.toNumber);
                 if (accepted)
                 {
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
@@ -407,10 +413,10 @@ namespace dc.assignment.primenumbers
         // API: abort
         private KHTTPResponse handleRequestAbort()
         {
-            if (this.primeNumberChecker.isChecking())
+            if (this.primeNumberChecker.isEvaluating())
             {
                 this.primeNumberChecker.abort();
-                return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Checking aborted." });
+                return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Evaluation aborted." });
             }
 
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Already idle." });

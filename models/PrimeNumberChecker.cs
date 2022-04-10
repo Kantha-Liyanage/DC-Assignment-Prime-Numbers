@@ -5,35 +5,35 @@ namespace dc.assignment.primenumbers.models
 {
     class PrimeNumberChecker
     {
-        private bool _isChecking;
+        private bool _isEvaluating;
         private bool _abort;
         public event EventHandler? onPrimeNumberDetected;
         public event EventHandler<PrimeNumberNotDetectedEventArgs>? onPrimeNumberNotDetected;
         public PrimeNumberChecker()
         {
-            this._isChecking = false;
+            this._isEvaluating = false;
             this._abort = false;
         }
 
-        public bool isChecking()
+        public bool isEvaluating()
         {
-            return _isChecking;
+            return _isEvaluating;
         }
 
         public void abort()
         {
-            this._isChecking = false;
+            this._isEvaluating = false;
             this._abort = true;
         }
 
-        public bool check(int theNumber, int fromNumber, int toNumber)
+        public bool evaluate(int theNumber, int fromNumber, int toNumber)
         {
             if (!isValidInput(theNumber, fromNumber, toNumber))
             {
                 return false;
             }
 
-            this._isChecking = true;
+            this._isEvaluating = true;
             this._abort = false;
 
             var thread = new Thread(() =>
@@ -80,7 +80,7 @@ namespace dc.assignment.primenumbers.models
                         onPrimeNumberNotDetected?.Invoke(this, new PrimeNumberNotDetectedEventArgs(currentNumber));
                     }
                 }
-                this._isChecking = false;
+                this._isEvaluating = false;
             });
             thread.Start();
 

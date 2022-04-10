@@ -1,6 +1,6 @@
 namespace dc.assignment.primenumbers.dto
 {
-    class CheckRequestDTO
+    class EvaluateRequestDTO
     {
         public int theNumber { get; set; }
         public int fromNumber { get; set; }
