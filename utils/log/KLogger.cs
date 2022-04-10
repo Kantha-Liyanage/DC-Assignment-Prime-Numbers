@@ -52,7 +52,7 @@ namespace dc.assignment.primenumbers.utils.log
             else if (e.request.resourceURL.Equals("Index"))
             {
                 // HTML Page: Log entries
-                string pageHTML = System.IO.File.ReadAllText("index.html");
+                string pageHTML = System.IO.File.ReadAllText("html/index.html");
                 KHTTPResponse response = new KHTTPResponse(pageHTML);
                 response.sendHTML(e.tcpClient);
             }

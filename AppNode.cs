@@ -21,7 +21,6 @@ namespace dc.assignment.primenumbers
         private ElectionHandler electionHandler;
         private APIInvocationHandler apiInvocationHandler;
         private const int ELECTION_DELAY = 10000;
-        private const int LEADER_DETECTION_DELAY = 3000;
         public AppNode(string ipAddress, int port)
         {
             // get node id
@@ -47,7 +46,7 @@ namespace dc.assignment.primenumbers
             this.primeNumberChecker.onPrimeNumberNotDetected += primeNumberNotDetected;
 
             // numbers data file
-            this.numbersDatFileHandler = new NumbersFileHandler("data/numbers.txt", "data/output.txt");
+            this.numbersDatFileHandler = new NumbersFileHandler("data/numbers.txt", "data/completed.txt", "data/output.txt");
 
             // election handler
             electionHandler = new ElectionHandler(this);
@@ -80,25 +79,27 @@ namespace dc.assignment.primenumbers
 
             while (true)
             {
-                // check leader
-                Node node = ConsulServiceRegister.getHealthyLeader();
-
-                // leader dead, run election
-                if (node == null)
+                // check whether self is the leader
+                if (this.type == AppNodeType.Master)
                 {
-                    // log
-                    Program.logger.log(this.id, this.name, "Leader not found. Starting an election...📢");
 
-                    // election
-                    electionHandler.start();
-
-                    // wait for a while and check again
-                    Thread.Sleep(ELECTION_DELAY);
                 }
-                else
+                else // some other node could be the leader
                 {
-                    // leader detection delay
-                    Thread.Sleep(LEADER_DETECTION_DELAY);
+                    Node node = ConsulServiceRegister.getHealthyLeader();
+
+                    // leader dead, run election
+                    if (node == null)
+                    {
+                        // log
+                        Program.logger.log(this.id, this.name, "Leader not found. Starting an election...📢");
+
+                        // election
+                        electionHandler.start();
+
+                        // wait for a while and check again
+                        Thread.Sleep(ELECTION_DELAY);
+                    }
                 }
             }
         }
@@ -237,30 +238,33 @@ namespace dc.assignment.primenumbers
         //===============================================================================
         private void electedAsTheLeader(object? sender, EventArgs e)
         {
+            // assign roles to all nodes
+            bool success = assignRoles();
+            if (!success) { return; }
+
+            // get Proposers
+            List<Node> proposerNodes = ConsulServiceRegister.getHealthyProposers();
+
+            // distribute the work
+            distributeTasks(proposerNodes);
+        }
+
+        private bool assignRoles()
+        {
             // Master
             this.type = AppNodeType.Master;
             ConsulServiceRegister.setNode(this);
 
-            // get all healthy nodes and assign roles
-            AppNodeType[] nodeTypes = {
-                AppNodeType.Proposer,
-                AppNodeType.Acceptor,
-                AppNodeType.Learner,
-                AppNodeType.Initial
-            };
-            List<Node> nodes = ConsulServiceRegister.getHealthyNodes(
-                ConsulServiceRegister.getNodes(nodeTypes)
-            );
+            // check the consistancy of the ecosystem
+            List<Node> nodes = checkEcosystem();
 
             // check ecosystem
-            if (nodes.Count < 5)
+            if (nodes.Count == 0)
             {
                 // revert
                 this.type = AppNodeType.Initial;
                 ConsulServiceRegister.setNode(this);
-
-                // log
-                Program.logger.log(this.id, this.name, "Ecosystem unstable. 🚑");
+                return false;
             }
             else
             {
@@ -305,6 +309,73 @@ namespace dc.assignment.primenumbers
 
                 // log
                 Program.logger.log(this.id, this.name, "New roles assigned. 🪄");
+                return true;
+            }
+        }
+
+        private List<Node> checkEcosystem()
+        {
+            // get all healthy nodes and assign roles
+            AppNodeType[] nodeTypes = {
+                AppNodeType.Proposer,
+                AppNodeType.Acceptor,
+                AppNodeType.Learner,
+                AppNodeType.Initial
+            };
+            List<Node> nodes = ConsulServiceRegister.getHealthyNodes(
+                ConsulServiceRegister.getNodes(nodeTypes)
+            );
+
+            // check ecosystem
+            if (nodes.Count < 5)
+            {
+                // log
+                Program.logger.log(this.id, this.name, "Ecosystem unstable. 🚑");
+
+                return new List<Node>(); // empty
+            }
+
+            return nodes;
+        }
+
+        private void distributeTasks(List<Node> nodes)
+        {
+            this.numbersDatFileHandler.readAllNumber();
+
+            // until all numbers are evaluated
+            while (true)
+            {
+                // get next number
+                int theNumber = this.numbersDatFileHandler.getNextNumber();
+                if (theNumber == -1)
+                {
+                    return;
+                }
+
+                // number range distribution
+                int fullPortionCount = theNumber / nodes.Count;
+                int remainder = theNumber % nodes.Count;
+                int nodeIndex = 0;
+                int previousNodeToNumber = 1;
+                foreach (Node node in nodes)
+                {
+                    nodeIndex++;
+                    node.fromNumber = previousNodeToNumber;
+                    node.toNumber = nodeIndex * fullPortionCount;
+                    previousNodeToNumber = node.toNumber + 1;
+
+                    // add odd number to the last node
+                    if (nodes.Count == nodeIndex)
+                    {
+                        node.toNumber += remainder;
+                    }
+
+                    Console.WriteLine("From:" + node.fromNumber);
+                    Console.WriteLine("To:" + node.toNumber);
+
+                    // log
+                    Program.logger.log(this.id, this.name, "Node: " + node.name + " was assigned to evaluate the range " + node.fromNumber + " - " + node.toNumber + ". 🔢");
+                }
             }
         }
 

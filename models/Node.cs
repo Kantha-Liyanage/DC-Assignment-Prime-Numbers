@@ -8,8 +8,10 @@ namespace dc.assignment.primenumbers.models
         public string name { get; set; } = "";
         public Int64 id { get; set; }
         public string address { get; set; } = "";
-        public string ipAddress;
-        public int port;
+        public string ipAddress { get; set; }
+        public int port { get; set; }
+        public int fromNumber { get; set; }
+        public int toNumber { get; set; }
     }
 
     public enum AppNodeType

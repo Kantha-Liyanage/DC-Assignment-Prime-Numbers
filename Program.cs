@@ -5,7 +5,6 @@ namespace dc.assignment.primenumbers
 {
     class Program
     {
-
         public static KLogger? logger;
 
         static void Main(string[] args)
