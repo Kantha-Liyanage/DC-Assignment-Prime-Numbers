@@ -80,12 +80,9 @@ namespace dc.assignment.primenumbers
             while (true)
             {
                 // check whether self is the leader
-                if (this.type == AppNodeType.Master)
+                if (this.type != AppNodeType.Master)
                 {
-
-                }
-                else // some other node could be the leader
-                {
+                    // some other node could be the leader
                     Node node = ConsulServiceRegister.getHealthyLeader();
 
                     // leader dead, run election
