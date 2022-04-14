@@ -67,11 +67,11 @@ namespace dc.assignment.primenumbers.utils.file
             // next number position
             currentNumberPosition++;
             // eof
-            if (currentNumberPosition == fileLines.Length) { return -1; }
+            if (currentNumberPosition >= fileLines.Length) { return -1; }
 
             // get next number
-            int currentNumber = int.Parse(fileLines[currentNumberPosition]);
-            return currentNumber;
+            this.currentNumber = int.Parse(fileLines[currentNumberPosition]);
+            return this.currentNumber;
         }
 
         private bool completeNumber(int theNumber, bool isPrime)
