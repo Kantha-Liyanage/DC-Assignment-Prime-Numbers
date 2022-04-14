@@ -1,63 +1,82 @@
-using System;
+using System.Text.Json;
+using dc.assignment.primenumbers.dto;
+using dc.assignment.primenumbers.utils.tcplistener;
 
 namespace dc.assignment.primenumbers.utils.file
 {
     public class NumbersFileHandler
     {
         private string inputFile;
-        private string completedFile;
         private string outputFile;
         private string[] fileLines;
-        private int currentNumberPosition = -1;
-        public NumbersFileHandler(string inputFile, string completedFile, string outputFile)
+        private int currentNumberPosition;
+        private int currentNumber;
+        KTCPListener tcpListener;
+        public NumbersFileHandler(string inputFile, string outputFile)
         {
             this.inputFile = inputFile;
-            this.completedFile = completedFile;
             this.outputFile = outputFile;
+
+            tcpListener = new KTCPListener("127.0.0.1", 8282);
+            this.tcpListener.onClientRequest += handleRequests;
+
+            // init
+            readAllNumber();
         }
 
-        public void readAllNumber()
+        private void handleRequests(object? sender, KTCPListenerEventArgs e)
+        {
+            if (e.request.resourceURL.Equals("getNextNumber") && e.request.httpMethod == KHTTPMethod.GET)
+            {
+                int nextNumber = this.getNextNumber();
+                KHTTPResponse response = new KHTTPResponse(HTTPResponseCode.OK_200, new { number = nextNumber });
+                response.sendJSON(e.tcpClient);
+            }
+            else if (e.request.resourceURL.Equals("completeNumber") && e.request.httpMethod == KHTTPMethod.POST)
+            {
+                CompleteNumberDTO? dto = JsonSerializer.Deserialize<CompleteNumberDTO>(e.request.bodyContent);
+                bool done = this.completeNumber(dto.number, dto.isPrime);
+                KHTTPResponse response;
+                if (done)
+                {
+                    response = new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Successful." });
+                }
+                else
+                {
+                    response = new KHTTPResponse(HTTPResponseCode.Internal_Server_Error_500, new { message = "Unsuccessful." });
+                }
+                response.sendJSON(e.tcpClient);
+            }
+        }
+
+        private void readAllNumber()
         {
             this.fileLines = System.IO.File.ReadAllLines(inputFile);
             this.currentNumberPosition = -1;
+            this.currentNumber = 0;
         }
 
-        public int getNextNumber()
+        private int getNextNumber()
         {
-            if (this.fileLines == null)
-            {
-                return -1;
-            }
+            // some basic validations...
+            // no numbers in the file
+            if (this.fileLines == null) { return -1; }
+            // last number still pending
+            if (this.currentNumber != 0) { return 0; }
 
-            // next number
+            // next number position
             currentNumberPosition++;
-
-            if (currentNumberPosition == fileLines.Length)
-            {
-                return -1;
-            }
+            // eof
+            if (currentNumberPosition == fileLines.Length) { return -1; }
 
             // get next number
             int currentNumber = int.Parse(fileLines[currentNumberPosition]);
-
-            // check whether already checked
-            while (true)
-            {
-                Console.WriteLine("check whether already checked");
-                string[] completedFileLines = System.IO.File.ReadAllLines(completedFile);
-                bool alreadyChecked = (Array.IndexOf(completedFileLines, currentNumber) > -1);
-                if (!alreadyChecked)
-                {
-                    break;
-                }
-                currentNumber = int.Parse(fileLines[currentNumberPosition]);
-            }
             return currentNumber;
         }
 
-        public bool writeResult(int theNumber, bool isPrime)
+        private bool completeNumber(int theNumber, bool isPrime)
         {
-            System.IO.File.AppendAllText(this.completedFile, theNumber.ToString());
+            this.currentNumber = 0;
             System.IO.File.AppendAllText(this.outputFile, theNumber.ToString() + ":" + isPrime.ToString());
             return true;
         }

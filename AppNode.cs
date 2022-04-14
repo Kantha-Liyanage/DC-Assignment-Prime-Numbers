@@ -17,8 +17,8 @@ namespace dc.assignment.primenumbers
         // aggregations
         private KTCPListener tcpListener;
         private PrimeNumberChecker primeNumberChecker;
-        private NumbersFileHandler numbersDatFileHandler;
         private ElectionHandler electionHandler;
+        private NumbersFileHelper numbersFileHelper;
         private APIInvocationHandler apiInvocationHandler;
         private const int ELECTION_DELAY = 10000;
         public AppNode(string ipAddress, int port)
@@ -37,6 +37,9 @@ namespace dc.assignment.primenumbers
             this.tcpListener = new KTCPListener(this.ipAddress, this.port);
             this.tcpListener.onClientRequest += processClientRequest;
 
+            // numbers file helper
+            this.numbersFileHelper = new NumbersFileHelper();
+
             // API handler
             this.apiInvocationHandler = new APIInvocationHandler();
 
@@ -44,9 +47,6 @@ namespace dc.assignment.primenumbers
             this.primeNumberChecker = new PrimeNumberChecker();
             this.primeNumberChecker.onPrimeNumberDetected += primeNumberDetected;
             this.primeNumberChecker.onPrimeNumberNotDetected += primeNumberNotDetected;
-
-            // numbers data file
-            this.numbersDatFileHandler = new NumbersFileHandler("data/numbers.txt", "data/completed.txt", "data/output.txt");
 
             // election handler
             electionHandler = new ElectionHandler(this);
@@ -337,22 +337,26 @@ namespace dc.assignment.primenumbers
 
         private void distributeTasks(List<Node> nodes)
         {
-            this.numbersDatFileHandler.readAllNumber();
-
             // until all numbers are evaluated
             while (true)
             {
                 // get next number
-                // improve this to return a number only when the current number is completed
-                int theNumber = this.numbersDatFileHandler.getNextNumber();
-                if (theNumber == -1)
+                int nextNumber = this.numbersFileHelper.getNextNumber();
+
+                // eof or no number in the file
+                if (nextNumber == -1)
                 {
                     return;
                 }
+                // previous number still not completed
+                else if (nextNumber == 0)
+                {
+                    continue;
+                }
 
                 // number range distribution
-                int fullPortionCount = theNumber / nodes.Count;
-                int remainder = theNumber % nodes.Count;
+                int fullPortionCount = nextNumber / nodes.Count;
+                int remainder = nextNumber % nodes.Count;
                 int nodeIndex = 0;
                 int previousNodeToNumber = 1;
                 foreach (Node node in nodes)
@@ -374,7 +378,7 @@ namespace dc.assignment.primenumbers
                     // assign task
                     var evaluateRequest = new
                     {
-                        theNumber = theNumber,
+                        number = nextNumber,
                         fromNumber = node.fromNumber,
                         toNumber = node.toNumber
                     };
@@ -400,7 +404,7 @@ namespace dc.assignment.primenumbers
             {
                 // convert body string to object
                 EvaluateRequestDTO? dto = JsonSerializer.Deserialize<EvaluateRequestDTO>(body);
-                bool accepted = this.primeNumberChecker.evaluate(dto.theNumber, dto.fromNumber, dto.toNumber);
+                bool accepted = this.primeNumberChecker.evaluate(dto.number, dto.fromNumber, dto.toNumber);
                 if (accepted)
                 {
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });

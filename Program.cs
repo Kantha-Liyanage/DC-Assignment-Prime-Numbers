@@ -1,4 +1,5 @@
 ﻿using System;
+using dc.assignment.primenumbers.utils.file;
 using dc.assignment.primenumbers.utils.log;
 
 namespace dc.assignment.primenumbers
@@ -27,10 +28,15 @@ namespace dc.assignment.primenumbers
                 return;
             }
             // logger viewer node runner
-            else if (inputArgs.Length == 1 && inputArgs[0].Equals("logviewer"))
+            else if (inputArgs.Length == 1 && inputArgs[0].Equals("logger"))
             {
                 // application logger
                 Program.logger = new KLogger(true);
+            }
+            // numbers file service
+            else if (inputArgs.Length == 1 && inputArgs[0].Equals("nfs"))
+            {
+                NumbersFileHandler numbersDatFileHandler = new NumbersFileHandler("data/numbers.txt", "data/output.txt");
             }
             // AppNode runner
             else if (inputArgs.Length == 3 && inputArgs[0].Equals("appnode"))
