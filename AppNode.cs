@@ -387,6 +387,11 @@ namespace dc.assignment.primenumbers
                     };
                     this.apiInvocationHandler.invokePOST(node.address + "/evaluate", evaluateRequest);
                 }
+
+                /*
+                The master node next needs to tell the learner node how many proposers exist. This information is
+                needed for the learner to give the final outcome and for the algorithm to terminate.
+                */
             }
         }
 
@@ -433,7 +438,18 @@ namespace dc.assignment.primenumbers
         // Inform: prime number NOT detected
         private void primeNumberNotDetected(object? sender, PrimeNumberNotDetectedEventArgs e)
         {
+            /*
+            From the service registry they will identify acceptors and then they will pick one random acceptor to
+            send their out come to.
 
+            If the number divides by a certain number it will send a message saying “Number is not prime” and
+            then include details saying 54322 is divisible by xyz number.
+
+            If the number is not divisible by any of the numbers in their range they will send a message “Number
+            is Prime”
+            */
+
+            List<Node> acceptorNodes = ConsulServiceRegister.getHealthyAcceptors();
         }
 
         // Inform: prime number detected
@@ -446,8 +462,25 @@ namespace dc.assignment.primenumbers
         // Acceptor section
         //===============================================================================
 
+        /*
+        1. The acceptor will receive messages from proposers.
+        2. The acceptor needs to find the learner node from the service registry.
+        3. If the acceptor gets a message saying the number is not prime it needs to divide and re-verify and
+        check the validity of the message
+        4. If the response is valid then it needs to send to the learner that 54322 is not a prime.
+        5. If the acceptor gets a message saying the number is prime it would not verify this and will assume
+        the proposer was telling the truth and would send a message to the learner saying 54322 is prime.
+        */
+
         //===============================================================================
         // Learner section
         //===============================================================================
+
+        /*
+        1. The master node will tell how many proposers are there in the system.
+        2. The learner will count the number of messages sent by acceptors
+        3. If there is even one message saying its not a prime the learner will decide the number is not prime.
+        4. If all the nodes say its prime then it will decide its prime.
+        */
     }
 }
