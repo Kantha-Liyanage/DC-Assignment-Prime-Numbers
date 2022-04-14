@@ -354,6 +354,9 @@ namespace dc.assignment.primenumbers
                     continue;
                 }
 
+                // log
+                Program.logger.log(this.id, this.name, "Next number " + nextNumber + " released.");
+
                 // number range distribution
                 int fullPortionCount = nextNumber / nodes.Count;
                 int remainder = nextNumber % nodes.Count;
@@ -373,7 +376,7 @@ namespace dc.assignment.primenumbers
                     }
 
                     // log
-                    Program.logger.log(this.id, this.name, "Node: " + node.name + " was assigned to evaluate the range " + node.fromNumber + " - " + node.toNumber + ". 🔢");
+                    Program.logger.log(this.id, this.name, "Node: " + node.name + " was assigned to evaluate the range " + node.fromNumber + " - " + node.toNumber + " of number " + nextNumber + ". 🔢");
 
                     // assign task
                     var evaluateRequest = new
