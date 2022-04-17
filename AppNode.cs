@@ -46,8 +46,8 @@ namespace dc.assignment.primenumbers
             this.apiInvocationHandler = new APIInvocationHandler();
 
             // election handler
-            electionHandler = new ElectionHandler(this);
-            electionHandler.onLeaderElected += electedAsTheLeader;
+            this.electionHandler = new ElectionHandler(this);
+            this.electionHandler.onLeaderElected += electedAsTheLeader;
 
             // Master
             this.master = new Master(this);
@@ -103,7 +103,7 @@ namespace dc.assignment.primenumbers
                         Program.log(this.id, this.name, "Leader not found. Starting an election...📢");
 
                         // election
-                        electionHandler.start();
+                        this.electionHandler.start();
 
                         // wait for a while and check again
                         Thread.Sleep(ELECTION_DELAY);
@@ -181,27 +181,23 @@ namespace dc.assignment.primenumbers
         // API: vote
         private KHTTPResponse handleRequestVote(string body)
         {
-            try
+            // Received vote request
+            VoteDTO? dto = JsonSerializer.Deserialize<VoteDTO>(body);
+
+            if (dto.nodeId > this.id)
             {
-                // Received vote request
-                VoteDTO? dto = JsonSerializer.Deserialize<VoteDTO>(body);
+                // log
+                Program.log(this.id, this.name, "Node voted as Younger. ✅");
 
-                if (dto.nodeId > this.id)
-                {
-                    // log
-                    Program.log(this.id, this.name, "Node voted as Younger. ✅");
-
-                    return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Younger." });
-                }
-                else
-                {
-                    // log
-                    Program.log(this.id, this.name, "Node voted as Older. ⭕");
-
-                    return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Older." });
-                }
+                return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Younger." });
             }
-            catch (Exception er) { }
+            else
+            {
+                // log
+                Program.log(this.id, this.name, "Node voted as Older. ⭕");
+
+                return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Older." });
+            }
 
             return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Invalid input." });
         }
@@ -372,7 +368,7 @@ namespace dc.assignment.primenumbers
             }
 
             // accept and inform the Learner
-            this.acceptor.accept(dto.number, dto.isPrime);
+            this.acceptor.accept(dto.number, dto.isPrime, dto.divisibleByNumber);
 
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
         }
@@ -399,7 +395,7 @@ namespace dc.assignment.primenumbers
             PrimeResultDTO? dto = JsonSerializer.Deserialize<PrimeResultDTO>(body);
 
             // learn
-            this.learner.learn(dto.number, dto.isPrime);
+            this.learner.learn(dto.number, dto.isPrime, dto.divisibleByNumber);
 
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
         }
@@ -410,7 +406,7 @@ namespace dc.assignment.primenumbers
             // write the result to the output file 
             // and release the current number
             // so that master node can take the next number
-            this.learner.completeNumber(e.number, e.isPrime);
+            this.learner.completeNumber(e.number, e.isPrime, e.divisibleByNumber);
         }
     }
 }

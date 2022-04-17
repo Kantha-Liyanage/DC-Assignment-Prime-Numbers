@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.utils.tcplistener;
@@ -29,13 +30,15 @@ namespace dc.assignment.primenumbers.utils.file
             if (e.request.resourceURL.Equals("getNextNumber") && e.request.httpMethod == KHTTPMethod.GET)
             {
                 int nextNumber = this.getNextNumber();
+                Console.WriteLine("Next Number:" + nextNumber);
                 KHTTPResponse response = new KHTTPResponse(HTTPResponseCode.OK_200, new { number = nextNumber });
                 response.sendJSON(e.tcpClient);
+                Console.WriteLine("Response sent.");
             }
             else if (e.request.resourceURL.Equals("completeNumber") && e.request.httpMethod == KHTTPMethod.POST)
             {
                 PrimeResultDTO? dto = JsonSerializer.Deserialize<PrimeResultDTO>(e.request.bodyContent);
-                bool done = this.completeNumber(dto.number, dto.isPrime);
+                bool done = this.completeNumber(dto.number, dto.isPrime, dto.divisibleByNumber);
                 KHTTPResponse response;
                 if (done)
                 {
@@ -74,10 +77,10 @@ namespace dc.assignment.primenumbers.utils.file
             return this.currentNumber;
         }
 
-        private bool completeNumber(int theNumber, bool isPrime)
+        private bool completeNumber(int theNumber, bool isPrime, int divisibleByNumber)
         {
             this.currentNumber = 0;
-            System.IO.File.AppendAllText(this.outputFile, theNumber.ToString() + ":" + isPrime.ToString());
+            System.IO.File.AppendAllText(this.outputFile, theNumber.ToString() + ":" + isPrime.ToString() + ":" + divisibleByNumber + "\n");
             return true;
         }
     }

@@ -11,7 +11,7 @@ namespace dc.assignment.primenumbers.models
         private bool _abort;
         private AppNode appNode;
         public event EventHandler<NumberEvaluationCompleteEventArgs>? onNumberEvaluationComplete;
-        private const int DEMO_DELAY = 10;
+        private const int DEMO_DELAY = 1;
         public Proposer(AppNode appNode)
         {
             this.appNode = appNode;
@@ -34,6 +34,9 @@ namespace dc.assignment.primenumbers.models
         {
             if (!isValidInput(theNumber, fromNumber, toNumber))
             {
+                // log
+                Program.log(this.appNode.id, this.appNode.name, "Invalid input.");
+
                 return false;
             }
 
@@ -78,7 +81,7 @@ namespace dc.assignment.primenumbers.models
                 if (!this._abort)
                 {
                     // log
-                    Program.log(this.appNode.id, this.appNode.name, "Range evaluation completed. The number could be " + (isPrimeNumber ? "Prime." : "not Prime."));
+                    Program.log(this.appNode.id, this.appNode.name, "Range evaluation completed. The number " + (isPrimeNumber ? "could be Prime." : "is not Prime. Divisible by: " + currentNumber + "."));
 
                     if (isPrimeNumber)
                     {
@@ -103,7 +106,12 @@ namespace dc.assignment.primenumbers.models
             List<Node> acceptorNodes = ConsulServiceRegister.getHealthyAcceptors();
 
             // pick one random Acceptor
-            Node acceptorNode = acceptorNodes[new Random().Next(0, (acceptorNodes.Count - 1))];
+            int acceptorRandomIndex = new Random().Next(0, (acceptorNodes.Count - 1));
+
+            // log
+            Program.log(this.appNode.id, this.appNode.name, "Acceptor random index: " + acceptorRandomIndex + " out of " + acceptorNodes.Count + ".");
+
+            Node acceptorNode = acceptorNodes[acceptorRandomIndex];
 
             // log
             Program.log(this.appNode.id, this.appNode.name, "Acceptor: " + acceptorNode.name + " was selected.");
@@ -116,10 +124,10 @@ namespace dc.assignment.primenumbers.models
                 isPrime = isPrime,
                 divisibleByNumber = divisibleByNumber
             };
-            this.appNode.getAPIInvocationHandler().invokePOST(acceptorNode.address + "/accept", obj);
+            string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(acceptorNode.address + "/accept", obj);
 
             // log
-            Program.log(this.appNode.id, this.appNode.name, "Informed to the Acceptor.");
+            Program.log(this.appNode.id, this.appNode.name, "Informed to the selected Acceptor.");
         }
 
         private bool isValidInput(int theNumber, int fromNumber, int toNumber)

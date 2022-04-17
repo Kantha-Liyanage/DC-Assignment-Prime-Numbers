@@ -13,6 +13,15 @@ namespace dc.assignment.primenumbers.models
 
         public bool verify(string nodeName, int number, bool isPrime, int divisibleByNumber)
         {
+            // log
+            Program.log(this.appNode.id, this.appNode.name, "Verification completed.");
+
+            // Prime
+            if (divisibleByNumber == 0)
+            {
+                return true;
+            }
+
             int remainder = number % divisibleByNumber;
             // Not Prime! verify
             if (!isPrime && remainder != 0) // Proposer is sending false results !!!
@@ -25,18 +34,25 @@ namespace dc.assignment.primenumbers.models
             return true;
         }
 
-        public void accept(int number, bool isPrime)
+        public void accept(int number, bool isPrime, int divisibleByNumber)
         {
+            // log
+            Program.log(this.appNode.id, this.appNode.name, "Range evaluation result accepted.");
+
             // inform the Learner
             Node learnerNode = ConsulServiceRegister.getHealthyLearner();
             var obj = new
             {
                 number = number,
-                isPrime = isPrime
+                isPrime = isPrime,
+                divisibleByNumber = divisibleByNumber
             };
 
             // need to check ecosystem
             string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(learnerNode.address + "/learn", obj);
+
+            // log
+            Program.log(this.appNode.id, this.appNode.name, "Informed the Learner.");
         }
 
     }

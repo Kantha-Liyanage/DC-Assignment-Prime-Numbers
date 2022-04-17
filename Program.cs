@@ -11,7 +11,7 @@ namespace dc.assignment.primenumbers
         static void Main(string[] args)
         {
             string[] inputArgs;
-            string[] test = { "appnode", "127.0.0.1", "5050" };
+            string[] test = { "appnode", "127.0.0.1", "5051" };
 
             if (args.Length > 0)
             {

@@ -19,7 +19,7 @@ namespace dc.assignment.primenumbers.utils.serviceregister
 
             var jsonService = new
             {
-                name = "node:" + appNode.name,
+                name = "Worker:" + appNode.name,
                 address = appNode.address,
                 meta = new
                 {

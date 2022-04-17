@@ -4,5 +4,6 @@ namespace dc.assignment.primenumbers.dto
     {
         public int number { get; set; }
         public bool isPrime { get; set; }
+        public int divisibleByNumber { get; set; }
     }
 }

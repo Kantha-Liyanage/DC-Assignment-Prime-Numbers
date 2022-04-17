@@ -27,9 +27,9 @@ namespace dc.assignment.primenumbers.models
                 Program.log(this.appNode.id, this.appNode.name, "There are " + value + " proposers.");
             }
         }
-        public void learn(int number, bool isPrime)
+        public void learn(int number, bool isPrime, int divisibleByNumber)
         {
-            results.Add(new Result(number, isPrime));
+            results.Add(new Result(number, isPrime, divisibleByNumber));
             learnCount++;
 
             // log
@@ -39,19 +39,21 @@ namespace dc.assignment.primenumbers.models
             {
                 // final result
                 bool isPrimeFinal = true;
+                int divisibleByNumberFinal = 0;
                 foreach (Result result in results)
                 {
                     if (!result.isPrime) // Not prime!!!
                     {
                         isPrimeFinal = false;
+                        divisibleByNumberFinal = result.divisibleByNumber;
                     }
                 }
 
                 // log
-                Program.log(this.appNode.id, this.appNode.name, "All proposers responded. Number: " + number + (isPrime ? " is Prime." : " is not Prime."));
+                Program.log(this.appNode.id, this.appNode.name, "All proposers responded. Number: " + number + (isPrimeFinal ? " is Prime." : " is not Prime. Divisible by: " + divisibleByNumberFinal + "."));
 
                 // fire the event
-                onFinalResult?.Invoke(this, new FinalResultEventArgs(number, isPrimeFinal));
+                onFinalResult?.Invoke(this, new FinalResultEventArgs(number, isPrimeFinal, divisibleByNumberFinal));
 
                 // reset to accept results of the next number
                 results.Clear();
@@ -59,9 +61,9 @@ namespace dc.assignment.primenumbers.models
             }
         }
 
-        public void completeNumber(int number, bool isPrime)
+        public void completeNumber(int number, bool isPrime, int divisibleByNumber)
         {
-            this.appNode.getNumbersFileHelper().completeNumber(number, isPrime);
+            this.appNode.getNumbersFileHelper().completeNumber(number, isPrime, divisibleByNumber);
 
             // log
             Program.log(this.appNode.id, this.appNode.name, "Number: " + number + " completed.");
@@ -72,11 +74,13 @@ namespace dc.assignment.primenumbers.models
     {
         public int number { get; set; }
         public bool isPrime { get; set; }
+        public int divisibleByNumber { get; set; }
 
-        public Result(int number, bool isPrime)
+        public Result(int number, bool isPrime, int divisibleByNumber)
         {
             this.number = number;
             this.isPrime = isPrime;
+            this.divisibleByNumber = divisibleByNumber;
         }
     }
 }

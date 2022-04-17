@@ -11,21 +11,14 @@ namespace dc.assignment.primenumbers.utils.api
         {
             using (var client = new HttpClient())
             {
-                try
-                {
-                    string json = JsonSerializer.Serialize(obj);
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    var response = client.PostAsync(url, content).Result;
+                string json = JsonSerializer.Serialize(obj);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = client.PostAsync(url, content).Result;
 
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string responseString = response.Content.ReadAsStringAsync().Result;
-                        return responseString;
-                    }
-                }
-                catch (Exception er)
+                if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Error: " + er.Message);
+                    string responseString = response.Content.ReadAsStringAsync().Result;
+                    return responseString;
                 }
             }
             return null;
@@ -35,19 +28,12 @@ namespace dc.assignment.primenumbers.utils.api
         {
             using (var client = new HttpClient())
             {
-                try
-                {
-                    var response = client.GetAsync(url).Result;
+                var response = client.GetAsync(url).Result;
 
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string responseString = response.Content.ReadAsStringAsync().Result;
-                        return responseString;
-                    }
-                }
-                catch (Exception er)
+                if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Error: " + er.Message);
+                    string responseString = response.Content.ReadAsStringAsync().Result;
+                    return responseString;
                 }
             }
             return null;

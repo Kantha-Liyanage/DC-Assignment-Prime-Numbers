@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using dc.assignment.primenumbers.utils.serviceregister;
 
 namespace dc.assignment.primenumbers.models
@@ -6,6 +7,7 @@ namespace dc.assignment.primenumbers.models
     public class Master
     {
         private AppNode appNode;
+        private int NEXT_NUMBER_GET_DELAY = 5000;
 
         public Master(AppNode appNode)
         {
@@ -24,6 +26,9 @@ namespace dc.assignment.primenumbers.models
             // check ecosystem
             if (nodes.Count == 0)
             {
+                // log
+                Program.log(this.appNode.id, this.appNode.name, "No nodes found.");
+
                 // revert
                 this.appNode.type = AppNodeType.Initial;
                 ConsulServiceRegister.setNode(this.appNode);
@@ -99,11 +104,15 @@ namespace dc.assignment.primenumbers.models
                 // eof or no number in the file
                 if (nextNumber == -1)
                 {
+                    // log
+                    Program.log(this.appNode.id, this.appNode.name, "End of numbers file.");
                     return;
                 }
                 // previous number still not completed
                 else if (nextNumber == 0)
                 {
+                    // sleep
+                    Thread.Sleep(NEXT_NUMBER_GET_DELAY);
                     continue;
                 }
 
@@ -114,7 +123,7 @@ namespace dc.assignment.primenumbers.models
                 int fullPortionCount = nextNumber / nodes.Count;
                 int remainder = nextNumber % nodes.Count;
                 int nodeIndex = 0;
-                int previousNodeToNumber = 1;
+                int previousNodeToNumber = 2;
                 foreach (Node node in nodes)
                 {
                     nodeIndex++;

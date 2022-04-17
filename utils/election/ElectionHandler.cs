@@ -35,21 +35,15 @@ namespace dc.assignment.primenumbers.utils.election
                     continue;
                 }
 
-                VoteDTO obj = new VoteDTO();
-                obj.nodeId = appNode.id;
-                obj.nodeAddress = appNode.address;
-
-                try
+                var obj = new
                 {
-                    string responseString = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/vote", JsonSerializer.Serialize(obj));
-                    if (responseString.Contains("Younger"))
-                    {
-                        olderCount++;
-                    }
-                }
-                catch (Exception er)
+                    nodeId = appNode.id,
+                    nodeAddress = appNode.address
+                };
+                string responseString = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/vote", obj);
+                if (responseString.Contains("Younger"))
                 {
-                    Console.WriteLine("Error: " + er.Message);
+                    olderCount++;
                 }
             }
 
