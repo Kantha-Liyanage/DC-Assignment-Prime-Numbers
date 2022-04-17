@@ -158,12 +158,12 @@ namespace dc.assignment.primenumbers.utils.serviceregister
             return healthynNodes;
         }
 
-        public static List<Node> getHealthyLearner()
+        public static Node getHealthyLearner()
         {
             AppNodeType[] types = { AppNodeType.Learner };
             List<Node> nodes = getNodes(types);
             List<Node> healthynNodes = getHealthyNodes(nodes);
-            return healthynNodes;
+            return (healthynNodes.Count > 0 ? healthynNodes[0] : null);
         }
 
         private static string getValueFromJSON(string json, string tag, bool isLast)

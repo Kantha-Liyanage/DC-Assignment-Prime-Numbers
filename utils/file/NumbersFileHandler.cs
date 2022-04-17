@@ -34,7 +34,7 @@ namespace dc.assignment.primenumbers.utils.file
             }
             else if (e.request.resourceURL.Equals("completeNumber") && e.request.httpMethod == KHTTPMethod.POST)
             {
-                CompleteNumberDTO? dto = JsonSerializer.Deserialize<CompleteNumberDTO>(e.request.bodyContent);
+                PrimeResultDTO? dto = JsonSerializer.Deserialize<PrimeResultDTO>(e.request.bodyContent);
                 bool done = this.completeNumber(dto.number, dto.isPrime);
                 KHTTPResponse response;
                 if (done)

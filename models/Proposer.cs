@@ -3,13 +3,12 @@ using System.Threading;
 
 namespace dc.assignment.primenumbers.models
 {
-    class PrimeNumberChecker
+    class Proposer
     {
         private bool _isEvaluating;
         private bool _abort;
-        public event EventHandler? onPrimeNumberDetected;
-        public event EventHandler<PrimeNumberNotDetectedEventArgs>? onPrimeNumberNotDetected;
-        public PrimeNumberChecker()
+        public event EventHandler<NumberEvaluationCompleteEventArgs>? onNumberEvaluationComplete;
+        public Proposer()
         {
             this._isEvaluating = false;
             this._abort = false;
@@ -72,12 +71,12 @@ namespace dc.assignment.primenumbers.models
                 {
                     if (isPrimeNumber)
                     {
-                        onPrimeNumberDetected?.Invoke(this, EventArgs.Empty);
+                        onNumberEvaluationComplete?.Invoke(this, new NumberEvaluationCompleteEventArgs(theNumber, isPrimeNumber, 0));
                     }
                     else
                     {
                         // can be devide by "currentNumber"
-                        onPrimeNumberNotDetected?.Invoke(this, new PrimeNumberNotDetectedEventArgs(currentNumber));
+                        onNumberEvaluationComplete?.Invoke(this, new NumberEvaluationCompleteEventArgs(theNumber, isPrimeNumber, currentNumber));
                     }
                 }
                 this._isEvaluating = false;

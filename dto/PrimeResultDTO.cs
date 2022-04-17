@@ -1,6 +1,6 @@
 namespace dc.assignment.primenumbers.dto
 {
-    class CompleteNumberDTO
+    class PrimeResultDTO
     {
         public int number { get; set; }
         public bool isPrime { get; set; }

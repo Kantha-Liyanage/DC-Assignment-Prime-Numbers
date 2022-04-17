@@ -16,7 +16,10 @@ namespace dc.assignment.primenumbers
     {
         // aggregations
         private KTCPListener tcpListener;
-        private PrimeNumberChecker primeNumberChecker;
+        private Master master;
+        private Proposer proposer;
+        private Acceptor acceptor;
+        private Learner learner;
         private ElectionHandler electionHandler;
         private NumbersFileHelper numbersFileHelper;
         private APIInvocationHandler apiInvocationHandler;
@@ -43,14 +46,23 @@ namespace dc.assignment.primenumbers
             // API handler
             this.apiInvocationHandler = new APIInvocationHandler();
 
-            // prime number checker
-            this.primeNumberChecker = new PrimeNumberChecker();
-            this.primeNumberChecker.onPrimeNumberDetected += primeNumberDetected;
-            this.primeNumberChecker.onPrimeNumberNotDetected += primeNumberNotDetected;
-
             // election handler
             electionHandler = new ElectionHandler(this);
             electionHandler.onLeaderElected += electedAsTheLeader;
+
+            // Master
+            this.master = new Master(this);
+
+            // Proposer : prime number checker
+            this.proposer = new Proposer();
+            this.proposer.onNumberEvaluationComplete += numberEvaluationComplete;
+
+            // Acceptor
+            this.acceptor = new Acceptor(this);
+
+            // learner
+            this.learner = new Learner(this);
+            this.learner.onFinalResult += numberEvaluationCompleted;
 
             // set node inital status
             ConsulServiceRegister.setNode(this);
@@ -106,6 +118,11 @@ namespace dc.assignment.primenumbers
             return this.apiInvocationHandler;
         }
 
+        public NumbersFileHelper getNumbersFileHelper()
+        {
+            return this.numbersFileHelper;
+        }
+
         //===============================================================================
         // HTTP APIs of AppNode
         //===============================================================================
@@ -136,6 +153,18 @@ namespace dc.assignment.primenumbers
             else if (service.Equals("abort") && method == KHTTPMethod.GET && this.type == AppNodeType.Proposer)
             {
                 reponse = handleRequestAbort();
+            }
+            else if (service.Equals("setProposersCount") && method == KHTTPMethod.POST && this.type == AppNodeType.Learner)
+            {
+                reponse = handleRequestSetProposersCount(e.request.bodyContent);
+            }
+            else if (service.Equals("accept") && method == KHTTPMethod.POST && this.type == AppNodeType.Acceptor)
+            {
+                reponse = handleRequestAccept(e.request.bodyContent);
+            }
+            else if (service.Equals("learn") && method == KHTTPMethod.POST && this.type == AppNodeType.Learner)
+            {
+                reponse = handleRequestLearn(e.request.bodyContent);
             }
             else
             {
@@ -230,87 +259,8 @@ namespace dc.assignment.primenumbers
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "AppNode is healthy." });
         }
 
-        //===============================================================================
-        // Master section
-        //===============================================================================
-        private void electedAsTheLeader(object? sender, EventArgs e)
-        {
-            // assign roles to all nodes
-            bool success = assignRoles();
-            if (!success) { return; }
-
-            // get Proposers
-            List<Node> proposerNodes = ConsulServiceRegister.getHealthyProposers();
-
-            // distribute the work
-            distributeTasks(proposerNodes);
-        }
-
-        private bool assignRoles()
-        {
-            // Master
-            this.type = AppNodeType.Master;
-            ConsulServiceRegister.setNode(this);
-
-            // check the consistancy of the ecosystem
-            List<Node> nodes = checkEcosystem();
-
-            // check ecosystem
-            if (nodes.Count == 0)
-            {
-                // revert
-                this.type = AppNodeType.Initial;
-                ConsulServiceRegister.setNode(this);
-                return false;
-            }
-            else
-            {
-                // log
-                Program.logger.log(this.id, this.name, "Node is the leader now. 🤴");
-
-                // other roles
-                // Step 1: abort currently running Proposer jobs
-                foreach (Node node in nodes)
-                {
-                    if (node.type == AppNodeType.Proposer)
-                    {
-                        // abort 
-                        this.apiInvocationHandler.invokeGET(node.address + "/abort");
-                    }
-                }
-
-                // Step 2: assign new roles
-                int nodeIndex = 0;
-                foreach (Node node in nodes)
-                {
-                    nodeIndex++;
-
-                    // two Acceptors
-                    if (nodeIndex <= 2)
-                    {
-                        this.apiInvocationHandler.invokePOST(node.address + "/transform", new { role = "Acceptor" });
-                    }
-
-                    // one Learner
-                    else if (nodeIndex == 3)
-                    {
-                        this.apiInvocationHandler.invokePOST(node.address + "/transform", new { role = "Learner" });
-                    }
-
-                    // rest are Proposers
-                    else
-                    {
-                        this.apiInvocationHandler.invokePOST(node.address + "/transform", new { role = "Proposer" });
-                    }
-                }
-
-                // log
-                Program.logger.log(this.id, this.name, "New roles assigned. 🪄");
-                return true;
-            }
-        }
-
-        private List<Node> checkEcosystem()
+        // Check ecosystem
+        public List<Node> checkEcosystem()
         {
             // get all healthy nodes and assign roles
             AppNodeType[] nodeTypes = {
@@ -335,64 +285,23 @@ namespace dc.assignment.primenumbers
             return nodes;
         }
 
-        private void distributeTasks(List<Node> nodes)
+        //===============================================================================
+        // Master section
+        //===============================================================================
+        private void electedAsTheLeader(object? sender, EventArgs e)
         {
-            // until all numbers are evaluated
-            while (true)
-            {
-                // get next number
-                int nextNumber = this.numbersFileHelper.getNextNumber();
+            // assign roles to all nodes
+            bool success = this.master.assignRoles();
+            if (!success) { return; }
 
-                // eof or no number in the file
-                if (nextNumber == -1)
-                {
-                    return;
-                }
-                // previous number still not completed
-                else if (nextNumber == 0)
-                {
-                    continue;
-                }
+            // get Proposers
+            List<Node> proposerNodes = ConsulServiceRegister.getHealthyProposers();
 
-                // log
-                Program.logger.log(this.id, this.name, "Next number " + nextNumber + " released.");
+            // inform proposers count to the Learner
+            this.master.informProposersCountLearner(proposerNodes.Count);
 
-                // number range distribution
-                int fullPortionCount = nextNumber / nodes.Count;
-                int remainder = nextNumber % nodes.Count;
-                int nodeIndex = 0;
-                int previousNodeToNumber = 1;
-                foreach (Node node in nodes)
-                {
-                    nodeIndex++;
-                    node.fromNumber = previousNodeToNumber;
-                    node.toNumber = nodeIndex * fullPortionCount;
-                    previousNodeToNumber = node.toNumber + 1;
-
-                    // add odd number to the last node
-                    if (nodes.Count == nodeIndex)
-                    {
-                        node.toNumber += remainder;
-                    }
-
-                    // log
-                    Program.logger.log(this.id, this.name, "Node: " + node.name + " was assigned to evaluate the range " + node.fromNumber + " - " + node.toNumber + " of number " + nextNumber + ". 🔢");
-
-                    // assign task
-                    var evaluateRequest = new
-                    {
-                        number = nextNumber,
-                        fromNumber = node.fromNumber,
-                        toNumber = node.toNumber
-                    };
-                    this.apiInvocationHandler.invokePOST(node.address + "/evaluate", evaluateRequest);
-                }
-
-                /*
-                The master node next needs to tell the learner node how many proposers exist. This information is
-                needed for the learner to give the final outcome and for the algorithm to terminate.
-                */
-            }
+            // blocking method: distribute the work
+            this.master.distributeTasks(proposerNodes);
         }
 
         //===============================================================================
@@ -403,7 +312,7 @@ namespace dc.assignment.primenumbers
         private KHTTPResponse handleRequestEvaluate(string body)
         {
             // already working on somthing?
-            if (this.primeNumberChecker.isEvaluating())
+            if (this.proposer.isEvaluating())
             {
                 return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being evaluated currently." });
             }
@@ -412,7 +321,7 @@ namespace dc.assignment.primenumbers
             {
                 // convert body string to object
                 EvaluateRequestDTO? dto = JsonSerializer.Deserialize<EvaluateRequestDTO>(body);
-                bool accepted = this.primeNumberChecker.evaluate(dto.number, dto.fromNumber, dto.toNumber);
+                bool accepted = this.proposer.evaluate(dto.number, dto.fromNumber, dto.toNumber);
                 if (accepted)
                 {
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
@@ -426,9 +335,9 @@ namespace dc.assignment.primenumbers
         // API: abort
         private KHTTPResponse handleRequestAbort()
         {
-            if (this.primeNumberChecker.isEvaluating())
+            if (this.proposer.isEvaluating())
             {
-                this.primeNumberChecker.abort();
+                this.proposer.abort();
                 return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Evaluation aborted." });
             }
 
@@ -436,7 +345,7 @@ namespace dc.assignment.primenumbers
         }
 
         // Inform: prime number NOT detected
-        private void primeNumberNotDetected(object? sender, PrimeNumberNotDetectedEventArgs e)
+        private void numberEvaluationComplete(object? sender, NumberEvaluationCompleteEventArgs e)
         {
             /*
             From the service registry they will identify acceptors and then they will pick one random acceptor to
@@ -452,35 +361,62 @@ namespace dc.assignment.primenumbers
             List<Node> acceptorNodes = ConsulServiceRegister.getHealthyAcceptors();
         }
 
-        // Inform: prime number detected
-        private void primeNumberDetected(object? sender, EventArgs e)
-        {
-
-        }
-
         //===============================================================================
         // Acceptor section
         //===============================================================================
+        // API: accept
+        private KHTTPResponse handleRequestAccept(string body)
+        {
+            // convert body string to object
+            EvaluateResultDTO? dto = JsonSerializer.Deserialize<EvaluateResultDTO>(body);
 
-        /*
-        1. The acceptor will receive messages from proposers.
-        2. The acceptor needs to find the learner node from the service registry.
-        3. If the acceptor gets a message saying the number is not prime it needs to divide and re-verify and
-        check the validity of the message
-        4. If the response is valid then it needs to send to the learner that 54322 is not a prime.
-        5. If the acceptor gets a message saying the number is prime it would not verify this and will assume
-        the proposer was telling the truth and would send a message to the learner saying 54322 is prime.
-        */
+            // Not Prime! verify
+            bool valid = this.acceptor.verify(dto.number, dto.isPrime, dto.divisibleByNumber);
+            if (!valid) // Proposer is sending false results !!!
+            {
+                return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "False result." });
+            }
+
+            // accept and inform the Learner
+            this.acceptor.accept(dto.number, dto.isPrime);
+
+            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
+        }
 
         //===============================================================================
         // Learner section
         //===============================================================================
+        // API: set Proposers count
+        private KHTTPResponse handleRequestSetProposersCount(string body)
+        {
+            // convert body string to object
+            ProposersCountDTO? dto = JsonSerializer.Deserialize<ProposersCountDTO>(body);
 
-        /*
-        1. The master node will tell how many proposers are there in the system.
-        2. The learner will count the number of messages sent by acceptors
-        3. If there is even one message saying its not a prime the learner will decide the number is not prime.
-        4. If all the nodes say its prime then it will decide its prime.
-        */
+            // set count
+            this.learner.proposersCount = dto.proposers;
+
+            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
+        }
+
+        // API: learn
+        private KHTTPResponse handleRequestLearn(string body)
+        {
+            // convert body string to object
+            PrimeResultDTO? dto = JsonSerializer.Deserialize<PrimeResultDTO>(body);
+
+            // learn
+            this.learner.learn(dto.number, dto.isPrime);
+
+            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
+        }
+
+        // Current number evaluation completed   
+        private void numberEvaluationCompleted(object? sender, FinalResultEventArgs e)
+        {
+            // write the result to the output file 
+            // and release the current number
+            // so that master node can take the next number
+            this.learner.completeNumber(e.number, e.isPrime);
+        }
     }
 }
