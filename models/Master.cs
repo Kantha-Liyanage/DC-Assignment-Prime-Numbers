@@ -135,6 +135,8 @@ namespace dc.assignment.primenumbers.models
                         fromNumber = node.fromNumber,
                         toNumber = node.toNumber
                     };
+
+                    // need to check ecosystem
                     string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/evaluate", evaluateRequest);
                 }
             }

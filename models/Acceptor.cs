@@ -31,6 +31,8 @@ namespace dc.assignment.primenumbers.models
                 number = number,
                 isPrime = isPrime
             };
+
+            // need to check ecosystem
             string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(learnerNode.address + "/learn", obj);
         }
 
