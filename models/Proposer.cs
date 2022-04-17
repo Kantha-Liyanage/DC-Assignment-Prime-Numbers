@@ -106,7 +106,7 @@ namespace dc.assignment.primenumbers.models
             List<Node> acceptorNodes = ConsulServiceRegister.getHealthyAcceptors();
 
             // pick one random Acceptor
-            int acceptorRandomIndex = new Random().Next(0, (acceptorNodes.Count - 1));
+            int acceptorRandomIndex = new Random().Next(0, acceptorNodes.Count);
 
             // log
             Program.log(this.appNode.id, this.appNode.name, "Acceptor random index: " + acceptorRandomIndex + " out of " + acceptorNodes.Count + ".");
