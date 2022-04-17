@@ -5,7 +5,7 @@ namespace dc.assignment.primenumbers.models
 {
     public class Learner
     {
-        public int proposersCount { get; set; }
+        private int _proposersCount;
         public event EventHandler<FinalResultEventArgs>? onFinalResult;
         private int learnCount = 0;
         private List<Result> results = new List<Result>();
@@ -15,10 +15,25 @@ namespace dc.assignment.primenumbers.models
         {
             this.appNode = appNode;
         }
+
+        public int proposersCount
+        {
+            get { return _proposersCount; }
+            set
+            {
+                _proposersCount = value;
+
+                // log
+                Program.log(this.appNode.id, this.appNode.name, "There are " + value + " proposers.");
+            }
+        }
         public void learn(int number, bool isPrime)
         {
             results.Add(new Result(number, isPrime));
             learnCount++;
+
+            // log
+            Program.log(this.appNode.id, this.appNode.name, "A result received for number: " + number + " as " + (isPrime ? "Prime." : "Not Prime."));
 
             if (learnCount == proposersCount)
             {
@@ -32,6 +47,9 @@ namespace dc.assignment.primenumbers.models
                     }
                 }
 
+                // log
+                Program.log(this.appNode.id, this.appNode.name, "All proposers responded. Number: " + number + (isPrime ? " is Prime." : " is not Prime."));
+
                 // fire the event
                 onFinalResult?.Invoke(this, new FinalResultEventArgs(number, isPrimeFinal));
 
@@ -44,6 +62,9 @@ namespace dc.assignment.primenumbers.models
         public void completeNumber(int number, bool isPrime)
         {
             this.appNode.getNumbersFileHelper().completeNumber(number, isPrime);
+
+            // log
+            Program.log(this.appNode.id, this.appNode.name, "Number: " + number + " completed.");
         }
     }
 

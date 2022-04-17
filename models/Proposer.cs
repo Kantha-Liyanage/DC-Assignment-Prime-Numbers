@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
+using dc.assignment.primenumbers.utils.serviceregister;
 
 namespace dc.assignment.primenumbers.models
 {
@@ -7,9 +9,12 @@ namespace dc.assignment.primenumbers.models
     {
         private bool _isEvaluating;
         private bool _abort;
+        private AppNode appNode;
         public event EventHandler<NumberEvaluationCompleteEventArgs>? onNumberEvaluationComplete;
-        public Proposer()
+        private const int DEMO_DELAY = 10;
+        public Proposer(AppNode appNode)
         {
+            this.appNode = appNode;
             this._isEvaluating = false;
             this._abort = false;
         }
@@ -64,11 +69,17 @@ namespace dc.assignment.primenumbers.models
                         }
                     }
                     currentNumber++;
+
+                    // sleep
+                    Thread.Sleep(DEMO_DELAY);
                 }
 
                 // inform 
                 if (!this._abort)
                 {
+                    // log
+                    Program.log(this.appNode.id, this.appNode.name, "Range evaluation completed. The number could be " + (isPrimeNumber ? "Prime." : "not Prime."));
+
                     if (isPrimeNumber)
                     {
                         onNumberEvaluationComplete?.Invoke(this, new NumberEvaluationCompleteEventArgs(theNumber, isPrimeNumber, 0));
@@ -84,6 +95,31 @@ namespace dc.assignment.primenumbers.models
             thread.Start();
 
             return true;
+        }
+
+        public void sendResultToAcceptor(string nodeName, int number, bool isPrime, int divisibleByNumber)
+        {
+            // get Acceptors
+            List<Node> acceptorNodes = ConsulServiceRegister.getHealthyAcceptors();
+
+            // pick one random Acceptor
+            Node acceptorNode = acceptorNodes[new Random().Next(0, (acceptorNodes.Count - 1))];
+
+            // log
+            Program.log(this.appNode.id, this.appNode.name, "Acceptor: " + acceptorNode.name + " was selected.");
+
+            // send result
+            var obj = new
+            {
+                nodeName = nodeName,
+                number = number,
+                isPrime = isPrime,
+                divisibleByNumber = divisibleByNumber
+            };
+            this.appNode.getAPIInvocationHandler().invokePOST(acceptorNode.address + "/accept", obj);
+
+            // log
+            Program.log(this.appNode.id, this.appNode.name, "Informed to the Acceptor.");
         }
 
         private bool isValidInput(int theNumber, int fromNumber, int toNumber)

@@ -27,9 +27,8 @@ namespace dc.assignment.primenumbers
         public AppNode(string ipAddress, int port)
         {
             // get node id
-            Random random = new Random();
-            //yyyyMMdd
-            this.id = Int64.Parse(DateTime.Now.ToString("HHmmssffff")) + random.Next(100, 999);
+            // yyyyMMdd
+            this.id = Int64.Parse(DateTime.Now.ToString("HHmmssffff")) + new Random().Next(100, 999);
             this.type = AppNodeType.Initial;
             this.ipAddress = ipAddress;
             this.port = port;
@@ -54,7 +53,7 @@ namespace dc.assignment.primenumbers
             this.master = new Master(this);
 
             // Proposer : prime number checker
-            this.proposer = new Proposer();
+            this.proposer = new Proposer(this);
             this.proposer.onNumberEvaluationComplete += numberEvaluationComplete;
 
             // Acceptor
@@ -81,13 +80,13 @@ namespace dc.assignment.primenumbers
             // sleeping time
             int randomStartTime = new Random().Next(10000, 20000);
             // log
-            Program.logger.log(this.id, this.name, "Node created and frozen for " + (randomStartTime / 1000) + "s ⏳");
+            Program.log(this.id, this.name, "Node created and frozen for " + (randomStartTime / 1000) + "s ⏳");
 
             // sleep
             Thread.Sleep(randomStartTime);
 
             // log
-            Program.logger.log(this.id, this.name, "Node lifecycle started. 🟢");
+            Program.log(this.id, this.name, "Node lifecycle started. 🟢");
 
             while (true)
             {
@@ -101,7 +100,7 @@ namespace dc.assignment.primenumbers
                     if (node == null)
                     {
                         // log
-                        Program.logger.log(this.id, this.name, "Leader not found. Starting an election...📢");
+                        Program.log(this.id, this.name, "Leader not found. Starting an election...📢");
 
                         // election
                         electionHandler.start();
@@ -190,14 +189,14 @@ namespace dc.assignment.primenumbers
                 if (dto.nodeId > this.id)
                 {
                     // log
-                    Program.logger.log(this.id, this.name, "Node voted as Younger. ✅");
+                    Program.log(this.id, this.name, "Node voted as Younger. ✅");
 
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Younger." });
                 }
                 else
                 {
                     // log
-                    Program.logger.log(this.id, this.name, "Node voted as Older. ⭕");
+                    Program.log(this.id, this.name, "Node voted as Older. ⭕");
 
                     return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Older." });
                 }
@@ -221,7 +220,7 @@ namespace dc.assignment.primenumbers
                         ConsulServiceRegister.setNode(this);
 
                         // log
-                        Program.logger.log(this.id, this.name, "Node role changed to a Proposer. 🧮");
+                        Program.log(this.id, this.name, "Node role changed to a Proposer. 🧮");
 
                         break;
                     case "Acceptor":
@@ -229,7 +228,7 @@ namespace dc.assignment.primenumbers
                         ConsulServiceRegister.setNode(this);
 
                         // log
-                        Program.logger.log(this.id, this.name, "Node role changed to an Acceptor. 📥");
+                        Program.log(this.id, this.name, "Node role changed to an Acceptor. 📥");
 
                         break;
                     case "Learner":
@@ -237,7 +236,7 @@ namespace dc.assignment.primenumbers
                         ConsulServiceRegister.setNode(this);
 
                         // log
-                        Program.logger.log(this.id, this.name, "Node role changed to a Learner. 💡");
+                        Program.log(this.id, this.name, "Node role changed to a Learner. 💡");
                         break;
                     default:
                         // error
@@ -277,7 +276,7 @@ namespace dc.assignment.primenumbers
             if (nodes.Count < 5)
             {
                 // log
-                Program.logger.log(this.id, this.name, "Ecosystem unstable. 🚑");
+                Program.log(this.id, this.name, "Ecosystem unstable. 🚑");
 
                 return new List<Node>(); // empty
             }
@@ -314,20 +313,25 @@ namespace dc.assignment.primenumbers
             // already working on somthing?
             if (this.proposer.isEvaluating())
             {
+                // log
+                Program.log(this.id, this.name, "Not accepted. A number is being evaluated currently.");
+
                 return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being evaluated currently." });
             }
 
-            try
+            // convert body string to object
+            EvaluateRequestDTO? dto = JsonSerializer.Deserialize<EvaluateRequestDTO>(body);
+            bool accepted = this.proposer.evaluate(dto.number, dto.fromNumber, dto.toNumber);
+            if (accepted)
             {
-                // convert body string to object
-                EvaluateRequestDTO? dto = JsonSerializer.Deserialize<EvaluateRequestDTO>(body);
-                bool accepted = this.proposer.evaluate(dto.number, dto.fromNumber, dto.toNumber);
-                if (accepted)
-                {
-                    return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
-                }
+                // log
+                Program.log(this.id, this.name, "Evaluation started for number: " + dto.number + " for the range from " + dto.fromNumber + " to " + dto.toNumber + ".");
+
+                return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
             }
-            catch (Exception er) { }
+
+            // log
+            Program.log(this.id, this.name, "Not accepted.");
 
             return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. Invalid input." });
         }
@@ -347,18 +351,8 @@ namespace dc.assignment.primenumbers
         // Inform: prime number NOT detected
         private void numberEvaluationComplete(object? sender, NumberEvaluationCompleteEventArgs e)
         {
-            /*
-            From the service registry they will identify acceptors and then they will pick one random acceptor to
-            send their out come to.
-
-            If the number divides by a certain number it will send a message saying “Number is not prime” and
-            then include details saying 54322 is divisible by xyz number.
-
-            If the number is not divisible by any of the numbers in their range they will send a message “Number
-            is Prime”
-            */
-
-            List<Node> acceptorNodes = ConsulServiceRegister.getHealthyAcceptors();
+            // send result
+            this.proposer.sendResultToAcceptor(this.name, e.number, e.isPrime, e.divisibleByNumber);
         }
 
         //===============================================================================
@@ -371,7 +365,7 @@ namespace dc.assignment.primenumbers
             EvaluateResultDTO? dto = JsonSerializer.Deserialize<EvaluateResultDTO>(body);
 
             // Not Prime! verify
-            bool valid = this.acceptor.verify(dto.number, dto.isPrime, dto.divisibleByNumber);
+            bool valid = this.acceptor.verify(dto.nodeName, dto.number, dto.isPrime, dto.divisibleByNumber);
             if (!valid) // Proposer is sending false results !!!
             {
                 return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "False result." });

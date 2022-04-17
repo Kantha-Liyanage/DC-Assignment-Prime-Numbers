@@ -6,7 +6,7 @@ namespace dc.assignment.primenumbers
 {
     class Program
     {
-        public static KLogger? logger;
+        private static KLogger? appLogger;
 
         static void Main(string[] args)
         {
@@ -31,7 +31,7 @@ namespace dc.assignment.primenumbers
             else if (inputArgs.Length == 1 && inputArgs[0].Equals("logger"))
             {
                 // application logger
-                Program.logger = new KLogger(true);
+                Program.appLogger = new KLogger(true);
             }
             // numbers file service
             else if (inputArgs.Length == 1 && inputArgs[0].Equals("nfs"))
@@ -42,7 +42,7 @@ namespace dc.assignment.primenumbers
             else if (inputArgs.Length == 3 && inputArgs[0].Equals("appnode"))
             {
                 // application logger
-                Program.logger = new KLogger(false);
+                Program.appLogger = new KLogger(false);
 
                 string ip = inputArgs[1];
                 int port = int.Parse(inputArgs[2]);
@@ -54,6 +54,11 @@ namespace dc.assignment.primenumbers
                 Console.WriteLine("Error: Invalid arguments!");
                 return;
             }
+        }
+
+        public static void log(Int64 nodeId, string nodeName, string message)
+        {
+            Program.appLogger.log(nodeId, nodeName, message);
         }
     }
 }

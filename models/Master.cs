@@ -32,7 +32,7 @@ namespace dc.assignment.primenumbers.models
             else
             {
                 // log
-                Program.logger.log(this.appNode.id, this.appNode.name, "Node is the leader now. 🤴");
+                Program.log(this.appNode.id, this.appNode.name, "Node is the leader now. 🤴");
 
                 // other roles
                 // Step 1: abort currently running Proposer jobs
@@ -71,7 +71,7 @@ namespace dc.assignment.primenumbers.models
                 }
 
                 // log
-                Program.logger.log(this.appNode.id, this.appNode.name, "New roles assigned. 🪄");
+                Program.log(this.appNode.id, this.appNode.name, "New roles assigned. 🪄");
                 return true;
             }
         }
@@ -83,6 +83,9 @@ namespace dc.assignment.primenumbers.models
 
             // update number of proposers in the ecosystem
             string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(learner.address + "/setProposersCount", new { proposers = proposerNodesCount });
+
+            // log
+            Program.log(this.appNode.id, this.appNode.name, "Learner : " + learner.name + " must receive results from " + proposerNodesCount + " proposers.");
         }
 
         public void distributeTasks(List<Node> nodes)
@@ -105,7 +108,7 @@ namespace dc.assignment.primenumbers.models
                 }
 
                 // log
-                Program.logger.log(this.appNode.id, this.appNode.name, "Next number " + nextNumber + " released.");
+                Program.log(this.appNode.id, this.appNode.name, "Next number " + nextNumber + " released.");
 
                 // number range distribution
                 int fullPortionCount = nextNumber / nodes.Count;
@@ -126,7 +129,7 @@ namespace dc.assignment.primenumbers.models
                     }
 
                     // log
-                    Program.logger.log(this.appNode.id, this.appNode.name, "Node: " + node.name + " was assigned to evaluate the range " + node.fromNumber + " - " + node.toNumber + " of number " + nextNumber + ". 🔢");
+                    Program.log(this.appNode.id, this.appNode.name, "Node: " + node.name + " was assigned to evaluate the range " + node.fromNumber + " - " + node.toNumber + " of number " + nextNumber + ". 🔢");
 
                     // assign task
                     var evaluateRequest = new

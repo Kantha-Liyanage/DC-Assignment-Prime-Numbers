@@ -1,3 +1,4 @@
+using System;
 using dc.assignment.primenumbers.utils.serviceregister;
 
 namespace dc.assignment.primenumbers.models
@@ -10,12 +11,14 @@ namespace dc.assignment.primenumbers.models
             this.appNode = appNode;
         }
 
-        public bool verify(int number, bool isPrime, int divisibleByNumber)
+        public bool verify(string nodeName, int number, bool isPrime, int divisibleByNumber)
         {
             int remainder = number % divisibleByNumber;
             // Not Prime! verify
             if (!isPrime && remainder != 0) // Proposer is sending false results !!!
             {
+                // log
+                Program.log(this.appNode.id, this.appNode.name, "Proposer: " + nodeName + " is sending false results");
                 return false;
             }
 
