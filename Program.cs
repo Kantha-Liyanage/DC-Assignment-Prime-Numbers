@@ -59,7 +59,14 @@ namespace dc.assignment.primenumbers
         public static void log(Int64 nodeId, string nodeName, string message)
         {
             Program.appLogger.log(nodeId, nodeName, message);
-            Console.WriteLine("Log: " + message);
+
+            // console
+            var defaultColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("Log: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(message);
+            Console.ForegroundColor = defaultColor;
         }
     }
 }

@@ -82,11 +82,13 @@ namespace dc.assignment.primenumbers.utils.tcplistener
                     var remotePort = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Port;
 
                     var defaultColor = Console.ForegroundColor;
-                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("API: ");
+                    Console.ForegroundColor = ConsoleColor.Blue;
                     Console.Write(request.httpMethod);
                     Console.ForegroundColor = defaultColor;
                     Console.Write(" request came from client at " + remoteIP + ":" + remotePort + " for ");
-                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.ForegroundColor = ConsoleColor.Blue;
                     Console.WriteLine("[" + request.resourceURL + "]");
                     Console.ForegroundColor = defaultColor;
 
