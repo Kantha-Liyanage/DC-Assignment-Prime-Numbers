@@ -62,7 +62,7 @@ namespace dc.assignment.primenumbers
 
             // console
             var defaultColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write("Log: ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(message);

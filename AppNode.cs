@@ -24,6 +24,7 @@ namespace dc.assignment.primenumbers
         private KTCPListener tcpListener;
         private APIInvocationHandler apiInvocationHandler;
         private const int ELECTION_DELAY = 10000;
+        private const int LEADER_CHECK_DELAY = 5000;
         public AppNode(string ipAddress, int port)
         {
             // get node id
@@ -93,6 +94,18 @@ namespace dc.assignment.primenumbers
                 // check whether self is the leader
                 if (this.type != AppNodeType.Master)
                 {
+                    // Learner need to check whether all Proposers are alive
+                    if (this.type == AppNodeType.Learner)
+                    {
+                        List<Node> proposerNodes = ConsulServiceRegister.getHealthyProposers();
+
+                        // one or more Proposers are dead
+                        if (this.learner.proposersCount != proposerNodes.Count)
+                        {
+                            this.master.assignRoles();
+                        }
+                    }
+
                     // some other node could be the leader
                     Node node = ConsulServiceRegister.getHealthyLeader();
 
@@ -107,6 +120,11 @@ namespace dc.assignment.primenumbers
 
                         // wait for a while and check again
                         Thread.Sleep(ELECTION_DELAY);
+                    }
+                    else
+                    {
+                        // leader alive, wait and see a bit
+                        Thread.Sleep(LEADER_CHECK_DELAY);
                     }
                 }
             }

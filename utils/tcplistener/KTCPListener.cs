@@ -84,11 +84,11 @@ namespace dc.assignment.primenumbers.utils.tcplistener
                     var defaultColor = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write("API: ");
-                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write(request.httpMethod);
-                    Console.ForegroundColor = defaultColor;
+                    Console.ForegroundColor = ConsoleColor.White;
                     Console.Write(" request came from client at " + remoteIP + ":" + remotePort + " for ");
-                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("[" + request.resourceURL + "]");
                     Console.ForegroundColor = defaultColor;
 
