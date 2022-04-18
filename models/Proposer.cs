@@ -109,7 +109,7 @@ namespace dc.assignment.primenumbers.models
             // There must be at least minimum of 2 Acceptors
             if (acceptorNodes.Count < 2)
             {
-                this.appNode.master.assignRoles();
+                this.appNode.reassignRoles();
                 return;
             }
 

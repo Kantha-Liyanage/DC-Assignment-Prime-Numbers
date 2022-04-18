@@ -46,7 +46,7 @@ namespace dc.assignment.primenumbers.models
             // there must be a Learner node
             if (learnerNode == null)
             {
-                this.appNode.master.assignRoles();
+                this.appNode.reassignRoles();
                 return;
             }
 

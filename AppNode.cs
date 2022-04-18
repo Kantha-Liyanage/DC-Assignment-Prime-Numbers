@@ -15,7 +15,7 @@ namespace dc.assignment.primenumbers
     public class AppNode : Node
     {
         // aggregations
-        public Master master;
+        private Master master;
         private Proposer proposer;
         private Acceptor acceptor;
         private Learner learner;
@@ -102,7 +102,7 @@ namespace dc.assignment.primenumbers
                         // one or more Proposers are dead
                         if (this.learner.proposersCount != proposerNodes.Count)
                         {
-                            this.master.assignRoles();
+                            this.reassignRoles();
                         }
                     }
 
@@ -186,6 +186,10 @@ namespace dc.assignment.primenumbers
             else if (service.Equals("reset") && method == KHTTPMethod.POST && this.type == AppNodeType.Learner)
             {
                 reponse = handleRequestReset();
+            }
+            else if (service.Equals("reassignRoles") && method == KHTTPMethod.POST && this.type == AppNodeType.Master)
+            {
+                reponse = handleRequestReassignRoles();
             }
             else
             {
@@ -302,6 +306,12 @@ namespace dc.assignment.primenumbers
             return nodes;
         }
 
+        public void reassignRoles()
+        {
+            Node master = ConsulServiceRegister.getHealthyLeader();
+            this.apiInvocationHandler.invokePOST(master.address + "/reassignRoles", new { });
+        }
+
         //===============================================================================
         // Master section
         //===============================================================================
@@ -319,6 +329,14 @@ namespace dc.assignment.primenumbers
 
             // blocking method: distribute the work
             this.master.distributeTasks(proposerNodes);
+        }
+
+        // API: reassign roles
+        private KHTTPResponse handleRequestReassignRoles()
+        {
+            this.electedAsTheLeader(null, null);
+
+            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Successful." });
         }
 
         //===============================================================================
