@@ -10,6 +10,10 @@
             <script>
                 $.get('http://localhost:8181/Logs', function(dataJSON, status){
                     //data received
+                    dataJSON.forEach(element => {
+                        console.log(element.nodeName);
+                    });
+
                     $('div#wrapper').Grid({
                         search: true,
                         sort: true,

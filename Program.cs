@@ -59,6 +59,7 @@ namespace dc.assignment.primenumbers
         public static void log(Int64 nodeId, string nodeName, string message)
         {
             Program.appLogger.log(nodeId, nodeName, message);
+            Console.WriteLine("Log: " + message);
         }
     }
 }
