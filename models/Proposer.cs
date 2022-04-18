@@ -105,6 +105,14 @@ namespace dc.assignment.primenumbers.models
             // get Acceptors
             List<Node> acceptorNodes = ConsulServiceRegister.getHealthyAcceptors();
 
+            // check ecosystem
+            // There must be at least minimum of 2 Acceptors
+            if (acceptorNodes.Count < 2)
+            {
+                this.appNode.master.assignRoles();
+                return;
+            }
+
             // pick one random Acceptor
             int acceptorRandomIndex = new Random().Next(0, acceptorNodes.Count);
 
@@ -124,10 +132,11 @@ namespace dc.assignment.primenumbers.models
                 isPrime = isPrime,
                 divisibleByNumber = divisibleByNumber
             };
-            string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(acceptorNode.address + "/accept", obj);
 
             // log
-            Program.log(this.appNode.id, this.appNode.name, "Informed to the selected Acceptor.");
+            Program.log(this.appNode.id, this.appNode.name, "Informing to the selected Acceptor...");
+
+            string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(acceptorNode.address + "/accept", obj);
         }
 
         private bool isValidInput(int theNumber, int fromNumber, int toNumber)

@@ -56,8 +56,7 @@ namespace dc.assignment.primenumbers.models
                 onFinalResult?.Invoke(this, new FinalResultEventArgs(number, isPrimeFinal, divisibleByNumberFinal));
 
                 // reset to accept results of the next number
-                results.Clear();
-                learnCount = 0;
+                this.reset();
             }
         }
 
@@ -67,6 +66,12 @@ namespace dc.assignment.primenumbers.models
 
             // log
             Program.log(this.appNode.id, this.appNode.name, "Number: " + number + " completed.");
+        }
+
+        public void reset()
+        {
+            this.results.Clear();
+            learnCount = 0;
         }
     }
 

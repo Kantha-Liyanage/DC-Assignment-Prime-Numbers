@@ -41,6 +41,15 @@ namespace dc.assignment.primenumbers.models
 
             // inform the Learner
             Node learnerNode = ConsulServiceRegister.getHealthyLearner();
+
+            // check ecosystem
+            // there must be a Learner node
+            if (learnerNode == null)
+            {
+                this.appNode.master.assignRoles();
+                return;
+            }
+
             var obj = new
             {
                 number = number,
@@ -48,11 +57,11 @@ namespace dc.assignment.primenumbers.models
                 divisibleByNumber = divisibleByNumber
             };
 
+            // log
+            Program.log(this.appNode.id, this.appNode.name, "Informing the Learner...");
+
             // need to check ecosystem
             string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(learnerNode.address + "/learn", obj);
-
-            // log
-            Program.log(this.appNode.id, this.appNode.name, "Informed the Learner.");
         }
 
     }

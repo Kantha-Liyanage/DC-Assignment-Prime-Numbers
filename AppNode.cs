@@ -15,13 +15,13 @@ namespace dc.assignment.primenumbers
     public class AppNode : Node
     {
         // aggregations
-        private KTCPListener tcpListener;
-        private Master master;
+        public Master master;
         private Proposer proposer;
         private Acceptor acceptor;
         private Learner learner;
         private ElectionHandler electionHandler;
         private NumbersFileHelper numbersFileHelper;
+        private KTCPListener tcpListener;
         private APIInvocationHandler apiInvocationHandler;
         private const int ELECTION_DELAY = 10000;
         public AppNode(string ipAddress, int port)
@@ -164,6 +164,10 @@ namespace dc.assignment.primenumbers
             else if (service.Equals("learn") && method == KHTTPMethod.POST && this.type == AppNodeType.Learner)
             {
                 reponse = handleRequestLearn(e.request.bodyContent);
+            }
+            else if (service.Equals("reset") && method == KHTTPMethod.POST && this.type == AppNodeType.Learner)
+            {
+                reponse = handleRequestReset();
             }
             else
             {
@@ -398,6 +402,15 @@ namespace dc.assignment.primenumbers
             this.learner.learn(dto.number, dto.isPrime, dto.divisibleByNumber);
 
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
+        }
+
+        // API: reset
+        private KHTTPResponse handleRequestReset()
+        {
+            // reset
+            this.learner.reset();
+
+            return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Successful." });
         }
 
         // Current number evaluation completed   

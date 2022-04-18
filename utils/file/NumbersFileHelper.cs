@@ -1,4 +1,3 @@
-using System;
 using System.Text.Json;
 using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.utils.api;
@@ -19,11 +18,10 @@ namespace dc.assignment.primenumbers.utils.file
         {
             string jsonStr = this.apiInvocationHandler.invokeGET(SERVICE_BASE_URL + "/getNextNumber");
             NextNumberDTO? dto = JsonSerializer.Deserialize<NextNumberDTO>(jsonStr);
-            Console.WriteLine("DTO Number:" + dto.number);
             return dto.number;
         }
 
-        public bool completeNumber(int theNumber, bool isPrime, int divisibleByNumber)
+        public void completeNumber(int theNumber, bool isPrime, int divisibleByNumber)
         {
             var obj = new
             {
@@ -33,7 +31,6 @@ namespace dc.assignment.primenumbers.utils.file
             };
 
             string jsonStr = this.apiInvocationHandler.invokePOST(SERVICE_BASE_URL + "/completeNumber", obj);
-            return true;
         }
 
     }

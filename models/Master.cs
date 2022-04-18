@@ -40,13 +40,18 @@ namespace dc.assignment.primenumbers.models
                 Program.log(this.appNode.id, this.appNode.name, "Node is the leader now. 🤴");
 
                 // other roles
-                // Step 1: abort currently running Proposer jobs
+                // Step 1: abort currently running jobs
                 foreach (Node node in nodes)
                 {
                     if (node.type == AppNodeType.Proposer)
                     {
                         // abort 
                         string responseStr = this.appNode.getAPIInvocationHandler().invokeGET(node.address + "/abort");
+                    }
+                    else if (node.type == AppNodeType.Learner)
+                    {
+                        // reset 
+                        string responseStr = this.appNode.getAPIInvocationHandler().invokeGET(node.address + "/reset");
                     }
                 }
 
@@ -96,10 +101,12 @@ namespace dc.assignment.primenumbers.models
         public void distributeTasks(List<Node> nodes)
         {
             // until all numbers are evaluated
+            int previousNumber = -1;
+            int nextNumber = 0;
             while (true)
             {
                 // get next number
-                int nextNumber = this.appNode.getNumbersFileHelper().getNextNumber();
+                nextNumber = this.appNode.getNumbersFileHelper().getNextNumber();
 
                 // eof or no number in the file
                 if (nextNumber == -1)
@@ -109,7 +116,7 @@ namespace dc.assignment.primenumbers.models
                     return;
                 }
                 // previous number still not completed
-                else if (nextNumber == 0)
+                else if (previousNumber == nextNumber)
                 {
                     // sleep
                     Thread.Sleep(NEXT_NUMBER_GET_DELAY);
@@ -151,6 +158,8 @@ namespace dc.assignment.primenumbers.models
                     // need to check ecosystem
                     string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/evaluate", evaluateRequest);
                 }
+
+                previousNumber = nextNumber;
             }
         }
     }

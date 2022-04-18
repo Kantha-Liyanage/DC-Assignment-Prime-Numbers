@@ -22,7 +22,9 @@ namespace dc.assignment.primenumbers.utils.file
             this.tcpListener.onClientRequest += handleRequests;
 
             // init
-            readAllNumber();
+            this.fileLines = System.IO.File.ReadAllLines(inputFile);
+            this.currentNumberPosition = -1;
+            this.currentNumber = 0;
         }
 
         private void handleRequests(object? sender, KTCPListenerEventArgs e)
@@ -30,33 +32,16 @@ namespace dc.assignment.primenumbers.utils.file
             if (e.request.resourceURL.Equals("getNextNumber") && e.request.httpMethod == KHTTPMethod.GET)
             {
                 int nextNumber = this.getNextNumber();
-                Console.WriteLine("Next Number:" + nextNumber);
                 KHTTPResponse response = new KHTTPResponse(HTTPResponseCode.OK_200, new { number = nextNumber });
                 response.sendJSON(e.tcpClient);
-                Console.WriteLine("Response sent.");
             }
             else if (e.request.resourceURL.Equals("completeNumber") && e.request.httpMethod == KHTTPMethod.POST)
             {
                 PrimeResultDTO? dto = JsonSerializer.Deserialize<PrimeResultDTO>(e.request.bodyContent);
-                bool done = this.completeNumber(dto.number, dto.isPrime, dto.divisibleByNumber);
-                KHTTPResponse response;
-                if (done)
-                {
-                    response = new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Successful." });
-                }
-                else
-                {
-                    response = new KHTTPResponse(HTTPResponseCode.Internal_Server_Error_500, new { message = "Unsuccessful." });
-                }
+                this.completeNumber(dto.number, dto.isPrime, dto.divisibleByNumber);
+                KHTTPResponse response = new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Successful." });
                 response.sendJSON(e.tcpClient);
             }
-        }
-
-        private void readAllNumber()
-        {
-            this.fileLines = System.IO.File.ReadAllLines(inputFile);
-            this.currentNumberPosition = -1;
-            this.currentNumber = 0;
         }
 
         private int getNextNumber()
@@ -64,8 +49,9 @@ namespace dc.assignment.primenumbers.utils.file
             // some basic validations...
             // no numbers in the file
             if (this.fileLines == null) { return -1; }
+
             // last number still pending
-            if (this.currentNumber != 0) { return 0; }
+            if (this.currentNumber != 0) { return this.currentNumber; }
 
             // next number position
             currentNumberPosition++;
@@ -77,11 +63,10 @@ namespace dc.assignment.primenumbers.utils.file
             return this.currentNumber;
         }
 
-        private bool completeNumber(int theNumber, bool isPrime, int divisibleByNumber)
+        private void completeNumber(int theNumber, bool isPrime, int divisibleByNumber)
         {
             this.currentNumber = 0;
             System.IO.File.AppendAllText(this.outputFile, theNumber.ToString() + ":" + isPrime.ToString() + ":" + divisibleByNumber + "\n");
-            return true;
         }
     }
 }

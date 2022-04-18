@@ -12,7 +12,6 @@ namespace dc.assignment.primenumbers.utils.serviceregister
         private const string SERVICE_DEREGISTER_TIME = "15s";
         private const string CHECK_INTERVAL = "5s";
         private const string CHECK_TIMEOUT = "5s";
-
         public static void setNode(AppNode appNode)
         {
             string[] checkArgs = { "curl", appNode.address + "/health" };
