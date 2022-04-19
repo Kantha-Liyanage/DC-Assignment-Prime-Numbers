@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using dc.assignment.primenumbers.dto;
-using dc.assignment.primenumbers.models;
 using dc.assignment.primenumbers.utils.api;
 using dc.assignment.primenumbers.utils.election;
 using dc.assignment.primenumbers.utils.file;
 using dc.assignment.primenumbers.utils.serviceregister;
 using dc.assignment.primenumbers.utils.tcplistener;
 
-namespace dc.assignment.primenumbers
+namespace dc.assignment.primenumbers.models
 {
     public class AppNode : Node
     {
