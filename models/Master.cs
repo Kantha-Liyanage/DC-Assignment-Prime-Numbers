@@ -154,9 +154,16 @@ namespace dc.assignment.primenumbers.models
                         fromNumber = node.fromNumber,
                         toNumber = node.toNumber
                     };
-
-                    // need to check ecosystem
                     string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/evaluate", evaluateRequest);
+
+                    // Proposer is not reachable
+                    if (responseStr == null)
+                    {
+                        // check ecosystem and reassign roles
+                        this.appNode.reassignRoles();
+                        // abort 
+                        return;
+                    }
                 }
 
                 previousNumber = nextNumber;

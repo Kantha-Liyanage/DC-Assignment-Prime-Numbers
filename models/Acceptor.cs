@@ -42,10 +42,10 @@ namespace dc.assignment.primenumbers.models
             // inform the Learner
             Node learnerNode = ConsulServiceRegister.getHealthyLearner();
 
-            // check ecosystem
             // there must be a Learner node
             if (learnerNode == null)
             {
+                // check ecosystem and reassign roles
                 this.appNode.reassignRoles();
                 return;
             }
@@ -62,6 +62,13 @@ namespace dc.assignment.primenumbers.models
 
             // need to check ecosystem
             string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(learnerNode.address + "/learn", obj);
+
+            // Learner is not reachable
+            if (responseStr == null)
+            {
+                // check ecosystem and reassign roles
+                this.appNode.reassignRoles();
+            }
         }
 
     }

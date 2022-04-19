@@ -11,15 +11,19 @@ namespace dc.assignment.primenumbers.utils.api
         {
             using (var client = new HttpClient())
             {
-                string json = JsonSerializer.Serialize(obj);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = client.PostAsync(url, content).Result;
-
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    string responseString = response.Content.ReadAsStringAsync().Result;
-                    return responseString;
+                    string json = JsonSerializer.Serialize(obj);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    var response = client.PostAsync(url, content).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseString = response.Content.ReadAsStringAsync().Result;
+                        return responseString;
+                    }
                 }
+                catch (Exception er) { }
             }
             return null;
         }
@@ -28,13 +32,17 @@ namespace dc.assignment.primenumbers.utils.api
         {
             using (var client = new HttpClient())
             {
-                var response = client.GetAsync(url).Result;
-
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    string responseString = response.Content.ReadAsStringAsync().Result;
-                    return responseString;
+                    var response = client.GetAsync(url).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseString = response.Content.ReadAsStringAsync().Result;
+                        return responseString;
+                    }
                 }
+                catch (Exception er) { }
             }
             return null;
         }

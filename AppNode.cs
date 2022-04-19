@@ -23,8 +23,8 @@ namespace dc.assignment.primenumbers
         private NumbersFileHelper numbersFileHelper;
         private KTCPListener tcpListener;
         private APIInvocationHandler apiInvocationHandler;
-        private const int ELECTION_DELAY = 10000;
-        private const int LEADER_CHECK_DELAY = 5000;
+        private const int ITERATION_DELAY = 5000;
+
         public AppNode(string ipAddress, int port)
         {
             // get node id
@@ -97,6 +97,7 @@ namespace dc.assignment.primenumbers
                     // Learner need to check whether all Proposers are alive
                     if (this.type == AppNodeType.Learner)
                     {
+                        // get Proposers
                         List<Node> proposerNodes = ConsulServiceRegister.getHealthyProposers();
 
                         // one or more Proposers are dead
@@ -106,7 +107,7 @@ namespace dc.assignment.primenumbers
                         }
                     }
 
-                    // some other node could be the leader
+                    // some other node must be the leader
                     Node node = ConsulServiceRegister.getHealthyLeader();
 
                     // leader dead, run election
@@ -117,16 +118,11 @@ namespace dc.assignment.primenumbers
 
                         // election
                         this.electionHandler.start();
-
-                        // wait for a while and check again
-                        Thread.Sleep(ELECTION_DELAY);
-                    }
-                    else
-                    {
-                        // leader alive, wait and see a bit
-                        Thread.Sleep(LEADER_CHECK_DELAY);
                     }
                 }
+
+                // leader alive, wait and see a bit
+                Thread.Sleep(ITERATION_DELAY);
             }
         }
 

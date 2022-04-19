@@ -105,11 +105,12 @@ namespace dc.assignment.primenumbers.models
             // get Acceptors
             List<Node> acceptorNodes = ConsulServiceRegister.getHealthyAcceptors();
 
-            // check ecosystem
             // There must be at least minimum of 2 Acceptors
             if (acceptorNodes.Count < 2)
             {
+                // check ecosystem and reassign roles
                 this.appNode.reassignRoles();
+                // abort
                 return;
             }
 
@@ -137,6 +138,13 @@ namespace dc.assignment.primenumbers.models
             Program.log(this.appNode.id, this.appNode.name, "Informing to the selected Acceptor...");
 
             string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(acceptorNode.address + "/accept", obj);
+
+            // Acceptor is not reachable
+            if (responseStr == null)
+            {
+                // check ecosystem and reassign roles
+                this.appNode.reassignRoles();
+            }
         }
 
         private bool isValidInput(int theNumber, int fromNumber, int toNumber)
