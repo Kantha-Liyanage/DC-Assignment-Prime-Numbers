@@ -35,7 +35,7 @@ namespace dc.assignment.primenumbers.models
             if (!isValidInput(theNumber, fromNumber, toNumber))
             {
                 // log
-                Program.log(this.appNode.id, this.appNode.name, "Invalid input.");
+                Program.log(this.appNode.id, this.appNode.name, "Invalid input. 🚫");
 
                 return false;
             }
@@ -81,7 +81,7 @@ namespace dc.assignment.primenumbers.models
                 if (!this._abort)
                 {
                     // log
-                    Program.log(this.appNode.id, this.appNode.name, "Range evaluation completed. The number " + (isPrimeNumber ? "could be Prime." : "is not Prime. Divisible by: " + currentNumber + "."));
+                    Program.log(this.appNode.id, this.appNode.name, "Range evaluation completed. The number " + (isPrimeNumber ? "could be Prime. 🟩" : "is not Prime. Divisible by: " + currentNumber + ". 🟥"));
 
                     if (isPrimeNumber)
                     {
@@ -118,12 +118,12 @@ namespace dc.assignment.primenumbers.models
             int acceptorRandomIndex = new Random().Next(0, acceptorNodes.Count);
 
             // log
-            Program.log(this.appNode.id, this.appNode.name, "Acceptor random index: " + acceptorRandomIndex + " out of " + acceptorNodes.Count + ".");
+            Program.log(this.appNode.id, this.appNode.name, "Acceptor random index: " + acceptorRandomIndex + " out of " + acceptorNodes.Count + ". #️⃣");
 
             Node acceptorNode = acceptorNodes[acceptorRandomIndex];
 
             // log
-            Program.log(this.appNode.id, this.appNode.name, "Acceptor: " + acceptorNode.name + " was selected.");
+            Program.log(this.appNode.id, this.appNode.name, "Acceptor: " + acceptorNode.name + " was selected. 📥");
 
             // send result
             var obj = new
@@ -135,7 +135,7 @@ namespace dc.assignment.primenumbers.models
             };
 
             // log
-            Program.log(this.appNode.id, this.appNode.name, "Informing to the selected Acceptor...");
+            Program.log(this.appNode.id, this.appNode.name, "Informing to the selected Acceptor...💬");
 
             string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(acceptorNode.address + "/accept", obj);
 

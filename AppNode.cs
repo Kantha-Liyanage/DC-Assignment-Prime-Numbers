@@ -119,6 +119,16 @@ namespace dc.assignment.primenumbers
                         // election
                         this.electionHandler.start();
                     }
+                    else // leader is alive
+                    {
+                        // new node created after selecting the leader
+                        if (this.type == AppNodeType.Initial)
+                        {
+                            // assign as a Proposer
+                            this.type = AppNodeType.Proposer;
+                            ConsulServiceRegister.setNode(this);
+                        }
+                    }
                 }
 
                 // leader alive, wait and see a bit
@@ -346,7 +356,7 @@ namespace dc.assignment.primenumbers
             if (this.proposer.isEvaluating())
             {
                 // log
-                Program.log(this.id, this.name, "Not accepted. A number is being evaluated currently.");
+                Program.log(this.id, this.name, "Not accepted. A number is being evaluated currently. ⏳");
 
                 return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being evaluated currently." });
             }
@@ -357,13 +367,13 @@ namespace dc.assignment.primenumbers
             if (accepted)
             {
                 // log
-                Program.log(this.id, this.name, "Evaluation started for number: " + dto.number + " for the range from " + dto.fromNumber + " to " + dto.toNumber + ".");
+                Program.log(this.id, this.name, "Evaluation started for number: " + dto.number + " for the range from " + dto.fromNumber + " to " + dto.toNumber + ". 🎰");
 
                 return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
             }
 
             // log
-            Program.log(this.id, this.name, "Not accepted.");
+            Program.log(this.id, this.name, "Not accepted. 🚫");
 
             return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. Invalid input." });
         }

@@ -27,7 +27,7 @@ namespace dc.assignment.primenumbers.models
             if (nodes.Count == 0)
             {
                 // log
-                Program.log(this.appNode.id, this.appNode.name, "No nodes found.");
+                Program.log(this.appNode.id, this.appNode.name, "No nodes found. 🚩");
 
                 // revert
                 this.appNode.type = AppNodeType.Initial;
@@ -95,7 +95,7 @@ namespace dc.assignment.primenumbers.models
             string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(learner.address + "/setProposersCount", new { proposers = proposerNodesCount });
 
             // log
-            Program.log(this.appNode.id, this.appNode.name, "Learner : " + learner.name + " must receive results from " + proposerNodesCount + " proposers.");
+            Program.log(this.appNode.id, this.appNode.name, "Learner : " + learner.name + " must receive results from " + proposerNodesCount + " proposers. 🧮");
         }
 
         public void distributeTasks(List<Node> nodes)
@@ -112,7 +112,7 @@ namespace dc.assignment.primenumbers.models
                 if (nextNumber == -1)
                 {
                     // log
-                    Program.log(this.appNode.id, this.appNode.name, "End of numbers file.");
+                    Program.log(this.appNode.id, this.appNode.name, "End of numbers file. ⏹");
                     return;
                 }
                 // previous number still not completed
@@ -124,7 +124,7 @@ namespace dc.assignment.primenumbers.models
                 }
 
                 // log
-                Program.log(this.appNode.id, this.appNode.name, "Next number " + nextNumber + " released.");
+                Program.log(this.appNode.id, this.appNode.name, "Next number " + nextNumber + " released. ⏭");
 
                 // number range distribution
                 int fullPortionCount = nextNumber / nodes.Count;
