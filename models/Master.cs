@@ -94,6 +94,15 @@ namespace dc.assignment.primenumbers.models
             // update number of proposers in the ecosystem
             string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(learner.address + "/setProposersCount", new { proposers = proposerNodesCount });
 
+            // Learner is dead
+            if (responseStr == null)
+            {
+                // check ecosystem and reassign roles
+                this.appNode.reassignRoles();
+                // abort
+                return;
+            }
+
             // log
             Program.log(this.appNode.id, this.appNode.name, "Learner : " + learner.name + " must receive results from " + proposerNodesCount + " proposers.");
         }
