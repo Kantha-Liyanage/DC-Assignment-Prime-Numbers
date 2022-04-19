@@ -81,13 +81,13 @@ namespace dc.assignment.primenumbers
             // sleeping time
             int randomStartTime = new Random().Next(10000, 20000);
             // log
-            Program.log(this.id, this.name, "Node created and frozen for " + (randomStartTime / 1000) + "s ⏳");
+            Program.log(this.id, this.name, "Node created and frozen for " + (randomStartTime / 1000) + "s.");
 
             // sleep
             Thread.Sleep(randomStartTime);
 
             // log
-            Program.log(this.id, this.name, "Node lifecycle started. 🟢");
+            Program.log(this.id, this.name, "Node lifecycle started.");
 
             while (true)
             {
@@ -114,7 +114,7 @@ namespace dc.assignment.primenumbers
                     if (node == null)
                     {
                         // log
-                        Program.log(this.id, this.name, "Leader not found. Starting an election...📢");
+                        Program.log(this.id, this.name, "Leader not found. Starting an election!");
 
                         // election
                         this.electionHandler.start();
@@ -219,14 +219,14 @@ namespace dc.assignment.primenumbers
             if (dto.nodeId > this.id)
             {
                 // log
-                Program.log(this.id, this.name, "Node voted as Younger. ✅");
+                Program.log(this.id, this.name, "Node voted as Younger.");
 
                 return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Younger." });
             }
             else
             {
                 // log
-                Program.log(this.id, this.name, "Node voted as Older. ⭕");
+                Program.log(this.id, this.name, "Node voted as Older.");
 
                 return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Older." });
             }
@@ -248,7 +248,7 @@ namespace dc.assignment.primenumbers
                         ConsulServiceRegister.setNode(this);
 
                         // log
-                        Program.log(this.id, this.name, "Node role changed to a Proposer. 🧮");
+                        Program.log(this.id, this.name, "Node role changed to a Proposer.");
 
                         break;
                     case "Acceptor":
@@ -256,7 +256,7 @@ namespace dc.assignment.primenumbers
                         ConsulServiceRegister.setNode(this);
 
                         // log
-                        Program.log(this.id, this.name, "Node role changed to an Acceptor. 📥");
+                        Program.log(this.id, this.name, "Node role changed to an Acceptor.");
 
                         break;
                     case "Learner":
@@ -264,7 +264,7 @@ namespace dc.assignment.primenumbers
                         ConsulServiceRegister.setNode(this);
 
                         // log
-                        Program.log(this.id, this.name, "Node role changed to a Learner. 💡");
+                        Program.log(this.id, this.name, "Node role changed to a Learner.");
                         break;
                     default:
                         // error
@@ -304,7 +304,7 @@ namespace dc.assignment.primenumbers
             if (nodes.Count < 5)
             {
                 // log
-                Program.log(this.id, this.name, "Ecosystem unstable. 🚑");
+                Program.log(this.id, this.name, "Ecosystem unstable!");
 
                 return new List<Node>(); // empty
             }
@@ -356,7 +356,7 @@ namespace dc.assignment.primenumbers
             if (this.proposer.isEvaluating())
             {
                 // log
-                Program.log(this.id, this.name, "Not accepted. A number is being evaluated currently. ⏳");
+                Program.log(this.id, this.name, "Not accepted. A number is being evaluated currently.");
 
                 return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. A number is being evaluated currently." });
             }
@@ -367,13 +367,13 @@ namespace dc.assignment.primenumbers
             if (accepted)
             {
                 // log
-                Program.log(this.id, this.name, "Evaluation started for number: " + dto.number + " for the range from " + dto.fromNumber + " to " + dto.toNumber + ". 🎰");
+                Program.log(this.id, this.name, "Evaluation started for number: " + dto.number + " for the range from " + dto.fromNumber + " to " + dto.toNumber + ".");
 
                 return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Accepted." });
             }
 
             // log
-            Program.log(this.id, this.name, "Not accepted. 🚫");
+            Program.log(this.id, this.name, "Not accepted.");
 
             return new KHTTPResponse(HTTPResponseCode.Not_Acceptable_406, new { message = "Not accepted. Invalid input." });
         }

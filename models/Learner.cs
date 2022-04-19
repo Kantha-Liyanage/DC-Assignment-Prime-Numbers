@@ -24,7 +24,7 @@ namespace dc.assignment.primenumbers.models
                 _proposersCount = value;
 
                 // log
-                Program.log(this.appNode.id, this.appNode.name, "There are " + value + " proposers. 🧮");
+                Program.log(this.appNode.id, this.appNode.name, "There are " + value + " proposers.");
             }
         }
         public void learn(int number, bool isPrime, int divisibleByNumber)
@@ -33,7 +33,7 @@ namespace dc.assignment.primenumbers.models
             learnCount++;
 
             // log
-            Program.log(this.appNode.id, this.appNode.name, "A result received for number: " + number + " as " + (isPrime ? "Prime. 🟩" : "Not Prime. 🟥"));
+            Program.log(this.appNode.id, this.appNode.name, "A result received for number: " + number + " as " + (isPrime ? "Prime." : "Not Prime."));
 
             if (learnCount == proposersCount)
             {
@@ -50,7 +50,7 @@ namespace dc.assignment.primenumbers.models
                 }
 
                 // log
-                Program.log(this.appNode.id, this.appNode.name, "All proposers responded. Number: " + number + (isPrimeFinal ? " is Prime. 🟩" : " is not Prime. Divisible by: " + divisibleByNumberFinal + ". 🟥"));
+                Program.log(this.appNode.id, this.appNode.name, "All proposers responded. Number: " + number + (isPrimeFinal ? " is Prime." : " is not Prime. Divisible by: " + divisibleByNumberFinal + "."));
 
                 // fire the event
                 onFinalResult?.Invoke(this, new FinalResultEventArgs(number, isPrimeFinal, divisibleByNumberFinal));
@@ -65,7 +65,7 @@ namespace dc.assignment.primenumbers.models
             this.appNode.getNumbersFileHelper().completeNumber(number, isPrime, divisibleByNumber);
 
             // log
-            Program.log(this.appNode.id, this.appNode.name, "Number: " + number + " completed. 🏁");
+            Program.log(this.appNode.id, this.appNode.name, "Number: " + number + " completed!");
         }
 
         public void reset()
