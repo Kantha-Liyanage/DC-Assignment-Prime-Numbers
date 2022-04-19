@@ -41,6 +41,14 @@ namespace dc.assignment.primenumbers.utils.election
                     nodeAddress = appNode.address
                 };
                 string responseString = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/vote", obj);
+
+                // node is dead
+                if (responseString == null)
+                {
+                    // abort
+                    return;
+                }
+
                 if (responseString.Contains("Younger"))
                 {
                     olderCount++;

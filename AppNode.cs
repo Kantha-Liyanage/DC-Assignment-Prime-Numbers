@@ -315,7 +315,10 @@ namespace dc.assignment.primenumbers
         public void reassignRoles()
         {
             Node master = ConsulServiceRegister.getHealthyLeader();
-            this.apiInvocationHandler.invokePOST(master.address + "/reassignRoles", new { });
+            if (master != null)
+            {
+                this.apiInvocationHandler.invokePOST(master.address + "/reassignRoles", new { });
+            }
         }
 
         //===============================================================================
