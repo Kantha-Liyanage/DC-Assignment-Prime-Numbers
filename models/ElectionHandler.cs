@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
-using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.models;
 using dc.assignment.primenumbers.utils.serviceregister;
 
-namespace dc.assignment.primenumbers.utils.election
+namespace dc.assignment.primenumbers.models
 {
     public class ElectionHandler
     {

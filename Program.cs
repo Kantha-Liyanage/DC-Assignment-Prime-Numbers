@@ -1,6 +1,5 @@
 ﻿using System;
 using dc.assignment.primenumbers.models;
-using dc.assignment.primenumbers.utils.file;
 using dc.assignment.primenumbers.utils.log;
 
 namespace dc.assignment.primenumbers

@@ -3,7 +3,7 @@ using System.Text.Json;
 using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.utils.tcplistener;
 
-namespace dc.assignment.primenumbers.utils.file
+namespace dc.assignment.primenumbers.models
 {
     public class NumbersFileHandler
     {

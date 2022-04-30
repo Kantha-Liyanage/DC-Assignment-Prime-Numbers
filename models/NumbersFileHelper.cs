@@ -2,7 +2,7 @@ using System.Text.Json;
 using dc.assignment.primenumbers.dto;
 using dc.assignment.primenumbers.utils.api;
 
-namespace dc.assignment.primenumbers.utils.file
+namespace dc.assignment.primenumbers.models
 {
     public class NumbersFileHelper
     {

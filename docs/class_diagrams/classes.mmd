@@ -1,0 +1,97 @@
+classDiagram
+    Node <|-- AppNode
+    AppNode *-- ConsulServiceRegister
+    AppNode *-- KTCPListener
+    AppNode *-- ElectionHandler
+    AppNode *-- NumbersFileHelper
+    AppNode *-- Master
+    AppNode *-- Proposer
+    AppNode *-- Acceptor
+    AppNode *-- Learner
+
+    class Node{
+        +type
+        +name
+        +id
+        +address
+        +ipAddress
+        +port
+        +fromNumber
+        +toNumber
+    }
+
+    class AppNode{
+        -process()
+        -handleRequestHealth()
+        -handleRequestVote()
+        -handleRequestTransform()
+        -checkEcosystem()
+        -reassignRoles()
+        -electedAsTheLeader()
+        -handleRequestReassignRoles()
+        -handleRequestEvaluate()
+        -handleRequestAbort()
+        -numberEvaluationComplete()
+        -handleRequestAccept()
+        -handleRequestSetProposersCount()
+        -handleRequestLearn()
+        -handleRequestReset()
+        -numberEvaluationCompleted()
+    }
+
+    class ConsulServiceRegister{
+        -SERVICE_DEREGISTER_TIME
+        -CHECK_INTERVAL
+        -CHECK_TIMEOUT
+        +setNode()
+        +getNodes()
+        +getHealthyNodes()
+        +getHealthyLeader()
+        +getHealthyProposers()
+        +getHealthyAcceptors()
+        +getHealthyLearner()
+    }
+
+    class KTCPListener{
+        -ipAddress
+        -port
+        -listenToHTTPRequest()
+        +onClientRequest()
+    }
+
+    class ElectionHandler{
+        +start()
+        +onLeaderElected()
+    }
+
+    class NumbersFileHelper{
+        +getNextNumber()
+        +completeNumber()
+    }
+
+    class Master{
+        +assignRoles()
+        +informProposersCountLearner()
+        +distributeTasks()
+    }
+
+    class Proposer{
+        +evaluate()
+        +isEvaluating()
+        +abort()
+        +sendResultToAcceptor()
+        +onNumberEvaluationComplete()
+    }
+
+    class Acceptor{
+        +verify()
+        +accept()
+    }
+
+    class Learner{
+        -proposersCount
+        +learn()
+        +completeNumber()
+        -reset()
+        +onFinalResult()
+    }
