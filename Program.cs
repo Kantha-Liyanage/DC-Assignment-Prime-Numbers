@@ -57,8 +57,10 @@ namespace dc.assignment.primenumbers
             }
         }
 
+        // application logging
         public static void log(Int64 nodeId, string nodeName, string message)
         {
+            // remote logging
             Program.appLogger.log(nodeId, nodeName, message);
 
             // console
