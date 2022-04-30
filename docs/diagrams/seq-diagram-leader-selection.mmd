@@ -1,0 +1,85 @@
+ConsulServiceRegister.getHealthyLeader();
+getNodes()
+/v1/catalog/node-services/
+getHealthyNodes()
+/v1/agent/health/service/name/
+
+
+this.electionHandler.start();
+getNodes()
+getHealthyNodes()
+for each node
+    this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/vote", obj);
+    if (responseString.Contains("Younger"))
+    {
+        olderCount++;
+    }
+
+    if (olderCount == (nodes.Count - 1))
+    {
+        onLeaderElected?.Invoke(this, EventArgs.Empty);
+    }
+
+this.master.assignRoles();
+.setNode(this.appNode);
+// other roles
+// Step 1: abort currently running jobs
+foreach (Node node in nodes)
+{
+    if (node.type == AppNodeType.Proposer)
+    {
+        // abort 
+        string responseStr = this.appNode.getAPIInvocationHandler().invokeGET(node.address + "/abort");
+    }
+    else if (node.type == AppNodeType.Learner)
+    {
+        // reset 
+        string responseStr = this.appNode.getAPIInvocationHandler().invokeGET(node.address + "/reset");
+    }
+}
+
+// Step 2: assign new roles
+int nodeIndex = 0;
+foreach (Node node in nodes)
+{
+    nodeIndex++;
+
+    // two Acceptors
+    if (nodeIndex <= 2)
+    {
+        string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/transform", new { role = "Acceptor" });
+    }
+
+    // one Learner
+    else if (nodeIndex == 3)
+    {
+        string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/transform", new { role = "Learner" });
+    }
+
+    // rest are Proposers
+    else
+    {
+        string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/transform", new { role = "Proposer" });
+    }
+}
+
+// get Proposers
+List<Node> proposerNodes = ConsulServiceRegister.getHealthyProposers();
+
+// inform proposers count to the Learner
+this.master.informProposersCountLearner(proposerNodes.Count);
+
+// get the Learner
+Node learner = ConsulServiceRegister.getHealthyLearner();
+
+// update number of proposers in the ecosystem
+string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(learner.address + "/setProposersCount", new { proposers = proposerNodesCount });
+
+// Learner is dead
+if (responseStr == null)
+{
+    // check ecosystem and reassign roles
+    this.appNode.reassignRoles();
+    // abort
+    return;
+}
