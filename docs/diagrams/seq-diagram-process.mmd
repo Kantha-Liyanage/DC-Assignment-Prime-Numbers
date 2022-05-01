@@ -5,28 +5,88 @@ participant Master
 participant NumbersFileHelper
 participant ProposerAppNode
 participant Proposer
+participant ConsulServiceRegister
+participant Random
+participant AcceptorAppNode
+participant Acceptor
+participant LearnerAppNode
+participant Learner
+participant FileHelper
 
 # Distribute tasks
 MasterAppNode ->> Master : distributeTasks(ProposerNodes[])
 
+rect rgb(230, 200, 235)
 loop until all numbers are evaluated
     Master ->> NumbersFileHelper : getNextNumber()
     NumbersFileHelper -->> Master : nextNumber
-    Note left of NumbersFileHelper : Calculate the range for each node.
-    rect rgb(191, 223, 255)
-    loop for each ProposerNode
-        Master ->> ProposerAppNode : callAPI(proposer_node_address/evaluate)
-        ProposerAppNode ->> ProposerAppNode : handleRequestEvaluate()
-        ProposerAppNode ->> Proposer : evaluate()
-        rect rgb(200, 150, 255)
-        Note left of Proposer : New Thread
-        par evaluating...
-        Proposer ->> Proposer : onNumberEvaluationComplete.Inoke
+    alt previousNumber == nextNumber
+        Master ->> Master : wait()
+    else
+        Note left of NumbersFileHelper : Calculate the range for each node.
+        rect rgb(191, 223, 255)
+        loop for each ProposerNode
+            Master ->> ProposerAppNode : callAPI(proposer_node_address/evaluate)
+            ProposerAppNode ->> ProposerAppNode : handleRequestEvaluate()
+            ProposerAppNode ->> Proposer : evaluate()
+            rect rgb(200, 150, 255)
+            Note left of Proposer : New Thread
+            par evaluating...
+            Proposer ->> Proposer : onNumberEvaluationComplete.Inoke
+            end 
+            end
+            Proposer -->> ProposerAppNode : accepted
+            ProposerAppNode -->> Master : accepted
         end 
-        end
-        Proposer -->> ProposerAppNode : accepted
-        ProposerAppNode -->> Master : accepted
-    end 
+    end
     end
 end
+end
 Master -->> MasterAppNode : void
+
+# Get random Acceptor and send result to it
+Note left of Acceptor : Send result to a random Acceptor
+rect rgb(191, 223, 255)
+ProposerAppNode ->> ProposerAppNode : numberEvaluationComplete()
+ProposerAppNode ->> Proposer : sendResultToAcceptor()
+rect rgb(291, 223, 255)
+Proposer ->> ConsulServiceRegister : getHealthyAcceptors()
+ConsulServiceRegister -->> Proposer : Node[]
+Proposer ->> Random : Next()
+Random -->> Proposer : acceptorRandomIndex
+Proposer ->> AcceptorAppNode : callAPI(acceptor_node_address/accept)
+end
+AcceptorAppNode ->> AcceptorAppNode : handleRequestAccept()
+rect rgb(291, 223, 255)
+AcceptorAppNode ->> Acceptor : verify ()
+Acceptor -->> AcceptorAppNode : result
+AcceptorAppNode ->> Acceptor : accept()
+
+# Inform Learner
+Acceptor ->> ConsulServiceRegister : getHealthyLearner()
+ConsulServiceRegister -->> Acceptor : Node
+Acceptor ->> LearnerAppNode : callAPI(learner_node_address/learn)
+end
+
+LearnerAppNode ->> LearnerAppNode : handleRequestLearn()
+LearnerAppNode ->> Learner : learn()
+rect rgb(200, 150, 255)
+alt response count == Proposers count
+    Learner ->> Learner : onFinalResult().Inoke
+end
+end
+Learner -->> LearnerAppNode : void
+LearnerAppNode -->> Acceptor : void
+Acceptor -->> AcceptorAppNode : result
+AcceptorAppNode -->> Proposer : result
+Proposer -->> ProposerAppNode : void
+end
+
+# Number evaluation completed
+rect rgb(191, 223, 255)
+LearnerAppNode ->> LearnerAppNode : numberEvaluationCompleted()
+LearnerAppNode ->> Learner : completeNumber()
+Learner ->> FileHelper : completeNumber()
+FileHelper -->> Learner : void
+Learner -->> LearnerAppNode : void
+end
