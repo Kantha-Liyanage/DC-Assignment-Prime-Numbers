@@ -1,4 +1,13 @@
 sequenceDiagram 
+participant AppNode
+participant Master
+participant ConsulServiceRegister
+participant Consul
+participant AcceptorAppNode
+participant LearnerAppNode
+participant ProposerAppNode
+participant Proposer
+participant Learner
 
 # Node elected as the leader
 Note right of AppNode : LeaderElected event subscriber
@@ -31,11 +40,15 @@ alt Slave Nodes count >= 5
         alt if Proposer
             Master ->> ProposerAppNode : callAPI(node_address/abort)
             ProposerAppNode ->> ProposerAppNode : handleRequestAbort()
+            ProposerAppNode ->> Proposer : abort()
+            Proposer -->> ProposerAppNode : result
             ProposerAppNode -->> Master : result
         end
         alt if Learner
             Master ->> LearnerAppNode : callAPI(node_address/reset)
             LearnerAppNode ->> LearnerAppNode: handleRequestReset()
+            LearnerAppNode ->> Learner : reset()
+            Learner -->> LearnerAppNode : result
             LearnerAppNode -->> Master : result
         end
         end
@@ -46,14 +59,20 @@ alt Slave Nodes count >= 5
         alt index < 2
             Master ->> AcceptorAppNode : callAPI(node_address/transform { role = "Acceptor" })
             AcceptorAppNode ->> AcceptorAppNode : handleRequestTransform()
+            AcceptorAppNode ->> ConsulServiceRegister : setNode({ role = "Acceptor" })
+            ConsulServiceRegister -->> AcceptorAppNode : result
             AcceptorAppNode -->> Master : result
         else index = 2
             Master ->> LearnerAppNode : callAPI(node_address/transform { role = "Learner" })
             LearnerAppNode ->> LearnerAppNode : handleRequestTransform()
+            LearnerAppNode ->> ConsulServiceRegister : setNode({ role = "Learner" })
+            ConsulServiceRegister -->> LearnerAppNode : result
             LearnerAppNode -->> Master : result
         else 
             Master ->> ProposerAppNode : callAPI(node_address/transform { role = "Proposer" })
             ProposerAppNode ->> ProposerAppNode : handleRequestTransform()
+            ProposerAppNode ->> ConsulServiceRegister : setNode({ role = "Proposer" })
+            ConsulServiceRegister -->> ProposerAppNode : result
             ProposerAppNode -->> Master : result
         end
         end

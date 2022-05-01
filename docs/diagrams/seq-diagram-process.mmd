@@ -1,0 +1,32 @@
+sequenceDiagram
+
+participant MasterAppNode
+participant Master
+participant NumbersFileHelper
+participant ProposerAppNode
+participant Proposer
+
+# Distribute tasks
+MasterAppNode ->> Master : distributeTasks(ProposerNodes[])
+
+loop until all numbers are evaluated
+    Master ->> NumbersFileHelper : getNextNumber()
+    NumbersFileHelper -->> Master : nextNumber
+    Note left of NumbersFileHelper : Calculate the range for each node.
+    rect rgb(191, 223, 255)
+    loop for each ProposerNode
+        Master ->> ProposerAppNode : callAPI(proposer_node_address/evaluate)
+        ProposerAppNode ->> ProposerAppNode : handleRequestEvaluate()
+        ProposerAppNode ->> Proposer : evaluate()
+        rect rgb(200, 150, 255)
+        Note left of Proposer : New Thread
+        par evaluating...
+        Proposer ->> Proposer : onNumberEvaluationComplete.Inoke
+        end 
+        end
+        Proposer -->> ProposerAppNode : accepted
+        ProposerAppNode -->> Master : accepted
+    end 
+    end
+end
+Master -->> MasterAppNode : void
