@@ -6,22 +6,28 @@ AppNode ->> AppNode : electedAsTheLeader()
 AppNode ->> Master : assignRoles()
 
 # Transform this node to Leader
+Note right of ConsulServiceRegister : Transform this node to Leader
+rect rgb(191, 223, 255)
 Master ->> ConsulServiceRegister : setNode(self{type:Master})
 ConsulServiceRegister ->> Consul : /v1/agent/service/register
 Consul -->> ConsulServiceRegister : result
 ConsulServiceRegister -->> Master : void
+end
 
 # Check ecosystem 
+rect rgb(191, 223, 255)
 Master ->> Master : checkEcosystem()
 Master ->> ConsulServiceRegister : getAllHealthySlaveNodes()
 Note right of ConsulServiceRegister : ConsulServiceRegister methods are simplified from here. 
 ConsulServiceRegister -->> Master : Node[]
+end
 
 # Assign other roles to slave nodes
 alt Slave Nodes count >= 5
     loop for all Slave Nodes
         # Cancel/Rest old tasks
         Note right of Master : Cancel/Rest old tasks. 
+        rect rgb(191, 223, 255)
         alt if Proposer
             Master ->> ProposerAppNode : callAPI(node_address/abort)
             ProposerAppNode ->> ProposerAppNode : handleRequestAbort()
@@ -32,9 +38,11 @@ alt Slave Nodes count >= 5
             LearnerAppNode ->> LearnerAppNode: handleRequestReset()
             LearnerAppNode -->> Master : result
         end
+        end
 
         # Assign new roles
         Note right of Master : Assign new roles.
+        rect rgb(191, 223, 255)
         alt index < 2
             Master ->> AcceptorAppNode : callAPI(node_address/transform { role = "Acceptor" })
             AcceptorAppNode ->> AcceptorAppNode : handleRequestTransform()
@@ -48,9 +56,12 @@ alt Slave Nodes count >= 5
             ProposerAppNode ->> ProposerAppNode : handleRequestTransform()
             ProposerAppNode -->> Master : result
         end
+        end
     end
     
     # Get appointed Proposers
+     Note right of ConsulServiceRegister : Inform Proposers count to the Learner
+    rect rgb(191, 223, 255)
     AppNode ->> ConsulServiceRegister : getHealthyProposers()
     ConsulServiceRegister -->> AppNode : Node[]
 
@@ -61,6 +72,7 @@ alt Slave Nodes count >= 5
     Master ->> LearnerAppNode : callAPI(learner_address/setProposersCount)
     LearnerAppNode -->> Master : result
     Master -->> AppNode : void
+    end
 
     # Distribute tasks
     AppNode ->> Master : distributeTasks()

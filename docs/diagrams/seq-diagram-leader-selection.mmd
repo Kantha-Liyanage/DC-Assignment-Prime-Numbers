@@ -1,19 +1,32 @@
 sequenceDiagram 
 
+participant AppNode
+participant ConsulServiceRegister
+participant Consul
+participant ElectionHandler
+participant RemoteAppNode
+
 loop LifeCycle
     alt node is not the leader
         # Get healthy leader
+        Note left of ElectionHandler : Get healthy leader
+        rect rgb(191, 223, 255)
         AppNode ->> ConsulServiceRegister : getHealthyLeader()
         ConsulServiceRegister ->> Consul : /v1/catalog/node-services/...Meta.nodeType==Master
         Consul -->> ConsulServiceRegister : Node[]
         ConsulServiceRegister ->> Consul : /v1/agent/health/service/name/[master_node_name]
         Consul -->> ConsulServiceRegister : Node[]
         ConsulServiceRegister -->> AppNode : Node {type:Leader}
+        end
 
         # The leader is dead
         Note right of ConsulServiceRegister : If the Node is null, the leader is dead.
         alt leader is dead
             AppNode ->> ElectionHandler : start()
+            
+            # Get all healthy Nodes
+            Note left of ElectionHandler : Get all healthy Nodes
+            rect rgb(191, 223, 255)
             ElectionHandler ->> ConsulServiceRegister : getAllHealthyNodes()
             ConsulServiceRegister ->> Consul : /v1/catalog/node-services/...filter={}
             Consul -->> ConsulServiceRegister : Node[]
@@ -22,6 +35,11 @@ loop LifeCycle
                 Consul -->> ConsulServiceRegister : Node[]
             end
             ConsulServiceRegister -->> ElectionHandler : Node[]
+            end
+
+            # Voting..
+            Note left of ElectionHandler : Voting and selection
+            rect rgb(191, 223, 255)
             loop for all other nodes
                 ElectionHandler ->> RemoteAppNode : callAPI(node_address/vote)
                 RemoteAppNode ->> RemoteAppNode : handleRequestVote()
@@ -31,6 +49,8 @@ loop LifeCycle
                 ElectionHandler ->> ElectionHandler : onLeaderElected.Invoke
                 Note right of ElectionHandler : LeaderElected event invoked
             end
+            end
+
             ElectionHandler -->> AppNode : void
         end
     end
