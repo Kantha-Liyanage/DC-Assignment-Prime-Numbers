@@ -1,0 +1,19 @@
+sequenceDiagram 
+
+Acceptor ->> LearnerAppNode : callAPI(learner_node_address/learn)
+LearnerAppNode -->> Acceptor : result
+rect rgb(191, 223, 255)
+alt result == null
+    Acceptor ->> AcceptorAppNode : reassignRoles()
+    AcceptorAppNode ->> ConsulServiceRegister : getHealthyLeader()
+    ConsulServiceRegister -->> AcceptorAppNode : Node
+    AcceptorAppNode ->> MasterAppNode : callAPI(master_address/reassignRoles)
+    MasterAppNode ->> MasterAppNode : handleRequestReassignRoles();
+    Note left of MasterAppNode : electedAsTheLeader() method has been reused here.
+    rect rgb(200, 150, 255)
+    MasterAppNode ->> MasterAppNode : electedAsTheLeader()
+    end
+    MasterAppNode -->> AcceptorAppNode : void
+    AcceptorAppNode -->> Acceptor : void
+end
+end
