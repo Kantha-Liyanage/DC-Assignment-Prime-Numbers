@@ -283,32 +283,6 @@ namespace dc.assignment.primenumbers.models
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "AppNode is healthy." });
         }
 
-        // Check ecosystem
-        public List<Node> checkEcosystem()
-        {
-            // get all healthy nodes and assign roles
-            AppNodeType[] nodeTypes = {
-                AppNodeType.Proposer,
-                AppNodeType.Acceptor,
-                AppNodeType.Learner,
-                AppNodeType.Initial
-            };
-            List<Node> nodes = ConsulServiceRegister.getHealthyNodes(
-                ConsulServiceRegister.getNodes(nodeTypes)
-            );
-
-            // check ecosystem
-            if (nodes.Count < 5)
-            {
-                // log
-                Program.log(this.id, this.name, "Ecosystem unstable!");
-
-                return new List<Node>(); // empty
-            }
-
-            return nodes;
-        }
-
         public void reassignRoles()
         {
             Node master = ConsulServiceRegister.getHealthyLeader();

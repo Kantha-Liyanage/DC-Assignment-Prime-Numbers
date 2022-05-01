@@ -25,7 +25,6 @@ classDiagram
         -handleRequestHealth()
         -handleRequestVote()
         -handleRequestTransform()
-        -checkEcosystem()
         -reassignRoles()
         -electedAsTheLeader()
         -handleRequestReassignRoles()
@@ -47,6 +46,8 @@ classDiagram
         +getNodes()
         +getHealthyNodes()
         +getHealthyLeader()
+        +getAllHealthyNodes()
+        +getAllHealthySlaveNodes()
         +getHealthyProposers()
         +getHealthyAcceptors()
         +getHealthyLearner()
@@ -73,6 +74,7 @@ classDiagram
         +assignRoles()
         +informProposersCountLearner()
         +distributeTasks()
+        -checkEcosystem()
     }
 
     class Proposer{

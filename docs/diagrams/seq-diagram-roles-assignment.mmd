@@ -1,0 +1,72 @@
+sequenceDiagram 
+
+# Node elected as the leader
+Note right of AppNode : LeaderElected event subscriber
+AppNode ->> AppNode : electedAsTheLeader()
+AppNode ->> Master : assignRoles()
+
+# Transform this node to Leader
+Master ->> ConsulServiceRegister : setNode(self{type:Master})
+ConsulServiceRegister ->> Consul : /v1/agent/service/register
+Consul -->> ConsulServiceRegister : result
+ConsulServiceRegister -->> Master : void
+
+# Check ecosystem 
+Master ->> Master : checkEcosystem()
+Master ->> ConsulServiceRegister : getAllHealthySlaveNodes()
+Note right of ConsulServiceRegister : ConsulServiceRegister methods are simplified from here. 
+ConsulServiceRegister -->> Master : Node[]
+
+# Assign other roles to slave nodes
+alt Slave Nodes count >= 5
+    loop for all Slave Nodes
+        # Cancel/Rest old tasks
+        Note right of Master : Cancel/Rest old tasks. 
+        alt if Proposer
+            Master ->> ProposerAppNode : callAPI(node_address/abort)
+            ProposerAppNode ->> ProposerAppNode : handleRequestAbort()
+            ProposerAppNode -->> Master : result
+        end
+        alt if Learner
+            Master ->> LearnerAppNode : callAPI(node_address/reset)
+            LearnerAppNode ->> LearnerAppNode: handleRequestReset()
+            LearnerAppNode -->> Master : result
+        end
+
+        # Assign new roles
+        Note right of Master : Assign new roles.
+        alt index < 2
+            Master ->> AcceptorAppNode : callAPI(node_address/transform { role = "Acceptor" })
+            AcceptorAppNode ->> AcceptorAppNode : handleRequestTransform()
+            AcceptorAppNode -->> Master : result
+        else index = 2
+            Master ->> LearnerAppNode : callAPI(node_address/transform { role = "Learner" })
+            LearnerAppNode ->> LearnerAppNode : handleRequestTransform()
+            LearnerAppNode -->> Master : result
+        else 
+            Master ->> ProposerAppNode : callAPI(node_address/transform { role = "Proposer" })
+            ProposerAppNode ->> ProposerAppNode : handleRequestTransform()
+            ProposerAppNode -->> Master : result
+        end
+    end
+    
+    # Get appointed Proposers
+    AppNode ->> ConsulServiceRegister : getHealthyProposers()
+    ConsulServiceRegister -->> AppNode : Node[]
+
+    # Inform number of Proposers in the ecosystem to the Learner
+    AppNode ->> Master : informProposersCountLearner(Node[].count)
+    Master ->> ConsulServiceRegister : getHealthyLearner()
+    ConsulServiceRegister -->> Master : Node{type:Learner}
+    Master ->> LearnerAppNode : callAPI(learner_address/setProposersCount)
+    LearnerAppNode -->> Master : result
+    Master -->> AppNode : void
+
+    # Distribute tasks
+    AppNode ->> Master : distributeTasks()
+    Note right of AppNode : distributeTasks() is described in a separate sequence diagram
+    Master -->> AppNode : void
+else unstable
+    # Ecosystem unstable
+    Master ->> ConsulServiceRegister : setNode(self{type = Initial})
+end

@@ -44,6 +44,31 @@ namespace dc.assignment.primenumbers.utils.serviceregister
             var result = response.Result;
         }
 
+        public static List<Node> getAllHealthyNodes()
+        {
+            AppNodeType[] nodeTypes = { };
+            List<Node> nodes = ConsulServiceRegister.getHealthyNodes(
+                ConsulServiceRegister.getNodes(nodeTypes)
+            );
+            return nodes;
+        }
+
+        public static List<Node> getAllHealthySlaveNodes()
+        {
+            AppNodeType[] nodeTypes = {
+                AppNodeType.Proposer,
+                AppNodeType.Acceptor,
+                AppNodeType.Learner,
+                AppNodeType.Initial
+            };
+
+            List<Node> nodes = ConsulServiceRegister.getHealthyNodes(
+                ConsulServiceRegister.getNodes(nodeTypes)
+            );
+            return nodes;
+        }
+
+
         public static List<Node> getNodes(AppNodeType[] nodeTypes)
         {
             List<Node> nodes = new List<Node>();

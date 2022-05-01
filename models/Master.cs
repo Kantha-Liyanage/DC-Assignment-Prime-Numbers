@@ -21,7 +21,7 @@ namespace dc.assignment.primenumbers.models
             ConsulServiceRegister.setNode(this.appNode);
 
             // check the consistancy of the ecosystem
-            List<Node> nodes = this.appNode.checkEcosystem();
+            List<Node> nodes = checkEcosystem();
 
             // check ecosystem
             if (nodes.Count == 0)
@@ -84,6 +84,23 @@ namespace dc.assignment.primenumbers.models
                 Program.log(this.appNode.id, this.appNode.name, "New roles assigned.");
                 return true;
             }
+        }
+
+        // Check ecosystem
+        private List<Node> checkEcosystem()
+        {
+            List<Node> nodes = ConsulServiceRegister.getAllHealthySlaveNodes();
+
+            // check ecosystem
+            if (nodes.Count < 5)
+            {
+                // log
+                Program.log(this.appNode.id, this.appNode.name, "Ecosystem unstable!");
+
+                return new List<Node>(); // empty
+            }
+
+            return nodes;
         }
 
         public void informProposersCountLearner(int proposerNodesCount)

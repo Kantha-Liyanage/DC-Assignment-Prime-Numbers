@@ -1,85 +1,37 @@
-ConsulServiceRegister.getHealthyLeader();
-getNodes()
-/v1/catalog/node-services/
-getHealthyNodes()
-/v1/agent/health/service/name/
+sequenceDiagram 
 
+loop LifeCycle
+    alt node is not the leader
+        # Get healthy leader
+        AppNode ->> ConsulServiceRegister : getHealthyLeader()
+        ConsulServiceRegister ->> Consul : /v1/catalog/node-services/...Meta.nodeType==Master
+        Consul -->> ConsulServiceRegister : Node[]
+        ConsulServiceRegister ->> Consul : /v1/agent/health/service/name/[master_node_name]
+        Consul -->> ConsulServiceRegister : Node[]
+        ConsulServiceRegister -->> AppNode : Node {type:Leader}
 
-this.electionHandler.start();
-getNodes()
-getHealthyNodes()
-for each node
-    this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/vote", obj);
-    if (responseString.Contains("Younger"))
-    {
-        olderCount++;
-    }
-
-    if (olderCount == (nodes.Count - 1))
-    {
-        onLeaderElected?.Invoke(this, EventArgs.Empty);
-    }
-
-this.master.assignRoles();
-.setNode(this.appNode);
-// other roles
-// Step 1: abort currently running jobs
-foreach (Node node in nodes)
-{
-    if (node.type == AppNodeType.Proposer)
-    {
-        // abort 
-        string responseStr = this.appNode.getAPIInvocationHandler().invokeGET(node.address + "/abort");
-    }
-    else if (node.type == AppNodeType.Learner)
-    {
-        // reset 
-        string responseStr = this.appNode.getAPIInvocationHandler().invokeGET(node.address + "/reset");
-    }
-}
-
-// Step 2: assign new roles
-int nodeIndex = 0;
-foreach (Node node in nodes)
-{
-    nodeIndex++;
-
-    // two Acceptors
-    if (nodeIndex <= 2)
-    {
-        string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/transform", new { role = "Acceptor" });
-    }
-
-    // one Learner
-    else if (nodeIndex == 3)
-    {
-        string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/transform", new { role = "Learner" });
-    }
-
-    // rest are Proposers
-    else
-    {
-        string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(node.address + "/transform", new { role = "Proposer" });
-    }
-}
-
-// get Proposers
-List<Node> proposerNodes = ConsulServiceRegister.getHealthyProposers();
-
-// inform proposers count to the Learner
-this.master.informProposersCountLearner(proposerNodes.Count);
-
-// get the Learner
-Node learner = ConsulServiceRegister.getHealthyLearner();
-
-// update number of proposers in the ecosystem
-string responseStr = this.appNode.getAPIInvocationHandler().invokePOST(learner.address + "/setProposersCount", new { proposers = proposerNodesCount });
-
-// Learner is dead
-if (responseStr == null)
-{
-    // check ecosystem and reassign roles
-    this.appNode.reassignRoles();
-    // abort
-    return;
-}
+        # The leader is dead
+        Note right of ConsulServiceRegister : If the Node is null, the leader is dead.
+        alt leader is dead
+            AppNode ->> ElectionHandler : start()
+            ElectionHandler ->> ConsulServiceRegister : getAllHealthyNodes()
+            ConsulServiceRegister ->> Consul : /v1/catalog/node-services/...filter={}
+            Consul -->> ConsulServiceRegister : Node[]
+            loop check health
+                ConsulServiceRegister ->> Consul : /v1/agent/health/service/name/[node_name]
+                Consul -->> ConsulServiceRegister : Node[]
+            end
+            ConsulServiceRegister -->> ElectionHandler : Node[]
+            loop for all other nodes
+                ElectionHandler ->> RemoteAppNode : callAPI(node_address/vote)
+                RemoteAppNode ->> RemoteAppNode : handleRequestVote()
+                RemoteAppNode -->> ElectionHandler : Younger | Older
+            end
+            alt all other nodes say Younger
+                ElectionHandler ->> ElectionHandler : onLeaderElected.Invoke
+                Note right of ElectionHandler : LeaderElected event invoked
+            end
+            ElectionHandler -->> AppNode : void
+        end
+    end
+end

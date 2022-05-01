@@ -18,10 +18,7 @@ namespace dc.assignment.primenumbers.models
         public void start()
         {
             // get all healthy nodes
-            AppNodeType[] nodeTypes = { };
-            List<Node> nodes = ConsulServiceRegister.getHealthyNodes(
-                ConsulServiceRegister.getNodes(nodeTypes)
-            );
+            List<Node> nodes = ConsulServiceRegister.getAllHealthyNodes();
 
             // Reqeust vote from each node
             int olderCount = 0;
