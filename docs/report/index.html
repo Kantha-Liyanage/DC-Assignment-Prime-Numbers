@@ -1,38 +1,216 @@
+<html>
+    <head>
+        <title>Distributed Computing Assigment - MS21929014</title>
+        <style>
+            body {font-family: Verdana, Geneva, Tahoma, sans-serif;}
+            h1 {text-align: center;}
+            h2 {text-align: center;}
+            th {text-align: left;}
+            .center {
+                display: flex;
+                justify-content: center;
+            }
+            .para_h1{
+                text-align: left;
+                height: 20px;
+                border: 1px solid lightgray;
+                padding-bottom: 10px;
+                padding-left: 5px;
+                background-color: lightgray;
+            }
+        </style>
+    </head>
+
+<body>
+<br>
 <h1>Discributed Computing Assigment</h1>
+<h2>SE5090 [2022/JAN]</h2>
+<br>
+<br>
+<br>
+<h2>Consensus Based Prime Number Deciding Distributed System</h2>
+<br>
+<div class="center">
+    <table style="width: 30%;">
+        <tr>
+            <th>Student No</th>
+            <td>: MS21929014</td>
+        </tr>
+        <tr>
+            <th>Student Name</th>
+            <td>: Kantha Liyanage</td>
+        </tr>
+    </table>
+</div>
+<br>
+<br>
+<div style="background-color: lightgray;">
+<br>    
+<h2>Table of Content</h2>
+<div class="center">
+    <table style="width: 50%;">
+        <tr>
+            <td style="width: 10px;"><li></li></td>
+            <td><a href="#1">Overview</a></td>
+        </tr>
+        <tr>
+            <td><li></li></td>
+            <td><a href="#2">Application Design</a></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>→ <a href="#3">Class Diagram</a></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>→ <a href="#4">Sequence Diagrams</a></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>&nbsp;&nbsp;1. <a href="#5">Leader Selection</a></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>&nbsp;&nbsp;2. <a href="#6">Roles Assignment</a></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>&nbsp;&nbsp;3. <a href="#7">Numbers Evaluation Process</a></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>&nbsp;&nbsp;4. <a href="#8">Fault Tolerant</a></td>
+        </tr>
+        <tr>
+            <td><li></li></td>
+            <td><a href="#9">Technology Stack</a></td>
+        </tr>
+        <tr>
+            <td><li></li></td>
+            <td><a href="#10">C# Console Program - AppNode</a></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>→ <a href="#11">Event Driven</a></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>→ <a href="#12">Threaded</a></td>
+        </tr>
+        <tr>
+            <td><li></li></td>
+            <td><a href="#13">HTTP Web API Based Communication</a></td>
+        </tr>
+        <tr>
+            <td><li></li></td>
+            <td><a href="#14">Numbers File Access APIs</a></td>
+        </tr>
+        <tr>
+            <td><li></li></td>
+            <td><a href="#15">Consul - Service Register</a></td>
+        </tr>
+        <tr>
+            <td><li></li></td>
+            <td><a href="#16">Console and MongoDB Based Logger</a></td>
+        </tr>
+        <tr>
+            <td><li></li></td>
+            <td><a href="#17">Project Artifacts</a></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>→ <a href="#18">Source Code Repository</a></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>→ <a href="#19">Online Demo</a></td>
+        </tr>
+    </table>
+</div>
+<br>
+<br>
+</div>
+<br>
+<br>
+<h2 class="para_h1" id="1">Overview</h2>
+<img src="images/project.png"/>
 
-<h2>TOC</h2>
+<h2 class="para_h1" id="2">Application Design</h2>
+<h3 id="3">Class Diagram</h3>
+<img src="images/UML/class-diagram.svg" width="100%"/>
 
-<h2>Overview</h2>
+<h3 id="4">Sequence Diagrams</h3>
+<h4 id="5">Leader Selection</h4>
+<img src="images/UML/leader-selection-sequence-diagram.svg" width="100%"/>
 
-<h3>Technology Stack</h3>
-C#
+<h4 id="6">Roles Assignment</h4>
+<img src="images/UML/roles-assignment-sequence-diagram.svg" width="100%"/>
 
-HTTP
+<h4 id="7">Numbers Evaluation Process</h4>
+<img src="images/UML/process-sequence-diagram.svg" width="100%"/>
 
-Consul
-<img src="images/consul-appnodes.png"/>
-<img src="images/consul-appnode-health-check.png"/>
-<img src="images/consul-appnode-meta.png"/>
-<img src="images/consul-appnode-unhealthy.png"/>
-MongoDB
+<h4 id="8">Fault Tolerant</h4>
+<img src="images/UML/fault-tolerant-sequence-diagram.svg" width="100%"/>
 
-<h2>Class Diagram</h2>
-<img src="..."/>
+<h2 class="para_h1" id="9">Technology Stack</h2>
+<h3 id="10">C# Console Program - AppNode</h3>
+<img src="images/modes.png"/>
 
-<h2>Sequence Diagrams</h2>
+<h4 id="11">Event Driven</h4>
+<img src="images/Events/event-based-1.png"/>
+<img src="images/Events/event-based-2.png"/>
+<img src="images/Events/event-based-3.png"/>
+<img src="images/Events/event-based-4.png"/>
 
-<h3>Leader Selection</h3>
+<h4 id="12">Threaded</h4>
+<img src="images/Threaded/Threaded-1.png"/>
+<img src="images/Threaded/Threaded-2.png"/>
 
-<h3>Distribute Work</h3>
+<h3 id="13">HTTP Web API Based Communication</h3>
+<img src="images/HTTP/HTTP Listener.png"/>
+<img src="images/HTTP/AppNode-API-Handler.png"/>
+<img src="images/HTTP/AppNode-API-Handler-APIs.png"/>
 
-<h3>Proposer's Activities</h3>
+<h3 id="14">Numbers File Access APIs</h3>
+<img src="images/File/next-number-service.png"/>
+<img src="images/File/next-number-helper.png"/>
+<img src="images/File/number-file-service-cmd.png"/>
 
-<h3>Acceptor's Activities</h3>
+<h3 id="15">Consul - Service Register</h3>
+<pre>
+    http://localhost:8500/ui
+    consul agent -dev -enable-script-checks
+    consul leave
+</pre>
+<img src="images/consul/consul-cmd.png"/>
+<img src="images/consul/service-register.png"/>
+<img src="images/consul/search-services.png"/>
+<img src="images/consul/consul-appnodes.png"/>
+<img src="images/consul/consul-appnode-health-check.png"/>
+<img src="images/consul/consul-appnode-meta.png"/>
+<img src="images/consul/consul-appnode-unhealthy.png"/>
 
-<h3>Learner's Activities</h3>
+<h3 id="16">Console and MongoDB Based Logger</h3>
+<img src="images/Log/logger.png"/>
+<img src="images/Log/MongoDB.png"/>
+<img src="images/Log/logger-cmd.png"/>
 
-<h2>Project Artifacts</h2>
+<h2 class="para_h1"  id="17">Project Artifacts</h2>
 
-<h3>Source Code</h3>
+<h3 id="18">Source Code Repository</h3>
+The project source code is hosted in GitHub as a private repository. 
+The URL is given below and an invitation was sent to <a href="https://github.com/lasitha-petthawadu">lasitha-petthawadu</a> GitHub account. 
+<br>
+<br>
+<b>URL</b>
+<br>
+<a href="https://github.com/Kantha-Liyanage/DC-Assignment-Prime-Numbers">https://github.com/Kantha-Liyanage/DC-Assignment-Prime-Numbers</a>
+<br>
+<br>
+<b>Invitation link</b>
+<br>
+<a href="https://github.com/Kantha-Liyanage/DC-Assignment-Prime-Numbers/invitations">https://github.com/Kantha-Liyanage/DC-Assignment-Prime-Numbers/invitations</a>
 
-<h3>Data Structures</h3>
+<h3 id="19">Online Demo</h3>
+</body>
+</html>

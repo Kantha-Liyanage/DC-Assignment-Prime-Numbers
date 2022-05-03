@@ -52,14 +52,14 @@ namespace dc.assignment.primenumbers.models
 
             // Proposer : prime number checker
             this.proposer = new Proposer(this);
-            this.proposer.onNumberEvaluationComplete += numberEvaluationComplete;
+            this.proposer.onNumberEvaluationComplete += numberEvaluationCompleted;
 
             // Acceptor
             this.acceptor = new Acceptor(this);
 
             // learner
             this.learner = new Learner(this);
-            this.learner.onFinalResult += numberEvaluationCompleted;
+            this.learner.onFinalResult += numberCompleted;
 
             // set node inital status
             ConsulServiceRegister.setNode(this);
@@ -365,7 +365,7 @@ namespace dc.assignment.primenumbers.models
         }
 
         // Inform: prime number NOT detected
-        private void numberEvaluationComplete(object? sender, NumberEvaluationCompleteEventArgs e)
+        private void numberEvaluationCompleted(object? sender, NumberEvaluationCompleteEventArgs e)
         {
             // send result
             this.proposer.sendResultToAcceptor(this.name, e.number, e.isPrime, e.divisibleByNumber);
@@ -430,7 +430,7 @@ namespace dc.assignment.primenumbers.models
         }
 
         // Current number evaluation completed   
-        private void numberEvaluationCompleted(object? sender, FinalResultEventArgs e)
+        private void numberCompleted(object? sender, FinalResultEventArgs e)
         {
             // write the result to the output file 
             // and release the current number

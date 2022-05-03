@@ -28,18 +28,6 @@ namespace dc.assignment.primenumbers.utils.log
                 _logsCollection.DeleteMany(new BsonDocument());
             }
         }
-
-        public void log(Int64 nodeId, string nodeName, string message)
-        {
-            KLog log = new KLog();
-            log.nodeId = nodeId;
-            log.nodeName = nodeName;
-            log.timestamp = DateTime.Now.ToString("hh.mm.ss.ffffff");
-            log.message = message;
-            Task task = logAsync(log);
-            task.Wait();
-        }
-
         private void handleRequests(object? sender, KTCPListenerEventArgs e)
         {
             if (e.request.resourceURL.Equals("Logs") && e.request.httpMethod == KHTTPMethod.GET)
@@ -57,6 +45,18 @@ namespace dc.assignment.primenumbers.utils.log
                 response.sendHTML(e.tcpClient);
             }
         }
+
+        public void log(Int64 nodeId, string nodeName, string message)
+        {
+            KLog log = new KLog();
+            log.nodeId = nodeId;
+            log.nodeName = nodeName;
+            log.timestamp = DateTime.Now.ToString("hh.mm.ss.ffffff");
+            log.message = message;
+            Task task = logAsync(log);
+            task.Wait();
+        }
+
 
         private async Task logAsync(KLog log)
         {
