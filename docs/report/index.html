@@ -295,16 +295,47 @@ placed inside the AppNode class and therefore it gives better readbility to the 
 <br>
 <br>
 <img src="images/Events/event-based-4.png"/>
-
+<br>
+<br>
 <h4 id="12">Multi Threaded</h4>
+AppNodes cannot have blocking methods since that prevents other activities of the node like inter-node communications. 
+Therefore multi-threading is needed for some specific functionalities like calculations and lifecycle methods.
+<br>
+<br>
+Below <i>eveluate</i> method does not block AppNode class execution flow.
+<br>
+<br>
 <img src="images/Threaded/Threaded-1.png"/>
+<br>
+<br>
+Below <i>process</i> method does not block AppNode class execution flow.
+<br>
+<br>
 <img src="images/Threaded/Threaded-2.png"/>
 
 <h3 id="13">HTTP Web API Based Communication</h3>
+KTCPListener class provides the inter-node communication capabilities to AppNode class. It emites an event which can be subscribed and 
+then can be implemented to produce useful functionality. Everytime a HTTP request is received <i>onClientRequest</i> event is fired with all 
+the neccessary data objects concapsulated inside the event object.  
+<br>
+<br>
 <img src="images/HTTP/HTTP Listener.png"/>
+<br>
+<br>
+Event <i>onClientRequest</i> is subscribed inside the AppNode class.
+<br>
+<br>
 <img src="images/HTTP/AppNode-API-Handler.png"/>
+<br>
+<br>
+All the API invocations received by the AppNode are then handled through this subscriber method. Identification of the required resource,
+data received with the request from the client are taken from the event object. After the processing is over, this method must ensure a proper
+response is sent back to the client as well.
+<br>
+<br>
 <img src="images/HTTP/AppNode-API-Handler-APIs.png"/>
-
+<br>
+<br>
 <h3 id="14">Numbers File Access APIs</h3>
 <img src="images/File/next-number-service.png"/>
 <img src="images/File/next-number-helper.png"/>
@@ -381,6 +412,7 @@ AppNodes are searched based on their Meta data.
 <img src="images/Log/logger.png"/>
 <img src="images/Log/MongoDB.png"/>
 <img src="images/Log/logger-cmd.png"/>
+<img src="images/log/index.png"/>
 
 <h2 class="para_h1"  id="17">Project Artifacts</h2>
 
