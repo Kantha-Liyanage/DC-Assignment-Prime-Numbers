@@ -21,11 +21,18 @@
                 padding-bottom: 10px;
                 padding-left: 5px;
                 background-color: lightgray;
+                border-radius: 5px;
+            }
+            .box{
+                padding: 10px;
+                border: 1px solid black;
+                border-radius: 5px;
             }
         </style>
     </head>
 
 <body>
+<div class="box">
 <br>
 <h1>Discributed Computing Assignment</h1>
 <h2>SE5090 [2022/JAN]</h2>
@@ -58,7 +65,11 @@
 </div>
 <br>
 <br>
-<div style="background-color: lightgray;">
+</div>
+<br>
+<br>
+
+<div style="background-color: lightgray; border-radius: 10px;">
 <br>    
 <h2>Table of Content</h2>
 <div class="center">
@@ -147,6 +158,7 @@
 <br>
 <br>
 <h2 class="para_h1" id="1">Overview</h2>
+<div class="box">
 In order to demonstrate distributed computing requirements and to explain how distributed computing applications
 typically work, prime numbers calculation is being used in this project. As the value of the number goes high, 
 the amount of calculations need to be done to identify whether the number is prime becomes substantial.
@@ -174,9 +186,11 @@ A centralized Web API based Application logger has been used to increase the obs
 <img src="images/architecture.jpg"/>
 <br>
 <br>
+</div>
 <br>
 <br>
 <h2 class="para_h1" id="2">Application Design</h2>
+<div class="box">
 Every AppNode in the distributed system runs the same code base. The Bully Algorithm dynamically decides the master node in the ecosystem 
 and that master node distributes the work load among other nodes. Consensus Algorithm is being used to make the distributed system more reliable by
 assigning some specific set of tasks to a small sub set of nodes, which ensures the final outcome is accurate in the end. 
@@ -242,9 +256,11 @@ ecosystem to stability by reassigning roles for each node considering the number
 <img src="images/UML/fault-tolerant-sequence-diagram.svg" width="100%"/>
 <br>
 <br>
+</div>
 <br>
 <br>
 <h2 class="para_h1" id="9">Technology Stack</h2>
+<div class="box">
 All the major functionalities are built from scratch, by only using the standard program language capabilities. Service Discovery tool Consul 
 is the only 3rd party component used in the whole system.
 <br>
@@ -312,8 +328,13 @@ Below <i>process</i> method does not block AppNode class execution flow.
 <br>
 <br>
 <img src="images/Threaded/Threaded-2.png"/>
-
+<br>
+<br>
+</div>
+<br>
+<br>
 <h2 class="para_h1" id="13">HTTP Web API Based Communication</h2>
+<div class="box">
 KTCPListener class provides the inter-node communication capabilities to AppNode class. It emites an event which can be subscribed and 
 then can be implemented to produce useful functionality. Everytime a HTTP request is received <i>onClientRequest</i> event is fired with all 
 the neccessary data objects concapsulated inside the event object.  
@@ -336,7 +357,11 @@ response is sent back to the client as well.
 <img src="images/HTTP/AppNode-API-Handler-APIs.png"/>
 <br>
 <br>
+</div>
+<br>
+<br>
 <h2 class="para_h1" id="14">Numbers File Access APIs</h2>
+<div class="box">
 The distributed system needs a way to access the same list of numbers from each of the nodes in the ecosystem. The leader node wants to
 read each number in sequence to distribute the work load among Proposer nodes. The Learner node wants to complete the number once it has 
 received all the responses from Acceptors. Once a number is completed, the leader is allowed to pull the next number to continue the cycle. 
@@ -362,9 +387,11 @@ How to start Numbers File Service
 <img src="images/File/number-file-service-cmd.png"/>
 <br>
 <br>
+</div>
 <br>
 <br>
 <h2 class="para_h1" id="15">Consul - Service Register</h2>
+<div class="box">
 Service Discovery solution <a href="https://www.consul.io/">Consul</a> is being used to register AppNodes in the ecosystem. 
 When an AppNode is created, that AppNode itself updates the service register about it's presence. 
 Every AppNode provides an API to expose it's health status to the service register. The service register pings 
@@ -429,9 +456,11 @@ AppNodes are searched/discovered based on their Meta data.
 <img src="images/consul/search-services.png"/>
 <br>
 <br>
+</div>
 <br>
 <br>
 <h2 class="para_h1" id="16">Console and MongoDB Based Logger</h2>
+<div class="box">
 The AppNodes use both Console output as well as a remote logger service to give observability. The remote logger service 
 uses a MongoDB to store log entries and the same service provides a HTML dashboard to view all logs centrally.
 <br>
@@ -457,10 +486,11 @@ Centralized log view of all nodes
 <img src="images/Log/index.png">
 <br>
 <br>
+</div>
 <br>
 <br>
 <h2 class="para_h1"  id="17">Project Artifacts</h2>
-
+<div class="box">
 <h3 id="18">Source Code Repository</h3>
 The project source code is hosted in GitHub as a private repository. 
 The URL is given below and an invitation was sent to <a href="https://github.com/lasitha-petthawadu">lasitha-petthawadu</a> GitHub account. 
@@ -477,6 +507,9 @@ The URL is given below and an invitation was sent to <a href="https://github.com
 
 <h3 id="19">Online Demo</h3>
 
+<br>
+<br>
+</div>
 <br>
 End-of-Document
 </body>
