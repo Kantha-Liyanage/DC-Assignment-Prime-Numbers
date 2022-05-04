@@ -1,11 +1,15 @@
 <html>
     <head>
-        <title>Distributed Computing Assigment - MS21929014</title>
+        <title>Distributed Computing Assignment - MS21929014</title>
         <style>
             body {font-family: Verdana, Geneva, Tahoma, sans-serif;}
             h1 {text-align: center;}
             h2 {text-align: center;}
-            th {text-align: left;}
+            th {text-align: left; padding: 5px;}
+            td {text-align: left; padding: 5px;}
+            a, a:visited, a:hover, a:active {
+                color: inherit;
+            }
             .center {
                 display: flex;
                 justify-content: center;
@@ -23,10 +27,20 @@
 
 <body>
 <br>
-<h1>Discributed Computing Assigment</h1>
+<h1>Discributed Computing Assignment</h1>
 <h2>SE5090 [2022/JAN]</h2>
 <br>
 <br>
+<div class="center">
+    <pre>
+    <b>Topic Selection Calculation:</b><br>
+    Numeric part of the Student No = 21929014
+    1st Round = 2+1+9+2+9+0+1+4 = 28
+    2nd Round = 2+8 = 10
+    3rd Round = 1+0 = 1
+    Modulus 2 = 1 => <i>"Prime Number Deciding Distributed System"</i>
+    </pre>
+</div>
 <br>
 <h2>Consensus Based Prime Number Deciding Distributed System</h2>
 <br>
@@ -59,11 +73,11 @@
         </tr>
         <tr>
             <td></td>
-            <td>→ <a href="#3">Class Diagram</a></td>
+            <td><a href="#3">Class Diagram</a></td>
         </tr>
         <tr>
             <td></td>
-            <td>→ <a href="#4">Sequence Diagrams</a></td>
+            <td><a href="#4">Sequence Diagrams</a></td>
         </tr>
         <tr>
             <td></td>
@@ -79,7 +93,7 @@
         </tr>
         <tr>
             <td></td>
-            <td>&nbsp;&nbsp;4. <a href="#8">Fault Tolerant</a></td>
+            <td>&nbsp;&nbsp;4. <a href="#8">Fault Tolerance</a></td>
         </tr>
         <tr>
             <td><li></li></td>
@@ -91,11 +105,11 @@
         </tr>
         <tr>
             <td></td>
-            <td>→ <a href="#11">Event Driven</a></td>
+            <td><a href="#11">Event Driven</a></td>
         </tr>
         <tr>
             <td></td>
-            <td>→ <a href="#12">Multi Threaded</a></td>
+            <td><a href="#12">Multi Threaded</a></td>
         </tr>
         <tr>
             <td><li></li></td>
@@ -119,11 +133,11 @@
         </tr>
         <tr>
             <td></td>
-            <td>→ <a href="#18">Source Code Repository</a></td>
+            <td><a href="#18">Source Code Repository</a></td>
         </tr>
         <tr>
             <td></td>
-            <td>→ <a href="#19">Online Demo</a></td>
+            <td><a href="#19">Online Demo</a></td>
         </tr>
     </table>
 </div>
@@ -133,34 +147,153 @@
 <br>
 <br>
 <h2 class="para_h1" id="1">Overview</h2>
+In order to demonstrate distributed computing requirements and to explain how distributed computing applications
+typically work, prime numbers calculation is being used in this project. As the value of the number goes high, 
+the amount of calculations need to be done to identify whether the number is prime becomes substantial.
+<br>
+<br>
+A cluster of identical AppNodes have been used in this project to accomplish this task. Each of these AppNodes 
+have an internal component to communicate with all other nodes in the ecosystem. HTTP is being used as the communication
+protocol and the format is JSON Web APIs. 
+<br>
+<br>
+A Service Discovery solution is being used to maintain a centralized register of these
+AppNodes in the ecosystem and to monitor thier health status at any given time.  
+<br>
+<br>
+Since the numbers data file can accessed from any of the AppNodes in the discributed system, a wrapper services has been used
+in the project to accommodate this requirment.    
+<br>
+<br>
+A centralized Web API based Application logger has been used to increase the observability of the discributed system.
+<br>
+<br>
+<b>High-Level Architecture</b>
+<br>
+<br>
 <img src="images/architecture.jpg"/>
-<img src="images/project.png"/>
-
+<br>
+<br>
+<br>
+<br>
 <h2 class="para_h1" id="2">Application Design</h2>
+Every AppNode in the distributed system runs the same code base. The Bully Algorithm dynamically decides the master node in the ecosystem 
+and that master node distributes the work load among other nodes. Consensus Algorithm is being used to make the distributed system more reliable by
+assigning some specific set of tasks to a small sub set of nodes, which ensures the final outcome is accurate in the end. 
+
 <h3 id="3">Class Diagram</h3>
+OOP Composition concept is mainly used to implement complex AppNode functionalities. The AppNode class is built using following decomposed classes.
+<br>
+<br>
+1. Master class<br>
+2. Proposer class<br>
+3. Acceptor class<br>
+4. Learner class<br>
+5. ElectionHandler class (since this is a common functionality for all types of nodes)
+<br>
+<br>
+Then there are other classes which work as side-car solutions.
+<br>
+<br>
+1. KTCPListener<br>
+2. ConsulServiceRegister (wrapper)<br>
+3. NumbersFilerHelper (wrapper)
+<br>
+<br>
 <img src="images/UML/class-diagram.svg" width="100%"/>
-
+<br>
+<br>
 <h3 id="4">Sequence Diagrams</h3>
+A set of Sequence Diagrams are given below to explain the key functionalities of the discributed system.
+<br>
 <h4 id="5">Leader Selection</h4>
+The Bully Algorithm implementaion is explained in the below Sequence Diagram.
+<br>
+<br>
 <img src="images/UML/leader-selection-sequence-diagram.svg" width="100%"/>
-
+<br>
+<br>
 <h4 id="6">Roles Assignment</h4>
+Soon after the leader is elected, that leader nodes assigns roles to other nodes in the ecosystem. That process is described bellow.
+<br>
+<br>
 <img src="images/UML/roles-assignment-sequence-diagram.svg" width="100%"/>
-
+<br>
+<br>
 <h4 id="7">Numbers Evaluation Process</h4>
+Then the work-of-the-work is being done according to the below sequence of actions.
+<br>
+<br>
 <img src="images/UML/process-sequence-diagram.svg" width="100%"/>
-
-<h4 id="8">Fault Tolerant</h4>
+<br>
+<br>
+<h4 id="8">Fault Tolerance</h4>
+The Fault Tolerance strategy is implemented at two stages. 
+<br>
+<br>
+1. Whenever a node detects that the existing leader node is not alive anymore, the node starts 
+an election straightaway to elect a new leader. That process is explained in the "Leader Selection" Sequence Diagram. 
+<br>
+<br>
+2. Whenever a non-leader node is detected as dead, there is a "re-assign-roles" functionality built into the leader node to bring back the 
+ecosystem to stability by reassigning roles for each node considering the number of nodes alive at that point in time. 
+<br>
+<br>
 <img src="images/UML/fault-tolerant-sequence-diagram.svg" width="100%"/>
-
+<br>
+<br>
+<br>
+<br>
 <h2 class="para_h1" id="9">Technology Stack</h2>
+All the major functionalities are built from scratch, by only using the standard program language capabilities. Service Discovery tool Consul 
+is the only 3rd party component used in the whole system.
+<br>
+<br>
 <h3 id="10">C# Console Program - AppNode</h3>
+C# being one of the major high productivity programing platform, offers a comprehensive set of OOTB capabilities to build applications fast.
+Console application type was selected to build AppNodes because it gives reliable multi-threading capabilities with built-in observability features 
+like Console outputs.  
+<br>
+<br>
+The project source code is organized based on the artifcat type.
+<br>
+<br>
+<img src="images/project.png"/>
+<br>
+<br>
+Numbers data file access service and logger service are also in the same source code base. Console input arguments have been used to
+start these services separately.
+<br>
+<br>
 <img src="images/modes.png"/>
-
+<br>
+<br>
 <h4 id="11">Event Driven</h4>
-<img src="images/Events/event-based-1.png"/>
-<img src="images/Events/event-based-2.png"/>
+C# Events have been used to augment critical functionalities, so that they work as a Pub/Sub model. All the subscriber methods are 
+placed inside the AppNode class and therefore it gives better readbility to the application code.    
+<br>
+<br>
+<B>Leader Elected Event</B>
+<br>
+<br>
 <img src="images/Events/event-based-3.png"/>
+<br>
+<br>
+<b>Proposer Node has completed evealuating the number for the given range</b>
+<br>
+<br>
+<img src="images/Events/event-based-1.png"/>
+<br>
+<br>
+<b>Learner Node has completed number evaluation</b>
+<br>
+<br>
+<img src="images/Events/event-based-2.png"/>
+<br>
+<br>
+<b>Subscriber methods in AppNode class</b>
+<br>
+<br>
 <img src="images/Events/event-based-4.png"/>
 
 <h4 id="12">Multi Threaded</h4>
