@@ -100,7 +100,7 @@
             <td><a href="#9">Technology Stack</a></td>
         </tr>
         <tr>
-            <td><li></li></td>
+            <td></td>
             <td><a href="#10">C# Console Program - AppNode</a></td>
         </tr>
         <tr>
@@ -255,7 +255,7 @@ Console application type was selected to build AppNodes because it gives reliabl
 like Console outputs.  
 <br>
 <br>
-The project source code is organized based on the artifcat type.
+The project source code is organized based on the artifact type.
 <br>
 <br>
 <img src="images/project.png"/>
@@ -313,7 +313,7 @@ Below <i>process</i> method does not block AppNode class execution flow.
 <br>
 <img src="images/Threaded/Threaded-2.png"/>
 
-<h3 id="13">HTTP Web API Based Communication</h3>
+<h2 class="para_h1" id="13">HTTP Web API Based Communication</h2>
 KTCPListener class provides the inter-node communication capabilities to AppNode class. It emites an event which can be subscribed and 
 then can be implemented to produce useful functionality. Everytime a HTTP request is received <i>onClientRequest</i> event is fired with all 
 the neccessary data objects concapsulated inside the event object.  
@@ -336,12 +336,35 @@ response is sent back to the client as well.
 <img src="images/HTTP/AppNode-API-Handler-APIs.png"/>
 <br>
 <br>
-<h3 id="14">Numbers File Access APIs</h3>
+<h2 class="para_h1" id="14">Numbers File Access APIs</h2>
+The distributed system needs a way to access the same list of numbers from each of the nodes in the ecosystem. The leader node wants to
+read each number in sequence to distribute the work load among Proposer nodes. The Learner node wants to complete the number once it has 
+received all the responses from Acceptors. Once a number is completed, the leader is allowed to pull the next number to continue the cycle. 
+AppNodes are supposed run on different computers hence it is not possible to access the numbers file exclusively using direct path reliably.
+Therefore a separate services was built to expose file IOs to the ecosystem over Web APIs.      
+<br>
+<br>
+Two Web APIs were built to handle get-next-number and complete-number requests. 
+<br>
+<br>
 <img src="images/File/next-number-service.png"/>
+<br>
+<br>
+A helper class was built to wrap these two services, so that they can be accessed easily by the AppNode class.
+<br>
+<br>
 <img src="images/File/next-number-helper.png"/>
+<br>
+<br>
+How to start Numbers File Service 
+<br>
+<br>
 <img src="images/File/number-file-service-cmd.png"/>
-
-<h3 id="15">Consul - Service Register</h3>
+<br>
+<br>
+<br>
+<br>
+<h2 class="para_h1" id="15">Consul - Service Register</h2>
 Service Discovery solution <a href="https://www.consul.io/">Consul</a> is being used to register AppNodes in the ecosystem. 
 When an AppNode is created, that AppNode itself updates the service register about it's presence. 
 Every AppNode provides an API to expose it's health status to the service register. The service register pings 
@@ -364,56 +387,78 @@ http://localhost:8500/ui
     # Stop Consul
     consul leave
 </pre>
-<b>Starting Consul in Dev mode</b>
+Starting Consul in Dev mode
 <br>
 <br>
 <img src="images/consul/consul-cmd.png"/>
 <br>
 <br>
-<b>AppNode registering in Consul with health checks</b>
+AppNode registering in Consul with health checks
 <br>
 <br>
 <img src="images/consul/service-register.png"/>
 <br>
 <br>
-<b>AppNodes showing in Consul Web UI</b>
+AppNodes showing in Consul Web UI
 <br>
 <br>
 <img src="images/consul/consul-appnodes.png"/>
 <br>
 <br>
-<b>AppNode Meta data</b>
+AppNode Meta data
 <br>
 <br>
 <img src="images/consul/consul-appnode-meta.png"/>
 <br>
 <br>
-<b>AppNodes health checking in Consul Web UI</b>
+AppNodes health checking in Consul Web UI
 <br>
 <br>
 <img src="images/consul/consul-appnode-health-check.png"/>
 <br>
 <br>
-<b>Unhealthy AppNodes</b>
+Unhealthy AppNodes
 <br>
 <br>
 <img src="images/consul/consul-appnode-unhealthy.png"/>
 <br>
 <br>
-<b>Querying AppNodes</b>
-<br>
-<br>
-AppNodes are searched based on their Meta data.
+AppNodes are searched/discovered based on their Meta data.
 <br>
 <br>
 <img src="images/consul/search-services.png"/>
-
-<h3 id="16">Console and MongoDB Based Logger</h3>
+<br>
+<br>
+<br>
+<br>
+<h2 class="para_h1" id="16">Console and MongoDB Based Logger</h2>
+The AppNodes use both Console output as well as a remote logger service to give observability. The remote logger service 
+uses a MongoDB to store log entries and the same service provides a HTML dashboard to view all logs centrally.
+<br>
+<br>
 <img src="images/Log/logger.png"/>
+<br>
+<br>
+MongoDB logs collection
+<br>
+<br>
 <img src="images/Log/MongoDB.png"/>
+<br>
+<br>
+How to start the logger service
+<br>
+<br>
 <img src="images/Log/logger-cmd.png"/>
-<img src="images/log/index.png"/>
-
+<br>
+<br>
+Centralized log view of all nodes
+<br>
+<br>
+<img src="images/Log/index.png">
+<br>
+<br>
+<br>
+<br>
 <h2 class="para_h1"  id="17">Project Artifacts</h2>
 
 <h3 id="18">Source Code Repository</h3>
@@ -431,5 +476,8 @@ The URL is given below and an invitation was sent to <a href="https://github.com
 <a href="https://github.com/Kantha-Liyanage/DC-Assignment-Prime-Numbers/invitations">https://github.com/Kantha-Liyanage/DC-Assignment-Prime-Numbers/invitations</a>
 
 <h3 id="19">Online Demo</h3>
+
+<br>
+End-of-Document
 </body>
 </html>
