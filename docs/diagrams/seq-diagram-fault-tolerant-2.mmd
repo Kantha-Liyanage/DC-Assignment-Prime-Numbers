@@ -1,0 +1,16 @@
+sequenceDiagram 
+
+LearnerAppNode ->> ConsulServiceRegister : getHealthyProposers()
+ConsulServiceRegister -->> LearnerAppNode : Node[]
+alt Node[].count != proposersCount
+    LearnerAppNode->>LearnerAppNode : reassignRoles()
+    LearnerAppNode ->> ConsulServiceRegister : getHealthyLeader()
+    ConsulServiceRegister -->> LearnerAppNode : Node
+    LearnerAppNode ->> MasterAppNode : callAPI(master_address/reassignRoles)
+    MasterAppNode ->> MasterAppNode : handleRequestReassignRoles();
+    Note left of MasterAppNode : electedAsTheLeader() method has been reused here.
+    rect rgb(200, 150, 255)
+    MasterAppNode ->> MasterAppNode : electedAsTheLeader()
+    end
+    MasterAppNode -->> LearnerAppNode : void
+end

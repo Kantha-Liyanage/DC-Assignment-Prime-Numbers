@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using dc.assignment.primenumbers.utils.serviceregister;
@@ -19,6 +20,7 @@ namespace dc.assignment.primenumbers.models
             // Master
             this.appNode.type = AppNodeType.Master;
             ConsulServiceRegister.setNode(this.appNode);
+            Console.Title = "NodeType : " + this.appNode.type;
 
             // check the consistancy of the ecosystem
             List<Node> nodes = checkEcosystem();
@@ -32,6 +34,7 @@ namespace dc.assignment.primenumbers.models
                 // revert
                 this.appNode.type = AppNodeType.Initial;
                 ConsulServiceRegister.setNode(this.appNode);
+                Console.Title = "NodeType : " + this.appNode.type;
                 return false;
             }
             else

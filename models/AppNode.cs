@@ -63,6 +63,7 @@ namespace dc.assignment.primenumbers.models
 
             // set node inital status
             ConsulServiceRegister.setNode(this);
+            Console.Title = "NodeType : " + this.type;
 
             // start lifecycle method
             var worker = new Thread(() =>
@@ -243,6 +244,7 @@ namespace dc.assignment.primenumbers.models
                     case "Proposer":
                         this.type = AppNodeType.Proposer;
                         ConsulServiceRegister.setNode(this);
+                        Console.Title = "NodeType : " + this.type;
 
                         // log
                         Program.log(this.id, this.name, "Node role changed to a Proposer.");
@@ -251,6 +253,7 @@ namespace dc.assignment.primenumbers.models
                     case "Acceptor":
                         this.type = AppNodeType.Acceptor;
                         ConsulServiceRegister.setNode(this);
+                        Console.Title = "NodeType : " + this.type;
 
                         // log
                         Program.log(this.id, this.name, "Node role changed to an Acceptor.");
@@ -259,6 +262,7 @@ namespace dc.assignment.primenumbers.models
                     case "Learner":
                         this.type = AppNodeType.Learner;
                         ConsulServiceRegister.setNode(this);
+                        Console.Title = "NodeType : " + this.type;
 
                         // log
                         Program.log(this.id, this.name, "Node role changed to a Learner.");

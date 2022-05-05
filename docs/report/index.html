@@ -242,7 +242,8 @@ Then the work-of-the-work is being done according to the below sequence of actio
 <br>
 <br>
 <h4 id="8">Fault Tolerance</h4>
-The Fault Tolerance strategy is implemented at two stages. 
+The Fault Tolerance strategy is implemented at 3 stages so that all major impacts to the ecosystem 
+are successfully mitigated.  
 <br>
 <br>
 1. Whenever a node detects that the existing leader node is not alive anymore, the node starts 
@@ -253,7 +254,14 @@ an election straightaway to elect a new leader. That process is explained in the
 ecosystem to stability by reassigning roles for each node considering the number of nodes alive at that point in time. 
 <br>
 <br>
-<img src="images/UML/fault-tolerant-sequence-diagram.svg" width="100%"/>
+<img src="images/UML/fault-tolerant-sequence-diagram-1.svg" width="100%"/>
+<br>
+<br>
+3. Learner node checks whether number of alive Proposers are matching with the count received by the Leader node. 
+If those two are not matching, Learner node invokes the "re-assign-roles" functionality in Leader node.
+<br>
+<br>
+<img src="images/UML/fault-tolerant-sequence-diagram-2.svg" width="100%"/>
 <br>
 <br>
 </div>
