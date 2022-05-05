@@ -129,6 +129,16 @@ namespace dc.assignment.primenumbers.models
 
         public void distributeTasks(List<Node> nodes)
         {
+            // start lifecycle method
+            var worker = new Thread(() =>
+            {
+                this.distributeTasksAync(nodes);
+            });
+            worker.Start();
+        }
+
+        private void distributeTasksAync(List<Node> nodes)
+        {
             // until all numbers are evaluated
             int previousNumber = -1;
             int nextNumber = 0;

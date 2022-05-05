@@ -122,9 +122,7 @@ namespace dc.assignment.primenumbers.models
                         // new node created after selecting the leader
                         if (this.type == AppNodeType.Initial)
                         {
-                            // assign as a Proposer
-                            this.type = AppNodeType.Proposer;
-                            ConsulServiceRegister.setNode(this);
+                            this.reassignRoles();
                         }
                     }
                 }

@@ -20,11 +20,13 @@ namespace dc.assignment.primenumbers
             {
                 // application logger
                 Program.appLogger = new KLogger(true);
+                Console.Title = "Logger";
             }
             // numbers file service
             else if (args.Length == 1 && args[0].Equals("nfs"))
             {
                 NumbersFileHandler numbersDatFileHandler = new NumbersFileHandler("data/numbers.txt", "data/output.txt");
+                Console.Title = "Number File Service";
             }
             // AppNode runner
             else if (args.Length == 3 && args[0].Equals("appnode"))
