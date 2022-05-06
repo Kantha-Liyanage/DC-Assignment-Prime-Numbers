@@ -17,10 +17,11 @@
             .para_h1{
                 text-align: left;
                 height: 20px;
-                border: 1px solid lightgray;
-                padding-bottom: 10px;
-                padding-left: 5px;
-                background-color: lightgray;
+                border: 1px solid darkgoldenrod;
+                padding-top: 10px;
+                padding-bottom: 20px;
+                padding-left: 10px;
+                background-color: darkgoldenrod;
                 border-radius: 5px;
             }
             .box{
@@ -34,6 +35,7 @@
 <body>
 <div class="box">
 <br>
+<div class="center"><img src="images/SLIIT.png" style="width: 100px;" /></div>
 <h1>Discributed Computing Assignment</h1>
 <h2>SE5090 [2022/JAN]</h2>
 <br>
@@ -45,7 +47,7 @@
     1st Round = 2+1+9+2+9+0+1+4 = 28
     2nd Round = 2+8 = 10
     3rd Round = 1+0 = 1
-    Modulus 2 = 1 => <i>"Prime Number Deciding Distributed System"</i>
+    Modulus 2 of 1 = 1 => <i>"Prime Number Deciding Distributed System"</i>
     </pre>
 </div>
 <br>
@@ -69,7 +71,7 @@
 <br>
 <br>
 
-<div style="background-color: lightgray; border-radius: 10px;">
+<div class="box">
 <br>    
 <h2>Table of Content</h2>
 <div class="center">
@@ -183,7 +185,7 @@ A centralized Web API based Application logger has been used to increase the obs
 <b>High-Level Architecture</b>
 <br>
 <br>
-<div class="center"><img src="images/architecture.jpg"/></div>
+<div class="center"><img src="images/architecture.jpg" width="80%"/></div>
 <br>
 <br>
 </div>
@@ -214,7 +216,7 @@ Then there are other classes which work as side-car solutions.
 3. NumbersFilerHelper (wrapper)
 <br>
 <br>
-<img src="images/UML/class-diagram.svg" width="100%"/>
+<div class="center"><img src="images/UML/class-diagram.svg" width="95%"/></div>
 <br>
 <br>
 <h3 id="4">Sequence Diagrams</h3>
@@ -224,21 +226,21 @@ A set of Sequence Diagrams are given below to explain the key functionalities of
 The Bully Algorithm implementaion is explained in the below Sequence Diagram.
 <br>
 <br>
-<img src="images/UML/leader-selection-sequence-diagram.svg" width="100%"/>
+<div class="center"><img src="images/UML/leader-selection-sequence-diagram.svg" width="95%"/></div>
 <br>
 <br>
 <h4 id="6">Roles Assignment</h4>
 Soon after the leader is elected, that leader nodes assigns roles to other nodes in the ecosystem. That process is described bellow.
 <br>
 <br>
-<img src="images/UML/roles-assignment-sequence-diagram.svg" width="100%"/>
+<div class="center"><img src="images/UML/roles-assignment-sequence-diagram.svg" width="95%"/></div>
 <br>
 <br>
 <h4 id="7">Numbers Evaluation Process</h4>
 Then the work-of-the-work is being done according to the below sequence of actions.
 <br>
 <br>
-<img src="images/UML/process-sequence-diagram.svg" width="100%"/>
+<div class="center"><img src="images/UML/process-sequence-diagram.svg" width="95%"/></div>
 <br>
 <br>
 <h4 id="8">Fault Tolerance</h4>
@@ -254,14 +256,14 @@ an election straightaway to elect a new leader. That process is explained in the
 ecosystem to stability by reassigning roles for each node considering the number of nodes alive at that point in time. 
 <br>
 <br>
-<img src="images/UML/fault-tolerant-sequence-diagram-1.svg" width="100%"/>
+<div class="center"><img src="images/UML/fault-tolerant-sequence-diagram-1.svg" width="95%"/></div>
 <br>
 <br>
 3. Learner node checks whether number of alive Proposers are matching with the count received by the Leader node. 
 If those two are not matching, Learner node invokes the "re-assign-roles" functionality in Leader node.
 <br>
 <br>
-<img src="images/UML/fault-tolerant-sequence-diagram-2.svg" width="100%"/>
+<div class="center"><img src="images/UML/fault-tolerant-sequence-diagram-2.svg" width="95%"/></div>
 <br>
 <br>
 </div>
@@ -269,6 +271,9 @@ If those two are not matching, Learner node invokes the "re-assign-roles" functi
 <br>
 <h2 class="para_h1" id="9">Technology Stack</h2>
 <div class="box">
+<img src="images/c-sharp.png" style="width: 80px;" />
+<br/>
+<br/>
 All the major functionalities are built from scratch, by only using the standard program language capabilities. Service Discovery tool Consul 
 is the only 3rd party component used in the whole system.
 <br>
@@ -282,14 +287,14 @@ like Console outputs.
 The project source code is organized based on the artifact type.
 <br>
 <br>
-<img src="images/project.png"/>
+<div class="center"><img src="images/project.png"/></div>
 <br>
 <br>
 Numbers data file access service and logger service are also in the same source code base. Console input arguments have been used to
 start these services separately.
 <br>
 <br>
-<img src="images/modes.png"/>
+<div class="center"><img src="images/modes.png"/></div>
 <br>
 <br>
 <h4 id="11">Event Driven</h4>
@@ -298,28 +303,28 @@ AppNode class listens to these events and the concept is similar to a Pub/Sub mo
 placed inside the AppNode class and therefore it gives better readbility to the application code.    
 <br>
 <br>
-<B>Leader Elected Event</B>
+Leader Elected Event
 <br>
 <br>
-<img src="images/Events/event-based-3.png"/>
+<div class="center"><img src="images/Events/event-based-3.png"/></div>
 <br>
 <br>
-<b>Proposer Node has completed evealuating the number for the given range</b>
+Proposer Node has completed evealuating the number for the given range
 <br>
 <br>
-<img src="images/Events/event-based-1.png"/>
+<div class="center"><img src="images/Events/event-based-1.png" width="95%"/></div>
 <br>
 <br>
-<b>Learner Node has completed number evaluation</b>
+Learner Node has completed number evaluation
 <br>
 <br>
-<img src="images/Events/event-based-2.png"/>
+<div class="center"><img src="images/Events/event-based-2.png"/></div>
 <br>
 <br>
-<b>Subscriber methods in AppNode class</b>
+Subscriber methods in AppNode class
 <br>
 <br>
-<img src="images/Events/event-based-4.png"/>
+<div class="center"><img src="images/Events/event-based-4.png"/></div>
 <br>
 <br>
 <h4 id="12">Multi Threaded</h4>
@@ -330,13 +335,13 @@ Therefore multi-threading is needed for some specific functionalities like calcu
 Below <i>eveluate</i> method does not block AppNode class execution flow.
 <br>
 <br>
-<img src="images/Threaded/Threaded-1.png"/>
+<div class="center"><img src="images/Threaded/Threaded-1.png"/></div>
 <br>
 <br>
 Below <i>process</i> method does not block AppNode class execution flow.
 <br>
 <br>
-<img src="images/Threaded/Threaded-2.png"/>
+<div class="center"><img src="images/Threaded/Threaded-2.png"/></div>
 <br>
 <br>
 </div>
@@ -344,18 +349,21 @@ Below <i>process</i> method does not block AppNode class execution flow.
 <br>
 <h2 class="para_h1" id="13">HTTP Web API Based Communication</h2>
 <div class="box">
+<img src="images/web-api.png" style="width: 80px;" />
+<br/>
+<br/>
 KTCPListener class provides the inter-node communication capabilities to AppNode class. It emites an event which can be subscribed and 
 then can be implemented to produce useful functionality. Everytime a HTTP request is received <i>onClientRequest</i> event is fired with all 
 the neccessary data objects concapsulated inside the event object.  
 <br>
 <br>
-<img src="images/HTTP/HTTP Listener.png"/>
+<div class="center"><img src="images/HTTP/HTTP Listener.png" width="95%"/></div>
 <br>
 <br>
 Event <i>onClientRequest</i> is subscribed inside the AppNode class.
 <br>
 <br>
-<img src="images/HTTP/AppNode-API-Handler.png"/>
+<div class="center"><img src="images/HTTP/AppNode-API-Handler.png"/></div>
 <br>
 <br>
 All the API invocations received by the AppNode are then handled through this subscriber method. Identification of the required resource,
@@ -363,7 +371,7 @@ data received with the request from the client are taken from the event object. 
 response is sent back to the client as well.
 <br>
 <br>
-<img src="images/HTTP/AppNode-API-Handler-APIs.png"/>
+<div class="center"><img src="images/HTTP/AppNode-API-Handler-APIs.png"/></div>
 <br>
 <br>
 </div>
@@ -381,19 +389,19 @@ Therefore a separate services was built to expose file IOs to the ecosystem over
 Two Web APIs were built to handle get-next-number and complete-number requests. 
 <br>
 <br>
-<img src="images/File/next-number-service.png"/>
+<div class="center"><img src="images/File/next-number-service.png"/></div>
 <br>
 <br>
 A helper class was built to wrap these two services, so that they can be accessed easily by the AppNode class.
 <br>
 <br>
-<img src="images/File/next-number-helper.png"/>
+<div class="center"><img src="images/File/next-number-helper.png"/></div>
 <br>
 <br>
 How to start Numbers File Service 
 <br>
 <br>
-<img src="images/File/number-file-service-cmd.png"/>
+<div class="center"><img src="images/File/number-file-service-cmd.png"/></div>
 <br>
 <br>
 </div>
@@ -401,6 +409,8 @@ How to start Numbers File Service
 <br>
 <h2 class="para_h1" id="15">Consul - Service Register</h2>
 <div class="box">
+<img src="images/consul/consul.png" style="width: 200px;" />
+<br/>
 Service Discovery solution <a href="https://www.consul.io/">Consul</a> is being used to register AppNodes in the ecosystem. 
 When an AppNode is created, that AppNode itself updates the service register about it's presence. 
 Every AppNode provides an API to expose it's health status to the service register. The service register pings 
@@ -427,43 +437,43 @@ http://localhost:8500/ui
 Starting Consul in Dev mode
 <br>
 <br>
-<img src="images/consul/consul-cmd.png"/>
+<div class="center"><img src="images/consul/consul-cmd.png" width="95%"/></div>
 <br>
 <br>
 AppNode registering in Consul with health checks
 <br>
 <br>
-<img src="images/consul/service-register.png"/>
+<div class="center"><img src="images/consul/service-register.png"/></div>
 <br>
 <br>
 AppNodes showing in Consul Web UI
 <br>
 <br>
-<img src="images/consul/consul-appnodes.png"/>
+<div class="center"><img src="images/consul/consul-appnodes.png" width="95%"/></div>
 <br>
 <br>
 AppNode unique ID and Type are used as service Meta data
 <br>
 <br>
-<img src="images/consul/consul-appnode-meta.png"/>
+<div class="center"><img src="images/consul/consul-appnode-meta.png" width="95%"/></div>
 <br>
 <br>
 AppNodes health monitoring in Consul Web UI
 <br>
 <br>
-<img src="images/consul/consul-appnode-health-check.png"/>
+<div class="center"><img src="images/consul/consul-appnode-health-check.png" width="95%"/></div>
 <br>
 <br>
 Unhealthy AppNodes
 <br>
 <br>
-<img src="images/consul/consul-appnode-unhealthy.png"/>
+<div class="center"><img src="images/consul/consul-appnode-unhealthy.png" width="95%"/></div>
 <br>
 <br>
 AppNodes are searched/discovered based on their Meta data.
 <br>
 <br>
-<img src="images/consul/search-services.png"/>
+<div class="center"><img src="images/consul/search-services.png" width="95%"/></div>
 <br>
 <br>
 </div>
@@ -471,29 +481,32 @@ AppNodes are searched/discovered based on their Meta data.
 <br>
 <h2 class="para_h1" id="16">Console and MongoDB Based Logger</h2>
 <div class="box">
+<img src="images/mongo-db.png" style="width: 200px;" />
+<br/>
+<br/>
 The AppNodes use both Console output as well as a remote logger service to give observability to the distributed system. The remote logger service 
 uses a MongoDB to store log entries and the same service provides a HTML dashboard to view all logs centrally.
 <br>
 <br>
-<img src="images/Log/logger.png"/>
+<div class="center"><img src="images/Log/logger.png" width="95%"/></div>
 <br>
 <br>
 MongoDB logs collection
 <br>
 <br>
-<img src="images/Log/MongoDB.png"/>
+<div class="center"><img src="images/Log/MongoDB.png"/></div>
 <br>
 <br>
 How to start the logger service
 <br>
 <br>
-<img src="images/Log/logger-cmd.png"/>
+<div class="center"><img src="images/Log/logger-cmd.png" width="95%"/></div>
 <br>
 <br>
 Centralized log view of all nodes
 <br>
 <br>
-<img src="images/Log/index.png">
+<div class="center"><img src="images/Log/index.png" width="95%"></div>
 <br>
 <br>
 </div>
@@ -501,9 +514,12 @@ Centralized log view of all nodes
 <br>
 <h2 class="para_h1"  id="17">Project Artifacts</h2>
 <div class="box">
+<img src="images/github.png" style="width: 200px;" />
+<br/>
+<br/>
 <h3 id="18">Source Code Repository</h3>
 The project source code is hosted in GitHub as a private repository. 
-The URL is given below and an invitation was sent to <a href="https://github.com/lasitha-petthawadu">lasitha-petthawadu</a> GitHub account. 
+The URL is given below and an invitation was sent to <a href="https://github.com/lasitha-petthawadu"><b>lasitha-petthawadu</b></a> GitHub account. 
 <br>
 <br>
 <b>GitHub URL</b>
