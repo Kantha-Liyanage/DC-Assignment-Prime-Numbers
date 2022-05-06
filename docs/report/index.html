@@ -146,10 +146,6 @@
             <td></td>
             <td><a href="#18">Source Code Repository</a></td>
         </tr>
-        <tr>
-            <td></td>
-            <td><a href="#19">Online Demo</a></td>
-        </tr>
     </table>
 </div>
 <br>
@@ -161,29 +157,33 @@
 <div class="box">
 In order to demonstrate distributed computing requirements and to explain how distributed computing applications
 typically work, prime numbers calculation is being used in this project. As the value of the number goes high, 
-the amount of calculations need to be done to identify whether the number is prime becomes substantial.
+the amount of calculations need to be done to identify whether that number is prime becomes substantial. The application 
+distributes this work load (evaluation ranges) among worker nodes (Proposers). Then based on the Consensus Algorithm application 
+decides whether the number is prime or not. 
 <br>
 <br>
-A cluster of identical AppNodes have been used in this project to accomplish this task. Each of these AppNodes 
-have an internal component to communicate with all other nodes in the ecosystem. HTTP is being used as the communication
-protocol and the format is JSON Web APIs. 
+A cluster of identical worker AppNodes have been used in this project to accomplish this task. Each of these AppNodes are been given 
+unique addresses (an IP and a port) to identify them. The TCP Listener inside the AppNode uses the address to communicate with all 
+other nodes in the ecosystem. HTTP Web APIs are being used as the communication medium. 
 <br>
 <br>
 A Service Discovery solution is being used to maintain a centralized register of these
 AppNodes in the ecosystem and to monitor thier health status at any given time.  
 <br>
 <br>
-Since the numbers data file can accessed from any of the AppNodes in the discributed system, a wrapper services has been used
-in the project to accommodate this requirment.    
+Since the numbers data file can be accessed from any of the AppNodes in the discributed system, a wrapper Web API service has been used
+in the project to enable this requirment.    
 <br>
 <br>
 A centralized Web API based Application logger has been used to increase the observability of the discributed system.
 <br>
 <br>
+<br>
+<br>
 <b>High-Level Architecture</b>
 <br>
 <br>
-<img src="images/architecture.jpg"/>
+<div class="center"><img src="images/architecture.jpg"/></div>
 <br>
 <br>
 </div>
@@ -196,7 +196,7 @@ and that master node distributes the work load among other nodes. Consensus Algo
 assigning some specific set of tasks to a small sub set of nodes, which ensures the final outcome is accurate in the end. 
 
 <h3 id="3">Class Diagram</h3>
-OOP Composition concept is mainly used to implement complex AppNode functionalities. The AppNode class is built using following decomposed classes.
+OOP <i>Composition</i> concept is mainly used to implement complex AppNode functionalities. The AppNode class is built using following decomposed classes.
 <br>
 <br>
 1. Master class<br>
@@ -293,7 +293,8 @@ start these services separately.
 <br>
 <br>
 <h4 id="11">Event Driven</h4>
-C# Events have been used to augment critical functionalities, so that they work as a Pub/Sub model. All the subscriber methods are 
+C# Events have been used to augment critical functionalities from <i>Composition</i> classes. When the events are emitted from these classess 
+AppNode class listens to these events and the concept is similar to a Pub/Sub model. All the subscriber methods are 
 placed inside the AppNode class and therefore it gives better readbility to the application code.    
 <br>
 <br>
@@ -373,7 +374,7 @@ response is sent back to the client as well.
 The distributed system needs a way to access the same list of numbers from each of the nodes in the ecosystem. The leader node wants to
 read each number in sequence to distribute the work load among Proposer nodes. The Learner node wants to complete the number once it has 
 received all the responses from Acceptors. Once a number is completed, the leader is allowed to pull the next number to continue the cycle. 
-AppNodes are supposed run on different computers hence it is not possible to access the numbers file exclusively using direct path reliably.
+AppNodes are supposed to run on different computers hence it is not possible to access the numbers file exclusively using direct path reliably.
 Therefore a separate services was built to expose file IOs to the ecosystem over Web APIs.      
 <br>
 <br>
@@ -406,10 +407,10 @@ Every AppNode provides an API to expose it's health status to the service regist
 this API at regular time intervals to monitor the health of the AppNode. 
 <br>
 <br>
-*In the project Consul is being used in Dev mode since it is not required keep data.
+*In the project Consul is being used in <i>Dev-Mode</i> since it is not required keep data persistently.
 <br>
 <br>
-<b>Consul URL</b>
+<b>Consul UI URL</b>
 <br>
 http://localhost:8500/ui
 <br>
@@ -422,6 +423,7 @@ http://localhost:8500/ui
     # Stop Consul
     consul leave
 </pre>
+<br>
 Starting Consul in Dev mode
 <br>
 <br>
@@ -440,13 +442,13 @@ AppNodes showing in Consul Web UI
 <img src="images/consul/consul-appnodes.png"/>
 <br>
 <br>
-AppNode Meta data
+AppNode unique ID and Type are used as service Meta data
 <br>
 <br>
 <img src="images/consul/consul-appnode-meta.png"/>
 <br>
 <br>
-AppNodes health checking in Consul Web UI
+AppNodes health monitoring in Consul Web UI
 <br>
 <br>
 <img src="images/consul/consul-appnode-health-check.png"/>
@@ -469,7 +471,7 @@ AppNodes are searched/discovered based on their Meta data.
 <br>
 <h2 class="para_h1" id="16">Console and MongoDB Based Logger</h2>
 <div class="box">
-The AppNodes use both Console output as well as a remote logger service to give observability. The remote logger service 
+The AppNodes use both Console output as well as a remote logger service to give observability to the distributed system. The remote logger service 
 uses a MongoDB to store log entries and the same service provides a HTML dashboard to view all logs centrally.
 <br>
 <br>
@@ -504,17 +506,14 @@ The project source code is hosted in GitHub as a private repository.
 The URL is given below and an invitation was sent to <a href="https://github.com/lasitha-petthawadu">lasitha-petthawadu</a> GitHub account. 
 <br>
 <br>
-<b>URL</b>
+<b>GitHub URL</b>
 <br>
 <a href="https://github.com/Kantha-Liyanage/DC-Assignment-Prime-Numbers">https://github.com/Kantha-Liyanage/DC-Assignment-Prime-Numbers</a>
 <br>
 <br>
-<b>Invitation link</b>
+<b>GitHub Invitation link</b>
 <br>
 <a href="https://github.com/Kantha-Liyanage/DC-Assignment-Prime-Numbers/invitations">https://github.com/Kantha-Liyanage/DC-Assignment-Prime-Numbers/invitations</a>
-
-<h3 id="19">Online Demo</h3>
-
 <br>
 <br>
 </div>
