@@ -12,6 +12,11 @@ namespace dc.assignment.primenumbers.models
         public int port { get; set; }
         public int fromNumber { get; set; }
         public int toNumber { get; set; }
+
+        public string getNodeDisplayName()
+        {
+            return "NodeType: " + this.type + " | ID: " + this.id + " | Address: " + this.address;
+        }
     }
 
     public enum AppNodeType

@@ -32,6 +32,7 @@ namespace dc.assignment.primenumbers.models
             if (e.request.resourceURL.Equals("getNextNumber") && e.request.httpMethod == KHTTPMethod.GET)
             {
                 int nextNumber = this.getNextNumber();
+                Console.WriteLine(nextNumber);
                 KHTTPResponse response = new KHTTPResponse(HTTPResponseCode.OK_200, new { number = nextNumber });
                 response.sendJSON(e.tcpClient);
             }
@@ -41,6 +42,7 @@ namespace dc.assignment.primenumbers.models
                 this.completeNumber(dto.number, dto.isPrime, dto.divisibleByNumber);
                 KHTTPResponse response = new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Successful." });
                 response.sendJSON(e.tcpClient);
+                Console.WriteLine(dto.number);
             }
         }
 

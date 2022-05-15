@@ -9,6 +9,7 @@ namespace dc.assignment.primenumbers.models
     {
         private AppNode appNode;
         private int NEXT_NUMBER_GET_DELAY = 5000;
+        private bool abort = false;
 
         public Master(AppNode appNode)
         {
@@ -17,10 +18,12 @@ namespace dc.assignment.primenumbers.models
 
         public bool assignRoles()
         {
+            this.stopTaskDistribution();
+
             // Master
             this.appNode.type = AppNodeType.Master;
             ConsulServiceRegister.setNode(this.appNode);
-            Console.Title = "NodeType : " + this.appNode.type + " ID : " + this.appNode.id + " Address : " + this.appNode.address;
+            Console.Title = this.appNode.getNodeDisplayName();
 
             // check the consistancy of the ecosystem
             List<Node> nodes = checkEcosystem();
@@ -34,7 +37,7 @@ namespace dc.assignment.primenumbers.models
                 // revert
                 this.appNode.type = AppNodeType.Initial;
                 ConsulServiceRegister.setNode(this.appNode);
-                Console.Title = "NodeType : " + this.appNode.type;
+                Console.Title = this.appNode.getNodeDisplayName();
                 return false;
             }
             else
@@ -137,13 +140,33 @@ namespace dc.assignment.primenumbers.models
             worker.Start();
         }
 
+        private void stopTaskDistribution()
+        {
+            this.abort = true;
+        }
+
         private void distributeTasksAync(List<Node> nodes)
         {
+            // resume 
+            this.abort = false;
+
+            // log
+            Program.log(this.appNode.id, this.appNode.name, "Task distribution started!");
+
             // until all numbers are evaluated
             int previousNumber = -1;
             int nextNumber = 0;
             while (true)
             {
+                // gate
+                if (this.abort)
+                {
+                    // log
+                    Program.log(this.appNode.id, this.appNode.name, "Task distribution aborted!");
+
+                    return;
+                }
+
                 // get next number
                 nextNumber = this.appNode.getNumbersFileHelper().getNextNumber();
 

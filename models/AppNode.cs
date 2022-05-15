@@ -101,6 +101,7 @@ namespace dc.assignment.primenumbers.models
                         // one or more Proposers are dead
                         if (this.learner.proposersCount != proposerNodes.Count)
                         {
+                            Console.WriteLine("Proposers Count is wrong!!!");
                             this.reassignRoles();
                         }
                     }
@@ -242,7 +243,7 @@ namespace dc.assignment.primenumbers.models
                     case "Proposer":
                         this.type = AppNodeType.Proposer;
                         ConsulServiceRegister.setNode(this);
-                        Console.Title = "NodeType : " + this.type + " ID : " + this.id + " Address : " + this.address;
+                        Console.Title = this.getNodeDisplayName();
 
                         // log
                         Program.log(this.id, this.name, "Node role changed to a Proposer.");
@@ -251,7 +252,7 @@ namespace dc.assignment.primenumbers.models
                     case "Acceptor":
                         this.type = AppNodeType.Acceptor;
                         ConsulServiceRegister.setNode(this);
-                        Console.Title = "NodeType : " + this.type + " ID : " + this.id + " Address : " + this.address;
+                        Console.Title = this.getNodeDisplayName();
 
                         // log
                         Program.log(this.id, this.name, "Node role changed to an Acceptor.");
@@ -260,7 +261,7 @@ namespace dc.assignment.primenumbers.models
                     case "Learner":
                         this.type = AppNodeType.Learner;
                         ConsulServiceRegister.setNode(this);
-                        Console.Title = "NodeType : " + this.type + " ID : " + this.id + " Address : " + this.address;
+                        Console.Title = this.getNodeDisplayName();
 
                         // log
                         Program.log(this.id, this.name, "Node role changed to a Learner.");
@@ -360,8 +361,15 @@ namespace dc.assignment.primenumbers.models
             if (this.proposer.isEvaluating())
             {
                 this.proposer.abort();
+
+                // log
+                Program.log(this.id, this.name, "Old task aborted!");
+
                 return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Evaluation aborted." });
             }
+
+            // log
+            Program.log(this.id, this.name, "Old task aborted! (...was idle)");
 
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Already idle." });
         }
@@ -427,6 +435,9 @@ namespace dc.assignment.primenumbers.models
         {
             // reset
             this.learner.reset();
+
+            // log
+            Program.log(this.id, this.name, "Learning restarted!");
 
             return new KHTTPResponse(HTTPResponseCode.OK_200, new { message = "Successful." });
         }

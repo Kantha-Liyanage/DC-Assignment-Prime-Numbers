@@ -33,6 +33,9 @@ namespace dc.assignment.primenumbers.models
             learnCount++;
 
             // log
+            Program.log(this.appNode.id, this.appNode.name, "LearnCount: " + learnCount);
+
+            // log
             Program.log(this.appNode.id, this.appNode.name, "A result received for number: " + number + " as " + (isPrime ? "Prime." : "Not Prime."));
 
             if (learnCount == proposersCount)
