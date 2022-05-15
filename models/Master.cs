@@ -20,7 +20,7 @@ namespace dc.assignment.primenumbers.models
             // Master
             this.appNode.type = AppNodeType.Master;
             ConsulServiceRegister.setNode(this.appNode);
-            Console.Title = "NodeType : " + this.appNode.type;
+            Console.Title = "NodeType : " + this.appNode.type + " ID : " + this.appNode.id + " Address : " + this.appNode.address;
 
             // check the consistancy of the ecosystem
             List<Node> nodes = checkEcosystem();

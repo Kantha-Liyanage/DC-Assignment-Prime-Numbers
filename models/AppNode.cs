@@ -242,7 +242,7 @@ namespace dc.assignment.primenumbers.models
                     case "Proposer":
                         this.type = AppNodeType.Proposer;
                         ConsulServiceRegister.setNode(this);
-                        Console.Title = "NodeType : " + this.type;
+                        Console.Title = "NodeType : " + this.type + " ID : " + this.id + " Address : " + this.address;
 
                         // log
                         Program.log(this.id, this.name, "Node role changed to a Proposer.");
@@ -251,7 +251,7 @@ namespace dc.assignment.primenumbers.models
                     case "Acceptor":
                         this.type = AppNodeType.Acceptor;
                         ConsulServiceRegister.setNode(this);
-                        Console.Title = "NodeType : " + this.type;
+                        Console.Title = "NodeType : " + this.type + " ID : " + this.id + " Address : " + this.address;
 
                         // log
                         Program.log(this.id, this.name, "Node role changed to an Acceptor.");
@@ -260,7 +260,7 @@ namespace dc.assignment.primenumbers.models
                     case "Learner":
                         this.type = AppNodeType.Learner;
                         ConsulServiceRegister.setNode(this);
-                        Console.Title = "NodeType : " + this.type;
+                        Console.Title = "NodeType : " + this.type + " ID : " + this.id + " Address : " + this.address;
 
                         // log
                         Program.log(this.id, this.name, "Node role changed to a Learner.");
